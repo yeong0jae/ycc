@@ -63,7 +63,7 @@ export default async function FestivalPage({ params }: PageProps<"/festivals/[id
             href={festival.ticketUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex h-12 flex-1 items-center justify-center rounded-xl bg-ink font-semibold text-stub"
+            className="flex h-12 flex-1 items-center justify-center rounded-xl bg-ink font-semibold text-stub hover:bg-ink/85 transition duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100"
           >
             예매하기
           </a>
@@ -71,7 +71,7 @@ export default async function FestivalPage({ params }: PageProps<"/festivals/[id
             href={festival.officialUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex h-12 flex-1 items-center justify-center rounded-xl border-[1.5px] border-ink font-semibold"
+            className="flex h-12 flex-1 items-center justify-center rounded-xl border-[1.5px] border-ink font-semibold hover:bg-ink/5 transition duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100"
           >
             공식 사이트
           </a>
