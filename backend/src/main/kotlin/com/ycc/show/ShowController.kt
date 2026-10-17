@@ -18,12 +18,11 @@ class ShowController(
 
 	@GetMapping
 	fun list(): List<ShowResponse> =
-		showRepository.findByEndDateGreaterThanEqualOrderByStartDateAsc(LocalDate.now(clock))
+		showRepository.findUpcoming(LocalDate.now(clock))
 			.map(ShowResponse::from)
 
 	@GetMapping("/{id}")
 	fun detail(@PathVariable id: Long): ShowResponse =
-		showRepository.findById(id)
-			.map(ShowResponse::from)
-			.orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
+		showRepository.findWithFacilityById(id)?.let(ShowResponse::from)
+			?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
 }

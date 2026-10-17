@@ -31,6 +31,7 @@ class KopisParserTests {
 		assertEquals("https://ticket.yes24.com/Perf/1", detail.ticketUrl)
 		assertEquals("토요일(18:00)", detail.scheduleGuide)
 		assertEquals("전석 110,000원", detail.priceGuide)
+		assertEquals("FC000001", detail.facilityId)
 		assertFalse(detail.festival)
 	}
 
@@ -40,5 +41,14 @@ class KopisParserTests {
 
 		assertNull(detail.ticketUrl)
 		assertTrue(detail.festival)
+	}
+
+	@Test
+	fun `시설에서 주소와 좌표를 읽는다`() {
+		val facility = KopisParser.parseFacility(fixture("facility-FC000001.xml"))!!
+
+		assertEquals("서울특별시 마포구 테스트로 1", facility.address)
+		assertEquals(37.5515788, facility.latitude)
+		assertEquals(126.9198284, facility.longitude)
 	}
 }

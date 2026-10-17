@@ -49,6 +49,14 @@ class KopisClient(@Value("\${kopis.api-key:}") private val apiKey: String) {
 			.body<ByteArray>()
 	}
 
+	fun fetchFacility(facilityId: String): String = call {
+		restClient.get()
+			.uri { it.path("/prfplc/{id}").queryParam("service", apiKey).build(facilityId) }
+			.accept(MediaType.APPLICATION_XML)
+			.retrieve()
+			.body<ByteArray>()
+	}
+
 	private fun call(request: () -> ByteArray?): String {
 		var attempt = 1
 		while (true) {

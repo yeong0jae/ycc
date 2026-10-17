@@ -1,5 +1,6 @@
 package com.ycc.kopis
 
+import com.ycc.facility.Facility
 import com.ycc.show.Show
 import org.w3c.dom.Element
 import org.xml.sax.InputSource
@@ -22,6 +23,7 @@ data class KopisDetail(
 	val startDate: LocalDate,
 	val endDate: LocalDate,
 	val venue: String,
+	val facilityId: String?,
 	val posterUrl: String,
 	val ticketUrl: String?,
 	val scheduleGuide: String?,
@@ -39,6 +41,22 @@ data class KopisDetail(
 		officialUrl = null,
 		scheduleGuide = scheduleGuide?.take(500),
 		priceGuide = priceGuide?.take(2000),
+	)
+}
+
+data class KopisFacility(
+	val kopisId: String,
+	val name: String,
+	val address: String?,
+	val latitude: Double?,
+	val longitude: Double?,
+) {
+	fun toFacility() = Facility(
+		kopisId = kopisId,
+		name = name.take(200),
+		address = address?.take(300),
+		latitude = latitude,
+		longitude = longitude,
 	)
 }
 
@@ -66,11 +84,23 @@ object KopisParser {
 			startDate = LocalDate.parse(db.text("prfpdfrom"), DATE),
 			endDate = LocalDate.parse(db.text("prfpdto"), DATE),
 			venue = db.text("fcltynm").orEmpty(),
+			facilityId = db.text("mt10id"),
 			posterUrl = poster,
 			ticketUrl = db.getElementsByTagName("relateurl").item(0)?.textContent?.trim()?.ifBlank { null },
 			scheduleGuide = db.text("dtguidance"),
 			priceGuide = db.text("pcseguidance"),
 			festival = db.text("festival") == "Y",
+		)
+	}
+
+	fun parseFacility(xml: String): KopisFacility? {
+		val db = rows(xml).firstOrNull() ?: return null
+		return KopisFacility(
+			kopisId = db.text("mt10id")!!,
+			name = db.text("fcltynm")!!,
+			address = db.text("adres"),
+			latitude = db.text("la")?.toDoubleOrNull(),
+			longitude = db.text("lo")?.toDoubleOrNull(),
 		)
 	}
 

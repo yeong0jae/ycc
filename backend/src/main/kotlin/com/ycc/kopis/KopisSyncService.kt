@@ -1,5 +1,7 @@
 package com.ycc.kopis
 
+import com.ycc.facility.Facility
+import com.ycc.facility.FacilityRepository
 import com.ycc.show.ShowRepository
 import org.springframework.stereotype.Service
 import java.time.Clock
@@ -10,6 +12,7 @@ import java.time.temporal.ChronoUnit
 class KopisSyncService(
 	private val kopisClient: KopisClient,
 	private val showRepository: ShowRepository,
+	private val facilityRepository: FacilityRepository,
 	private val clock: Clock,
 ) {
 
@@ -21,12 +24,16 @@ class KopisSyncService(
 			.distinctBy { it.kopisId }
 			.toList()
 
-		val shows = summaries
+		val details = summaries
 			.filter { !it.openRun && !FAN_MEETING.containsMatchIn(it.name) }
 			.filter { ChronoUnit.DAYS.between(it.startDate, it.endDate) < MAX_DURATION_DAYS }
 			.mapNotNull { KopisParser.parseDetail(kopisClient.fetchDetail(it.kopisId)) }
 			.filterNot { it.festival }
-			.map { it.toShow() }
+
+		val facilities = details.mapNotNull { it.facilityId }.distinct().associateWith(::findOrFetchFacility)
+		val shows = details.map { detail ->
+			detail.toShow().apply { facility = detail.facilityId?.let(facilities::get) }
+		}
 
 		val keptIds = shows.map { it.kopisId }.toSet()
 		showRepository.deleteAll(showRepository.findAll().filterNot { it.kopisId in keptIds })
@@ -35,6 +42,10 @@ class KopisSyncService(
 		}
 		return shows.size
 	}
+
+	private fun findOrFetchFacility(facilityId: String): Facility? =
+		facilityRepository.findByKopisId(facilityId)
+			?: KopisParser.parseFacility(kopisClient.fetchFacility(facilityId))?.let { facilityRepository.save(it.toFacility()) }
 
 	private fun fetchAllPages(from: LocalDate, to: LocalDate, region: String): List<KopisSummary> {
 		val summaries = mutableListOf<KopisSummary>()

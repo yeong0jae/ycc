@@ -1,9 +1,13 @@
 package com.ycc.show
 
+import com.ycc.facility.Facility
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import java.time.LocalDate
 
@@ -20,6 +24,9 @@ class Show(
 	var officialUrl: String?,
 	var scheduleGuide: String?,
 	var priceGuide: String?,
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "facility_id")
+	var facility: Facility? = null,
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	val id: Long = 0,
@@ -34,5 +41,6 @@ class Show(
 		officialUrl = other.officialUrl
 		scheduleGuide = other.scheduleGuide
 		priceGuide = other.priceGuide
+		facility = other.facility
 	}
 }
