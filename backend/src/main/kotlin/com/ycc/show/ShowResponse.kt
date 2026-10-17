@@ -9,9 +9,10 @@ data class ShowResponse(
 	val endDate: LocalDate,
 	val venue: String,
 	val posterUrl: String,
-	val lineup: List<String>,
-	val ticketUrl: String,
-	val officialUrl: String,
+	val ticketUrl: String?,
+	val officialUrl: String?,
+	val scheduleGuide: String?,
+	val priceGuide: String?,
 ) {
 	companion object {
 		fun from(show: Show) = ShowResponse(
@@ -21,9 +22,10 @@ data class ShowResponse(
 			endDate = show.endDate,
 			venue = show.venue,
 			posterUrl = show.posterUrl,
-			lineup = show.lineup.split(",").map { it.trim() },
 			ticketUrl = show.ticketUrl,
 			officialUrl = show.officialUrl,
+			scheduleGuide = show.scheduleGuide,
+			priceGuide = show.priceGuide,
 		)
 	}
 }

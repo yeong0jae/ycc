@@ -10,15 +10,29 @@ import java.time.LocalDate
 @Entity
 @Table(name = "shows")
 class Show(
-	val name: String,
-	val startDate: LocalDate,
-	val endDate: LocalDate,
-	val venue: String,
-	val posterUrl: String,
-	val lineup: String,
-	val ticketUrl: String,
-	val officialUrl: String,
+	val kopisId: String,
+	var name: String,
+	var startDate: LocalDate,
+	var endDate: LocalDate,
+	var venue: String,
+	var posterUrl: String,
+	var ticketUrl: String?,
+	var officialUrl: String?,
+	var scheduleGuide: String?,
+	var priceGuide: String?,
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	val id: Long = 0,
-)
+) {
+	fun update(other: Show) {
+		name = other.name
+		startDate = other.startDate
+		endDate = other.endDate
+		venue = other.venue
+		posterUrl = other.posterUrl
+		ticketUrl = other.ticketUrl
+		officialUrl = other.officialUrl
+		scheduleGuide = other.scheduleGuide
+		priceGuide = other.priceGuide
+	}
+}
