@@ -1,8 +1,8 @@
-package com.ycc.festival
+package com.ycc.show
 
 import java.time.LocalDate
 
-data class FestivalResponse(
+data class ShowResponse(
 	val id: Long,
 	val name: String,
 	val startDate: LocalDate,
@@ -14,16 +14,16 @@ data class FestivalResponse(
 	val officialUrl: String,
 ) {
 	companion object {
-		fun from(festival: Festival) = FestivalResponse(
-			id = festival.id,
-			name = festival.name,
-			startDate = festival.startDate,
-			endDate = festival.endDate,
-			venue = festival.venue,
-			posterUrl = festival.posterUrl,
-			lineup = festival.lineup.split(",").map { it.trim() },
-			ticketUrl = festival.ticketUrl,
-			officialUrl = festival.officialUrl,
+		fun from(show: Show) = ShowResponse(
+			id = show.id,
+			name = show.name,
+			startDate = show.startDate,
+			endDate = show.endDate,
+			venue = show.venue,
+			posterUrl = show.posterUrl,
+			lineup = show.lineup.split(",").map { it.trim() },
+			ticketUrl = show.ticketUrl,
+			officialUrl = show.officialUrl,
 		)
 	}
 }

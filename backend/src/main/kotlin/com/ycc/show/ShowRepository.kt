@@ -1,8 +1,8 @@
-package com.ycc.festival
+package com.ycc.show
 
 import org.springframework.data.jpa.repository.JpaRepository
 import java.time.LocalDate
 
-interface FestivalRepository : JpaRepository<Festival, Long> {
-	fun findByEndDateGreaterThanEqualOrderByStartDateAsc(date: LocalDate): List<Festival>
+interface ShowRepository : JpaRepository<Show, Long> {
+	fun findByEndDateGreaterThanEqualOrderByStartDateAsc(date: LocalDate): List<Show>
 }

@@ -1,13 +1,15 @@
-package com.ycc.festival
+package com.ycc.show
 
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.Table
 import java.time.LocalDate
 
 @Entity
-class Festival(
+@Table(name = "shows")
+class Show(
 	val name: String,
 	val startDate: LocalDate,
 	val endDate: LocalDate,

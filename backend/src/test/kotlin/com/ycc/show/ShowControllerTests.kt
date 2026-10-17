@@ -1,4 +1,4 @@
-package com.ycc.festival
+package com.ycc.show
 
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,7 +15,7 @@ import java.time.ZoneId
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class FestivalControllerTests(@Autowired private val mockMvc: MockMvc) {
+class ShowControllerTests(@Autowired private val mockMvc: MockMvc) {
 
 	@TestConfiguration
 	class FixedClockConfig {
@@ -25,27 +25,27 @@ class FestivalControllerTests(@Autowired private val mockMvc: MockMvc) {
 	}
 
 	@Test
-	fun `목록은 종료된 페스티벌을 빼고 시작일 순으로 준다`() {
-		mockMvc.get("/api/festivals").andExpect {
+	fun `목록은 종료된 공연을 빼고 시작일 순으로 준다`() {
+		mockMvc.get("/api/shows").andExpect {
 			status { isOk() }
 			jsonPath("$.length()") { value(7) }
-			jsonPath("$[0].name") { value("서울 인디 나잇") }
-			jsonPath("$[1].name") { value("그린 캠핑 뮤직 페스타") }
+			jsonPath("$[0].name") { value("해파랑 밴드 전국투어 서울") }
+			jsonPath("$[1].name") { value("Neon Harbor 내한 공연") }
 		}
 	}
 
 	@Test
 	fun `상세는 라인업을 목록으로 준다`() {
-		mockMvc.get("/api/festivals/4").andExpect {
+		mockMvc.get("/api/shows/4").andExpect {
 			status { isOk() }
-			jsonPath("$.lineup[0]") { value("밴드 I") }
-			jsonPath("$.lineup.length()") { value(3) }
+			jsonPath("$.lineup[0]") { value("해파랑 밴드") }
+			jsonPath("$.lineup.length()") { value(2) }
 		}
 	}
 
 	@Test
-	fun `없는 페스티벌은 404`() {
-		mockMvc.get("/api/festivals/999").andExpect {
+	fun `없는 공연은 404`() {
+		mockMvc.get("/api/shows/999").andExpect {
 			status { isNotFound() }
 		}
 	}
