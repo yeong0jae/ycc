@@ -25,11 +25,16 @@ export async function getFestival(id: string): Promise<Festival | null> {
   return res.json();
 }
 
-// "2026-10-31" ~ "2026-11-01" → "10.31 – 11.1"
 export function formatPeriod(startDate: string, endDate: string) {
   const fmt = (date: string) => {
     const [, m, d] = date.split("-").map(Number);
     return `${m}.${d}`;
   };
-  return startDate === endDate ? fmt(startDate) : `${fmt(startDate)} – ${fmt(endDate)}`;
+  return startDate === endDate ? fmt(startDate) : `${fmt(startDate)} — ${fmt(endDate)}`;
+}
+
+export function formatDday(startDate: string) {
+  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
+  const days = (Date.parse(startDate) - Date.parse(today)) / 86_400_000;
+  return days <= 0 ? "NOW" : `D-${days}`;
 }

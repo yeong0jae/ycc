@@ -1,24 +1,18 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-ink: #111318;
+  --color-paper: #f2f3f5;
+  --color-stub: #ffffff;
+  --color-lime: #c6f432;
+  --color-muted: #5b606b;
+  --color-line: #d9dce1;
+  --font-display: var(--font-black-han-sans);
+  --font-sans: var(--font-plex-sans-kr);
+  --font-mono: var(--font-plex-mono);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  background: var(--color-paper);
+  color: var(--color-ink);
 }

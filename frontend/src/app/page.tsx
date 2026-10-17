@@ -1,30 +1,48 @@
 import Link from "next/link";
-import { formatPeriod, getFestivals } from "@/lib/festival";
+import { formatDday, formatPeriod, getFestivals } from "@/lib/festival";
 
 export default async function Home() {
   const festivals = await getFestivals();
 
   return (
-    <main className="mx-auto w-full max-w-2xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-bold">다가오는 페스티벌</h1>
+    <main className="mx-auto w-full max-w-2xl px-4 py-6">
+      <header className="mb-6 px-1 pt-2">
+        <p className="font-mono text-[13px] tracking-[0.12em] text-muted">
+          UPCOMING · {String(festivals.length).padStart(2, "0")}
+        </p>
+        <h1 className="font-display text-4xl leading-tight">다가오는 페스티벌</h1>
+      </header>
       {festivals.length === 0 ? (
-        <p className="text-neutral-500">예정된 페스티벌이 없어요.</p>
+        <p className="px-1 text-muted">예정된 페스티벌이 없어요.</p>
       ) : (
-        <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <ul className="grid gap-3 sm:grid-cols-2">
           {festivals.map((festival) => (
             <li key={festival.id}>
-              <Link href={`/festivals/${festival.id}`} className="block">
-                {/* 포스터는 여러 외부 사이트에서 오므로 next/image 대신 img 사용 */}
+              <Link
+                href={`/festivals/${festival.id}`}
+                className="relative flex min-h-37 overflow-hidden rounded-2xl bg-stub"
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={festival.posterUrl}
                   alt={`${festival.name} 포스터`}
-                  className="aspect-[3/4] w-full rounded-lg object-cover"
+                  className="w-27 shrink-0 object-cover"
                 />
-                <p className="mt-2 font-semibold leading-snug">{festival.name}</p>
-                <p className="text-sm text-neutral-500">
-                  {formatPeriod(festival.startDate, festival.endDate)} · {festival.venue}
-                </p>
+                <div className="my-3.5 border-l-2 border-dashed border-line" />
+                <div className="absolute -top-2.5 left-24.75 size-5 rounded-full bg-paper" />
+                <div className="absolute -bottom-2.5 left-24.75 size-5 rounded-full bg-paper" />
+                <div className="flex min-w-0 flex-1 flex-col justify-between gap-3 p-4">
+                  <div>
+                    <p className="font-display text-xl leading-snug">{festival.name}</p>
+                    <p className="text-sm text-muted">{festival.venue}</p>
+                  </div>
+                  <div className="flex items-center justify-between font-mono text-[13px]">
+                    <span>{formatPeriod(festival.startDate, festival.endDate)}</span>
+                    <span className="rounded-full bg-ink px-2.5 py-0.5 text-stub">
+                      {formatDday(festival.startDate)}
+                    </span>
+                  </div>
+                </div>
               </Link>
             </li>
           ))}
