@@ -1,4 +1,3 @@
--- 더미 데이터. 이름·라인업은 모두 가상이며, 종료된 페스티벌(2026-10-18 기준)을 섞어 둔다.
 INSERT INTO festival (name, start_date, end_date, venue, poster_url, lineup, ticket_url, official_url) VALUES
 ('한강 썸머 사운드', '2026-08-08', '2026-08-09', '난지한강공원', 'https://picsum.photos/seed/ycc1/600/800', '밴드 A, 밴드 B, 싱어 C', 'https://example.com/tickets/1', 'https://example.com/festivals/1'),
 ('부산 오션 록 페스티벌', '2026-09-26', '2026-09-27', '부산 삼락생태공원', 'https://picsum.photos/seed/ycc2/600/800', '밴드 D, 밴드 E, 밴드 F', 'https://example.com/tickets/2', 'https://example.com/festivals/2'),

@@ -9,7 +9,6 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
     healthcheck:
-      # 127.0.0.1(TCP)로 확인해야 첫 실행 초기화 중의 임시 서버를 정상으로 오인하지 않는다
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-proot"]
       interval: 5s
       retries: 20

@@ -16,7 +16,6 @@ class FestivalController(
 	private val clock: Clock,
 ) {
 
-	// 종료되지 않은 페스티벌만, 시작일이 빠른 순으로
 	@GetMapping
 	fun list(): List<FestivalResponse> =
 		festivalRepository.findByEndDateGreaterThanEqualOrderByStartDateAsc(LocalDate.now(clock))

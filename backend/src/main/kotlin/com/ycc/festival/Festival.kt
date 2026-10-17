@@ -13,7 +13,6 @@ class Festival(
 	val endDate: LocalDate,
 	val venue: String,
 	val posterUrl: String,
-	// 쉼표로 구분한 아티스트 목록
 	val lineup: String,
 	val ticketUrl: String,
 	val officialUrl: String,
