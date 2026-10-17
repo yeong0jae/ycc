@@ -1,9 +1,14 @@
+import { ViewToggle } from "@/components/view-toggle";
+
 export default function Loading() {
   return (
     <main className="mx-auto w-full max-w-2xl px-4 py-6" aria-busy="true">
-      <header className="mb-6 px-1 pt-2">
-        <div className="h-[1lh] w-24 animate-pulse rounded bg-line text-[13px] motion-reduce:animate-none" />
-        <h1 className="font-display text-4xl leading-tight">다가오는 콘서트</h1>
+      <header className="mb-6 flex items-end justify-between gap-3 px-1 pt-2">
+        <div>
+          <div className="h-[1lh] w-24 animate-pulse rounded bg-line text-[13px] motion-reduce:animate-none" />
+          <h1 className="font-display text-4xl leading-tight">다가오는 콘서트</h1>
+        </div>
+        <ViewToggle current="list" />
       </header>
       <ul className="grid gap-3 sm:grid-cols-2">
         {Array.from({ length: 4 }, (_, i) => (

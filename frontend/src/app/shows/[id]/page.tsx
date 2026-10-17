@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ViewTransition } from "react";
-import { formatPeriod, getShow } from "@/lib/show";
+import { formatPeriod } from "@/lib/format";
+import { getShow } from "@/lib/show";
 
 export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
   const { id } = await params;
@@ -47,7 +48,33 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
             </div>
             <div>
               <dt className="text-[13px] text-muted">장소</dt>
-              <dd>{show.venue}</dd>
+              <dd>
+                {show.facilityId ? (
+                  <Link
+                    href={`/map?facility=${show.facilityId}`}
+                    className="inline-flex items-center gap-1 underline decoration-line decoration-2 underline-offset-4"
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                      className="shrink-0"
+                    >
+                      <path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z" />
+                      <circle cx="12" cy="10" r="2.5" />
+                    </svg>
+                    {show.venue}
+                  </Link>
+                ) : (
+                  show.venue
+                )}
+              </dd>
             </div>
             {show.scheduleGuide && (
               <div className="col-span-2">

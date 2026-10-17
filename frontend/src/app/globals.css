@@ -10,6 +10,13 @@
   --font-display: var(--font-black-han-sans);
   --font-sans: var(--font-plex-sans-kr);
   --font-mono: var(--font-plex-mono);
+  --animate-marker-pop: marker-pop 260ms ease-out;
+
+  @keyframes marker-pop {
+    50% {
+      transform: translateY(-6px) scale(1.06);
+    }
+  }
 }
 
 body {
@@ -26,6 +33,20 @@ body {
 ::view-transition-new(.morph) {
   height: 100%;
   object-fit: cover;
+}
+
+::view-transition-old(.view-fade) {
+  animation: 150ms ease-out both view-fade reverse;
+}
+
+::view-transition-new(.view-fade) {
+  animation: 200ms ease-in 100ms both view-fade;
+}
+
+@keyframes view-fade {
+  from {
+    opacity: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
