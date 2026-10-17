@@ -30,6 +30,7 @@ services:
     build: ./frontend
     environment:
       API_URL: http://backend:8080
+      KAKAO_MAP_KEY: ${KAKAO_MAP_KEY}
     ports:
       - "3000:3000"
     depends_on:
