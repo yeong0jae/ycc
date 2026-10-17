@@ -9,9 +9,10 @@ export type Show = {
   endDate: string;
   venue: string;
   posterUrl: string;
-  lineup: string[];
-  ticketUrl: string;
-  officialUrl: string;
+  ticketUrl: string | null;
+  officialUrl: string | null;
+  scheduleGuide: string | null;
+  priceGuide: string | null;
 };
 
 export async function getShows(): Promise<Show[]> {
@@ -30,9 +31,10 @@ export async function getShow(id: string): Promise<Show | null> {
 }
 
 export function formatPeriod(startDate: string, endDate: string) {
+  const withYear = startDate.slice(0, 4) !== endDate.slice(0, 4);
   const fmt = (date: string) => {
-    const [, m, d] = date.split("-").map(Number);
-    return `${m}.${d}`;
+    const [y, m, d] = date.split("-").map(Number);
+    return withYear ? `${y}.${m}.${d}` : `${m}.${d}`;
   };
   return startDate === endDate ? fmt(startDate) : `${fmt(startDate)} — ${fmt(endDate)}`;
 }

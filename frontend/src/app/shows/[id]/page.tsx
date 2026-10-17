@@ -49,33 +49,49 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
               <dt className="text-[13px] text-muted">장소</dt>
               <dd>{show.venue}</dd>
             </div>
-            <div className="col-span-2">
-              <dt className="text-[13px] text-muted">출연</dt>
-              <dd>{show.lineup.join(" · ")}</dd>
-            </div>
+            {show.scheduleGuide && (
+              <div className="col-span-2">
+                <dt className="text-[13px] text-muted">회차</dt>
+                <dd>{show.scheduleGuide}</dd>
+              </div>
+            )}
+            {show.priceGuide && (
+              <div className="col-span-2">
+                <dt className="text-[13px] text-muted">가격</dt>
+                <dd>{show.priceGuide}</dd>
+              </div>
+            )}
           </dl>
         </div>
-        <div className="mx-4.5 border-t-2 border-dashed border-line" />
-        <div className="absolute -left-2.5 bottom-17.5 size-5 rounded-full bg-paper" />
-        <div className="absolute -right-2.5 bottom-17.5 size-5 rounded-full bg-paper" />
-        <div className="flex gap-2 px-4 pt-3.5 pb-4">
-          <a
-            href={show.ticketUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex h-12 flex-1 items-center justify-center rounded-xl bg-ink font-semibold text-stub hover:bg-ink/85 transition duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100"
-          >
-            예매하기
-          </a>
-          <a
-            href={show.officialUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex h-12 flex-1 items-center justify-center rounded-xl border-[1.5px] border-ink font-semibold hover:bg-ink/5 transition duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100"
-          >
-            공식 사이트
-          </a>
-        </div>
+        {(show.ticketUrl || show.officialUrl) && (
+          <>
+            <div className="mx-4.5 border-t-2 border-dashed border-line" />
+            <div className="absolute -left-2.5 bottom-17.5 size-5 rounded-full bg-paper" />
+            <div className="absolute -right-2.5 bottom-17.5 size-5 rounded-full bg-paper" />
+            <div className="flex gap-2 px-4 pt-3.5 pb-4">
+              {show.ticketUrl && (
+                <a
+                  href={show.ticketUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-12 flex-1 items-center justify-center rounded-xl bg-ink font-semibold text-stub hover:bg-ink/85 transition duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100"
+                >
+                  예매하기
+                </a>
+              )}
+              {show.officialUrl && (
+                <a
+                  href={show.officialUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-12 flex-1 items-center justify-center rounded-xl border-[1.5px] border-ink font-semibold hover:bg-ink/5 transition duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100"
+                >
+                  공식 사이트
+                </a>
+              )}
+            </div>
+          </>
+        )}
       </article>
     </main>
   );
