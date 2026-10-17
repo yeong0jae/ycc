@@ -2,7 +2,7 @@ import { cacheLife } from "next/cache";
 
 const API_URL = process.env.API_URL ?? "http://localhost:8080";
 
-export type Festival = {
+export type Show = {
   id: number;
   name: string;
   startDate: string;
@@ -14,18 +14,18 @@ export type Festival = {
   officialUrl: string;
 };
 
-export async function getFestivals(): Promise<Festival[]> {
-  const res = await fetch(`${API_URL}/api/festivals`);
-  if (!res.ok) throw new Error(`페스티벌 목록 조회 실패: ${res.status}`);
+export async function getShows(): Promise<Show[]> {
+  const res = await fetch(`${API_URL}/api/shows`);
+  if (!res.ok) throw new Error(`공연 목록 조회 실패: ${res.status}`);
   return res.json();
 }
 
-export async function getFestival(id: string): Promise<Festival | null> {
+export async function getShow(id: string): Promise<Show | null> {
   "use cache";
   cacheLife("minutes");
-  const res = await fetch(`${API_URL}/api/festivals/${encodeURIComponent(id)}`);
+  const res = await fetch(`${API_URL}/api/shows/${encodeURIComponent(id)}`);
   if (res.status === 404) return null;
-  if (!res.ok) throw new Error(`페스티벌 조회 실패: ${res.status}`);
+  if (!res.ok) throw new Error(`공연 조회 실패: ${res.status}`);
   return res.json();
 }
 
