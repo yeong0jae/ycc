@@ -19,6 +19,7 @@ services:
       DB_URL: jdbc:mysql://mysql:3306/ycc?allowPublicKeyRetrieval=true&useSSL=false
       DB_USERNAME: root
       DB_PASSWORD: root
+      KOPIS_API_KEY: ${KOPIS_API_KEY}
     ports:
       - "8080:8080"
     depends_on:
