@@ -1,3 +1,5 @@
+import { cacheLife } from "next/cache";
+
 const API_URL = process.env.API_URL ?? "http://localhost:8080";
 
 export type Festival = {
@@ -19,6 +21,8 @@ export async function getFestivals(): Promise<Festival[]> {
 }
 
 export async function getFestival(id: string): Promise<Festival | null> {
+  "use cache";
+  cacheLife("minutes");
   const res = await fetch(`${API_URL}/api/festivals/${encodeURIComponent(id)}`);
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(`페스티벌 조회 실패: ${res.status}`);

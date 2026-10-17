@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ViewTransition } from "react";
 import { formatPeriod, getFestival } from "@/lib/festival";
 
 export default async function FestivalPage({ params }: PageProps<"/festivals/[id]">) {
@@ -29,12 +30,14 @@ export default async function FestivalPage({ params }: PageProps<"/festivals/[id
         목록
       </Link>
       <article className="relative mt-4 overflow-hidden rounded-[20px] bg-stub">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={festival.posterUrl}
-          alt={`${festival.name} 포스터`}
-          className="aspect-[3/4] w-full object-cover"
-        />
+        <ViewTransition name={`poster-${festival.id}`} share="morph" default="none">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={festival.posterUrl}
+            alt={`${festival.name} 포스터`}
+            className="aspect-[3/4] w-full object-cover"
+          />
+        </ViewTransition>
         <div className="flex flex-col gap-4 p-5">
           <h1 className="font-display text-3xl leading-tight">{festival.name}</h1>
           <dl className="grid grid-cols-2 gap-3 text-[15px]">
