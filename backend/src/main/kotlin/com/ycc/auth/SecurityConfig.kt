@@ -28,11 +28,10 @@ class SecurityConfig(
 				it.requestMatchers(
 					"/api/me/**",
 					"/api/logout",
+					"/api/home",
 					"/api/logs/**",
-					"/api/feed/**",
-					"/api/users/**",
 					"/api/shows/*/me",
-					"/api/shows/*/plan",
+					"/api/shows/*/attendances/**",
 					"/api/shows/*/log/**",
 				).authenticated()
 				it.anyRequest().permitAll()

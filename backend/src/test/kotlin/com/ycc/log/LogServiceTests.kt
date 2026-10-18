@@ -1,5 +1,7 @@
 package com.ycc.log
 
+import com.ycc.attendance.AttendanceRepository
+import com.ycc.attendance.AttendanceStatus
 import com.ycc.show.Show
 import com.ycc.show.ShowRepository
 import com.ycc.user.Gender
@@ -31,8 +33,7 @@ class LogServiceTests(
 	@Autowired private val showRepository: ShowRepository,
 	@Autowired private val logRepository: ShowLogRepository,
 	@Autowired private val clipRepository: ShowLogClipRepository,
-	@Autowired private val planRepository: ShowPlanRepository,
-	@Autowired private val signalRepository: LogSignalRepository,
+	@Autowired private val attendanceRepository: AttendanceRepository,
 	@Autowired private val storage: MediaStorage,
 ) {
 
@@ -57,7 +58,6 @@ class LogServiceTests(
 	private lateinit var me: User
 	private lateinit var other: User
 	private lateinit var pastShow: Show
-	private lateinit var nextShow: Show
 
 	private fun clip(seconds: Int) = MockMultipartFile("file", "clip.mp4", "video/mp4", ByteArray(seconds * 10))
 
@@ -67,10 +67,9 @@ class LogServiceTests(
 
 	@AfterEach
 	fun clear() {
-		signalRepository.deleteAll()
+		attendanceRepository.deleteAll()
 		clipRepository.deleteAll()
 		logRepository.deleteAll()
-		planRepository.deleteAll()
 		showRepository.deleteAll()
 		userRepository.deleteAll()
 	}
@@ -81,12 +80,11 @@ class LogServiceTests(
 		me = userRepository.save(User(kakaoId = 1, nickname = "노을빛", gender = Gender.FEMALE))
 		other = userRepository.save(User(kakaoId = 2, nickname = "새벽세시", gender = Gender.MALE))
 		pastShow = show("PF1", "2026-10-01")
-		nextShow = show("PF2", "2099-12-31")
 	}
 
-	private fun publish(user: User, show: Show, visibility: Visibility = Visibility.PUBLIC) {
+	private fun publish(user: User, show: Show) {
 		logService.uploadClip(user, show.id, Moment.ENTRY, clip(3))
-		logService.publish(user, show.id, PublishLogRequest("바다로", "좋았다", visibility))
+		logService.publish(user, show.id, PublishLogRequest("바다로", "좋았다"))
 	}
 
 	@Test
@@ -104,7 +102,7 @@ class LogServiceTests(
 		logService.uploadClip(me, pastShow.id, Moment.GOODS, clip(3))
 		logService.uploadClip(me, pastShow.id, Moment.AFTER, clip(2))
 
-		val log = logService.publish(me, pastShow.id, PublishLogRequest(" 바다로 ", "", Visibility.PUBLIC))
+		val log = logService.publish(me, pastShow.id, PublishLogRequest(" 바다로 ", ""))
 
 		assertEquals(LogStatus.READY, log.status)
 		assertEquals("바다로", log.song)
@@ -122,7 +120,7 @@ class LogServiceTests(
 		val draft = logService.uploadClip(me, pastShow.id, Moment.ENTRY, clip(2))
 
 		assertEquals(listOf(Moment.GOODS, Moment.ENTRY, Moment.BEFORE_SHOW, Moment.AFTER), draft.clips.map { it.moment })
-		val log = logService.publish(me, pastShow.id, PublishLogRequest(null, null, Visibility.PUBLIC))
+		val log = logService.publish(me, pastShow.id, PublishLogRequest(null, null))
 		assertEquals(
 			"merged 4: goods,entry,before_show,after",
 			Files.readString(logService.mediaFile(me, log.id, thumbnail = false)),
@@ -130,10 +128,17 @@ class LogServiceTests(
 	}
 
 	@Test
-	fun `내 로그를 지우면 영상과 나도 있었어 신호가 사라지고 다시 남길 수 있다`() {
+	fun `로그를 남기면 그 공연이 다녀옴으로 기록된다`() {
 		publish(me, pastShow)
-		publish(other, pastShow)
-		logService.signal(other, me.id, pastShow.id, SignalKind.WAS_THERE)
+
+		val attendance = attendanceRepository.findByUserIdAndShowIdOrderByShowDate(me.id, pastShow.id).single()
+		assertEquals(pastShow.startDate, attendance.showDate)
+		assertEquals(AttendanceStatus.ATTENDED, attendance.status)
+	}
+
+	@Test
+	fun `내 로그를 지우면 영상이 사라지고 다시 남길 수 있다`() {
+		publish(me, pastShow)
 		val log = logRepository.findByUserIdAndShowId(me.id, pastShow.id)!!
 		val video = logService.mediaFile(me, log.id, thumbnail = false)
 
@@ -142,52 +147,16 @@ class LogServiceTests(
 
 		assertFalse(Files.exists(video))
 		assertNull(logRepository.findByUserIdAndShowId(me.id, pastShow.id))
-		assertEquals(0, signalRepository.count())
 		logService.uploadClip(me, pastShow.id, Moment.ENTRY, clip(2))
 	}
 
 	@Test
-	fun `나만 보기 로그는 다른 사람에게 보이지 않는다`() {
-		publish(me, pastShow, Visibility.PRIVATE)
+	fun `로그는 남긴 사람만 볼 수 있다`() {
+		publish(me, pastShow)
 		val logId = logRepository.findByUserIdAndShowId(me.id, pastShow.id)!!.id
 
-		assertEquals(1, logService.logsOf(me, me.id).size)
-		assertEquals(0, logService.logsOf(other, me.id).size)
+		assertEquals(1, logService.myLogs(me).size)
+		assertEquals(0, logService.myLogs(other).size)
 		assertThrows<ResponseStatusException> { logService.mediaFile(other, logId, thumbnail = false) }
-	}
-
-	@Test
-	fun `다녀온 공연 피드에는 같은 공연의 다른 사람 공개 로그가 보인다`() {
-		publish(me, pastShow)
-		publish(other, pastShow)
-
-		val item = logService.pastFeed(me).single()
-		assertEquals(pastShow.id, item.show.id)
-		assertEquals(listOf("새벽세시"), item.people.map { it.nickname })
-	}
-
-	@Test
-	fun `나도 거기 있었어는 둘 다 그 공연 로그가 있어야 보낼 수 있다`() {
-		publish(me, pastShow)
-
-		assertThrows<ResponseStatusException> { logService.signal(me, other.id, pastShow.id, SignalKind.WAS_THERE) }
-		publish(other, pastShow)
-		logService.signal(me, other.id, pastShow.id, SignalKind.WAS_THERE)
-		assertTrue(logService.pastFeed(me).single().people.single().wasThereSent)
-	}
-
-	@Test
-	fun `다음엔 같이는 서로 눌렀을 때만 연결된다`() {
-		logService.plan(me, nextShow.id)
-		logService.plan(other, nextShow.id)
-
-		logService.signal(me, other.id, nextShow.id, SignalKind.NEXT_TOGETHER)
-		val mineOnly = logService.nextFeed(me).single().people.single()
-		assertTrue(mineOnly.nextTogetherSent)
-		assertFalse(mineOnly.nextTogetherMatched)
-		assertFalse(logService.nextFeed(other).single().people.single().nextTogetherMatched)
-
-		logService.signal(other, me.id, nextShow.id, SignalKind.NEXT_TOGETHER)
-		assertTrue(logService.nextFeed(me).single().people.single().nextTogetherMatched)
 	}
 }

@@ -13,7 +13,9 @@ class LogControllerTests(@Autowired private val mockMvc: MockMvc) {
 
 	@Test
 	fun `로그 API는 로그인이 필요하다`() {
-		mockMvc.get("/api/feed/past").andExpect { status { isUnauthorized() } }
+		mockMvc.get("/api/me/logs").andExpect { status { isUnauthorized() } }
 		mockMvc.get("/api/logs/1/video").andExpect { status { isUnauthorized() } }
+		mockMvc.get("/api/home").andExpect { status { isUnauthorized() } }
+		mockMvc.get("/api/me/records").andExpect { status { isUnauthorized() } }
 	}
 }

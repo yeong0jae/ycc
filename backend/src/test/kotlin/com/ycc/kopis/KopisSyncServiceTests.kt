@@ -1,9 +1,13 @@
 package com.ycc.kopis
 
+import com.ycc.attendance.Attendance
+import com.ycc.attendance.AttendanceRepository
+import com.ycc.attendance.AttendanceStatus
 import com.ycc.facility.FacilityRepository
 import com.ycc.log.ShowLogRepository
-import com.ycc.log.ShowPlanRepository
 import com.ycc.show.ShowRepository
+import com.ycc.user.User
+import com.ycc.user.UserRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,7 +20,8 @@ import kotlin.test.assertEquals
 class KopisSyncServiceTests(
 	@Autowired private val showRepository: ShowRepository,
 	@Autowired private val facilityRepository: FacilityRepository,
-	@Autowired private val planRepository: ShowPlanRepository,
+	@Autowired private val attendanceRepository: AttendanceRepository,
+	@Autowired private val userRepository: UserRepository,
 	@Autowired private val logRepository: ShowLogRepository,
 	@Autowired private val clock: Clock,
 ) {
@@ -36,10 +41,12 @@ class KopisSyncServiceTests(
 
 	private var facilityCalls = 0
 
-	private val syncService by lazy { KopisSyncService(fakeClient, showRepository, facilityRepository, planRepository, logRepository, clock) }
+	private val syncService by lazy { KopisSyncService(fakeClient, showRepository, facilityRepository, attendanceRepository, logRepository, clock) }
 
 	@BeforeEach
 	fun clear() {
+		attendanceRepository.deleteAll()
+		userRepository.deleteAll()
 		showRepository.deleteAll()
 		facilityRepository.deleteAll()
 	}
@@ -71,6 +78,18 @@ class KopisSyncServiceTests(
 		syncService.sync()
 
 		assertEquals(listOf("PF000001", "PF000004", "PF888888"), showRepository.findAll().map { it.kopisId }.sorted())
+	}
+
+	@Test
+	fun `관람 기록이 있는 앞으로의 공연은 동기화 결과에 없어도 남긴다`() {
+		val stale = KopisParser.parseDetail(javaClass.getResource("/kopis/detail-PF000004.xml")!!.readText())!!
+		val show = showRepository.save(stale.copy(kopisId = "PF999999").toShow())
+		val user = userRepository.save(User(kakaoId = 1))
+		attendanceRepository.save(Attendance(user, show, show.startDate, AttendanceStatus.GOING))
+
+		syncService.sync()
+
+		assertEquals(listOf("PF000001", "PF000004", "PF999999"), showRepository.findAll().map { it.kopisId }.sorted())
 	}
 
 	@Test

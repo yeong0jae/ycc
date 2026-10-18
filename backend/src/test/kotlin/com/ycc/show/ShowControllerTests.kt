@@ -62,13 +62,54 @@ class ShowControllerTests(
 	}
 
 	@Test
-	fun `목록은 최근 3개월 안에 끝난 공연부터 시작일 순으로 준다`() {
+	fun `다가오는 공연은 아직 시작하지 않은 공연을 시작일 순으로 준다`() {
 		mockMvc.get("/api/shows").andExpect {
 			status { isOk() }
-			jsonPath("$.length()") { value(3) }
-			jsonPath("$[0].name") { value("끝난 공연") }
-			jsonPath("$[1].name") { value("진행 중인 공연") }
-			jsonPath("$[2].name") { value("나중 공연") }
+			jsonPath("$.items.length()") { value(1) }
+			jsonPath("$.items[0].name") { value("나중 공연") }
+			jsonPath("$.hasNext") { value(false) }
+		}
+	}
+
+	@Test
+	fun `진행 중인 공연은 오늘이 공연 기간 안인 공연을 끝나는 날 순으로 준다`() {
+		showRepository.save(show("PF4", "더 길게 하는 공연", "2026-10-01", "2026-10-31"))
+
+		mockMvc.get("/api/shows?when=ONGOING").andExpect {
+			jsonPath("$.items.length()") { value(2) }
+			jsonPath("$.items[0].name") { value("진행 중인 공연") }
+			jsonPath("$.items[1].name") { value("더 길게 하는 공연") }
+		}
+	}
+
+	@Test
+	fun `지난 공연은 최근 것부터 준다`() {
+		mockMvc.get("/api/shows?when=PAST").andExpect {
+			jsonPath("$.items.length()") { value(2) }
+			jsonPath("$.items[0].name") { value("끝난 공연") }
+			jsonPath("$.items[1].name") { value("3개월 넘게 지난 공연") }
+		}
+	}
+
+	@Test
+	fun `이름으로 검색한다`() {
+		mockMvc.get("/api/shows?when=PAST&q=3개월").andExpect {
+			jsonPath("$.items.length()") { value(1) }
+			jsonPath("$.items[0].name") { value("3개월 넘게 지난 공연") }
+		}
+	}
+
+	@Test
+	fun `한 페이지에 20개씩 준다`() {
+		showRepository.saveAll((1..21).map { show("PX$it", "많은 공연 $it", "2026-11-01", "2026-11-01") })
+
+		mockMvc.get("/api/shows?q=많은").andExpect {
+			jsonPath("$.items.length()") { value(20) }
+			jsonPath("$.hasNext") { value(true) }
+		}
+		mockMvc.get("/api/shows?q=많은&page=1").andExpect {
+			jsonPath("$.items.length()") { value(1) }
+			jsonPath("$.hasNext") { value(false) }
 		}
 	}
 
