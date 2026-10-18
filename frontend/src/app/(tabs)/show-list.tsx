@@ -219,7 +219,7 @@ export function ShowList({ shows, initialQuery }: { shows: Show[]; initialQuery:
         >
           <path d="M12 19V5M5 12l7-7 7 7" />
         </svg>
-        {todayDirection === "down" ? "다가오는 공연" : "오늘로"}
+        {todayDirection === "down" ? "다가오는 공연" : "오늘"}
       </button>
     </>
   );
