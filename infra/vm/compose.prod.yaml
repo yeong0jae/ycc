@@ -15,9 +15,6 @@ services:
       KAKAO_REST_API_KEY: ${KAKAO_REST_API_KEY}
       KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
       FRONTEND_URL: https://${SITE_ADDRESS}
-      MEDIA_DIR: /data/media
-    volumes:
-      - media-data:/data/media
     depends_on:
       - cloudsql-proxy
 
@@ -47,5 +44,4 @@ services:
       - backend
 
 volumes:
-  media-data:
   caddy-data:

@@ -6,10 +6,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-  servlet:
-    multipart:
-      max-file-size: 10MB
-      max-request-size: 11MB
   session:
     jdbc:
       initialize-schema: never
@@ -36,7 +32,6 @@ server:
     include-message: always
 
 app:
-  media-dir: ./build/test-media
   frontend-url: http://localhost:3000
 
 kopis:

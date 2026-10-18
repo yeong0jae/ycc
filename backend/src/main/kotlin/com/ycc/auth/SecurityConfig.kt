@@ -29,11 +29,6 @@ class SecurityConfig(
 					"/api/me/**",
 					"/api/admin/**",
 					"/api/logout",
-					"/api/home",
-					"/api/logs/**",
-					"/api/shows/*/me",
-					"/api/shows/*/attendances/**",
-					"/api/shows/*/log/**",
 				).authenticated()
 				it.anyRequest().permitAll()
 			}
