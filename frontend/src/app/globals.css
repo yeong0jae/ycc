@@ -12,6 +12,22 @@
   --font-sans: var(--font-noto-sans-kr);
   --font-mono: var(--font-nunito);
   --animate-marker-pop: marker-pop 260ms ease-out;
+  --animate-rise: rise 420ms cubic-bezier(0.2, 0, 0, 1) both;
+  --animate-beat: beat 1.6s ease-in-out infinite;
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+  }
+
+  @keyframes beat {
+    50% {
+      opacity: 0.25;
+      transform: scale(0.7);
+    }
+  }
 
   @keyframes marker-pop {
     50% {
@@ -29,6 +45,19 @@
 @utility font-num {
   font-family: var(--font-nunito);
   font-weight: 900;
+}
+
+@utility press {
+  transition: transform 160ms cubic-bezier(0.2, 0, 0, 1);
+  &:active {
+    transform: scale(0.95);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    &:active {
+      transform: none;
+    }
+  }
 }
 
 body {

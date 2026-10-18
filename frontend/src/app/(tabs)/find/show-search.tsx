@@ -25,6 +25,7 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
   const searchBar = useRef<HTMLDivElement>(null);
   const divider = useRef<HTMLDivElement>(null);
   const [todayDirection, setTodayDirection] = useState<"up" | "down" | null>(null);
+  const [scrolled, setScrolled] = useState(false);
 
   const scrollToToday = (behavior: ScrollBehavior) => {
     if (!divider.current || !searchBar.current) {
@@ -39,6 +40,7 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
 
   useEffect(() => {
     const update = () => {
+      setScrolled(window.scrollY > 4);
       if (!divider.current || !searchBar.current) return setTodayDirection(null);
       const { top, bottom } = divider.current.getBoundingClientRect();
       const visibleTop = searchBar.current.getBoundingClientRect().bottom;
@@ -61,7 +63,12 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
 
   return (
     <>
-      <div ref={searchBar} className="sticky top-0 z-10 flex items-center gap-2 bg-paper px-3 pt-2.5 pb-3">
+      <div
+        ref={searchBar}
+        className={`sticky top-0 z-10 flex items-center gap-2 bg-paper px-3 pt-2.5 pb-3 transition-shadow duration-200 ${
+          scrolled ? "shadow-[0_1px_0_var(--color-line)]" : ""
+        }`}
+      >
         <div className="relative flex-1">
           <label htmlFor="show-search" className="sr-only">
             페스티벌 검색
@@ -94,7 +101,7 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
               type="button"
               aria-label="검색어 지우기"
               onClick={() => search("")}
-              className="absolute top-1/2 right-1 flex size-11 -translate-y-1/2 cursor-pointer items-center justify-center text-muted"
+              className="absolute top-1/2 right-1 flex size-11 -translate-y-1/2 cursor-pointer items-center justify-center text-muted transition-opacity duration-150 active:opacity-50"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
                 <path d="M6 6l12 12M18 6 6 18" />
@@ -105,7 +112,7 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
         <Link
           href="/find/map"
           aria-label="지도로 보기"
-          className="flex size-12 shrink-0 items-center justify-center rounded-full bg-pill"
+          className="press flex size-12 shrink-0 items-center justify-center rounded-full bg-pill"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14" />

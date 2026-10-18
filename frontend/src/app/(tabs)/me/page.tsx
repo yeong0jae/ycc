@@ -17,7 +17,7 @@ export default async function MePage() {
         trailing={
           <Link
             href="/onboarding?edit"
-            className="flex h-11 items-center rounded-full bg-pill px-4 text-sm font-bold"
+            className="press flex h-11 items-center rounded-full bg-pill px-4 text-sm font-bold"
           >
             수정
           </Link>

@@ -78,7 +78,7 @@ export function ProfileForm({
       <button
         type="submit"
         disabled={pending}
-        className="mt-auto h-14 cursor-pointer rounded-full bg-ink font-bold text-stub transition-transform duration-150 active:scale-[0.98] disabled:opacity-60 motion-reduce:transition-none motion-reduce:active:scale-100"
+        className="press mt-auto h-14 cursor-pointer rounded-full bg-ink font-bold text-stub disabled:opacity-60"
       >
         {pending ? "저장하는 중…" : submitLabel}
       </button>

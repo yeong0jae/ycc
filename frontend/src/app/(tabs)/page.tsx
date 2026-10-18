@@ -31,7 +31,7 @@ export default async function HomePage() {
       <div className="px-3 pt-5">
         <Link
           href={me ? "/find" : "/login"}
-          className="flex h-14 items-center justify-center rounded-full bg-lime text-base font-bold"
+          className="press flex h-14 items-center justify-center rounded-full bg-lime text-base font-bold"
         >
           {me ? "인증할 페스티벌 찾기" : "로그인하고 시작하기"}
         </Link>

@@ -4,6 +4,8 @@ import { ViewTransition } from "react";
 import { AppFrame } from "@/components/app-frame";
 import { BackButton } from "@/components/back-button";
 import { KopisSource } from "@/components/kopis-source";
+import { LiveBadge } from "@/components/live-badge";
+import { PosterImage } from "@/components/poster-image";
 import { festivalBadge, formatLongPeriod, shortRegion } from "@/lib/format";
 import { getShow } from "@/lib/show";
 
@@ -23,16 +25,17 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
 
       <header className="flex flex-col gap-2.5 px-5 pt-3.5">
         {badge && (
-          <span
-            className={`flex h-6.5 items-center self-start rounded-full px-2.5 font-num text-[13px] ${
-              badge.live ? "bg-lime" : "bg-pill"
-            }`}
-          >
-            {badge.label}
-          </span>
+          <LiveBadge
+            label={badge.label}
+            live={badge.live}
+            idle="bg-pill"
+            className="h-6.5 animate-rise self-start px-2.5 text-[13px] motion-reduce:animate-none"
+          />
         )}
-        <h1 className="font-display text-[26px] leading-snug">{show.name}</h1>
-        <p className="text-base leading-normal">
+        <h1 className="animate-rise font-display text-[26px] leading-snug [animation-delay:50ms] motion-reduce:animate-none">
+          {show.name}
+        </h1>
+        <p className="animate-rise text-base leading-normal [animation-delay:100ms] motion-reduce:animate-none">
           <b>{formatLongPeriod(show.startDate, show.endDate)}</b>
           <span className="text-muted">
             {" · "}
@@ -44,8 +47,7 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
 
       <a href={show.posterUrl} target="_blank" rel="noopener noreferrer" className="relative mx-3 mt-4 block">
         <ViewTransition name={`poster-${show.id}`} share="morph" default="none">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={show.posterUrl} alt={`${show.name} 포스터`} className="w-full rounded-[20px] bg-pill" />
+          <PosterImage src={show.posterUrl} alt={`${show.name} 포스터`} className="w-full rounded-[20px] bg-pill" />
         </ViewTransition>
         <span className="absolute top-3 right-3 flex h-7.5 items-center rounded-full bg-ink/55 px-3 text-xs text-stub">
           눌러서 크게 보기
@@ -78,7 +80,7 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
             {show.facilityId && (
               <Link
                 href={`/find/map?facility=${show.facilityId}`}
-                className="flex h-8.5 shrink-0 items-center rounded-full bg-pill px-3 text-[13px] font-medium"
+                className="press flex h-8.5 shrink-0 items-center rounded-full bg-pill px-3 text-[13px] font-medium"
               >
                 지도
               </Link>
@@ -96,7 +98,7 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
               href={ticketUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex h-14 w-30 shrink-0 items-center justify-center rounded-full bg-pill text-[15px] font-bold"
+              className="press flex h-14 w-30 shrink-0 items-center justify-center rounded-full bg-pill text-[15px] font-bold"
             >
               예매처 ↗
             </a>

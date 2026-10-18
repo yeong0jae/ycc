@@ -9,7 +9,7 @@ export function BackButton() {
       type="button"
       aria-label="뒤로"
       onClick={() => (window.history.length > 1 ? router.back() : router.push("/"))}
-      className="flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-full bg-pill"
+      className="press flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-full bg-pill"
     >
       <svg
         width="20"

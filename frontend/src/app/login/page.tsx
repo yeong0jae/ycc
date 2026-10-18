@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { AppFrame } from "@/components/app-frame";
+import { PosterImage } from "@/components/poster-image";
 import { getMe, KAKAO_LOGIN_URL } from "@/lib/auth";
 import { getShows } from "@/lib/show";
 
@@ -14,8 +15,9 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
         <div className="grid grid-cols-3 gap-2 px-3 pt-4">
           {Array.from({ length: 9 }, (_, i) => posters[i]).map((show, i) =>
             show ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img key={show.id} src={show.posterUrl} alt="" className="aspect-[3/4] w-full rounded-xl bg-pill object-cover" />
+              <span key={show.id} className="aspect-[3/4] overflow-hidden rounded-xl bg-pill">
+                <PosterImage src={show.posterUrl} alt="" className="size-full object-cover" />
+              </span>
             ) : (
               <span key={i} className="aspect-[3/4] rounded-xl bg-pill" />
             ),
@@ -35,7 +37,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
         )}
         <a
           href={KAKAO_LOGIN_URL}
-          className="flex h-14 items-center justify-center gap-2 rounded-full bg-[#FEE500] font-bold text-[#191919] transition-transform duration-150 active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100"
+          className="press flex h-14 items-center justify-center gap-2 rounded-full bg-[#FEE500] font-bold text-[#191919]"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
             <path fill="#191919" d="M12 4C7 4 3 7.1 3 11c0 2.5 1.7 4.7 4.2 6l-1 3.6c-.1.3.3.6.6.4l4.2-2.8h1c5 0 9-3.1 9-7s-4-7-9-7z" />

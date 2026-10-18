@@ -42,11 +42,17 @@ function currentTab(pathname: string) {
 
 export function TabBar() {
   const current = currentTab(usePathname());
+  const index = tabs.findIndex((tab) => tab.key === current);
   return (
     <nav
       aria-label="탭"
       className="fixed bottom-6 left-1/2 z-30 flex h-15 -translate-x-1/2 items-center gap-2 rounded-full bg-pill px-1.5 shadow-[0_8px_24px_rgb(17_17_17/0.12)]"
     >
+      <span
+        aria-hidden="true"
+        className="absolute left-1.5 size-12 rounded-full bg-ink transition-transform duration-300 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none"
+        style={{ transform: `translateX(${index * 56}px)` }}
+      />
       {tabs.map((tab) => {
         const active = tab.key === current;
         return (
@@ -55,8 +61,8 @@ export function TabBar() {
             href={tab.href}
             aria-label={tab.label}
             aria-current={active ? "page" : undefined}
-            className={`flex size-12 items-center justify-center rounded-full transition-colors duration-150 ${
-              active ? "bg-ink text-stub" : "text-ink"
+            className={`press relative flex size-12 items-center justify-center rounded-full transition-colors duration-300 ${
+              active ? "text-stub" : "text-ink"
             }`}
           >
             <svg
