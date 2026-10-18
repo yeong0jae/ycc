@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { type Moment, MOMENTS, type MyLog, type Visibility } from "@/lib/log-types";
+import { type Moment, MOMENTS, type MyLog } from "@/lib/log-types";
 import { CameraSheet } from "./camera-sheet";
 
 export function LogCapture({ showId, initial }: { showId: number; initial: MyLog | null }) {
@@ -10,7 +10,6 @@ export function LogCapture({ showId, initial }: { showId: number; initial: MyLog
   const [clips, setClips] = useState(initial?.clips ?? []);
   const [busy, setBusy] = useState<Moment | "publish" | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [visibility, setVisibility] = useState<Visibility>("PUBLIC");
   const [camera, setCamera] = useState<Moment | null>(null);
   const inputs = useRef<Partial<Record<Moment, HTMLInputElement | null>>>({});
 
@@ -40,7 +39,7 @@ export function LogCapture({ showId, initial }: { showId: number; initial: MyLog
     const res = await fetch(`/api/shows/${showId}/log/publish`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ song: form.get("song"), note: form.get("note"), visibility }),
+      body: JSON.stringify({ song: form.get("song"), note: form.get("note") }),
     });
     if (res.ok) {
       const log: MyLog = await res.json();
@@ -132,34 +131,6 @@ export function LogCapture({ showId, initial }: { showId: number; initial: MyLog
               className="h-12 rounded-xl border border-line bg-stub px-4 outline-none placeholder:text-muted focus:border-ink"
             />
           </label>
-          <fieldset className="flex flex-col gap-2">
-            <legend className="mb-2 text-sm font-semibold">누가 볼까요</legend>
-            <div className="grid grid-cols-2 gap-2">
-              {(
-                [
-                  ["PUBLIC", "프로필에 남기기"],
-                  ["PRIVATE", "나만 보기"],
-                ] as const
-              ).map(([value, label]) => (
-                <label
-                  key={value}
-                  className={`flex h-11 cursor-pointer items-center justify-center rounded-xl border text-sm font-semibold has-focus-visible:ring-2 has-focus-visible:ring-ink ${
-                    visibility === value ? "border-ink bg-ink text-stub" : "border-line bg-stub"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="visibility"
-                    value={value}
-                    checked={visibility === value}
-                    onChange={() => setVisibility(value)}
-                    className="sr-only"
-                  />
-                  {label}
-                </label>
-              ))}
-            </div>
-          </fieldset>
           <button
             type="submit"
             disabled={busy !== null}

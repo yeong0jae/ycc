@@ -10,8 +10,7 @@ import { DeleteLogButton } from "./delete-log-button";
 
 export default async function LogPage({ params }: PageProps<"/logs/[id]">) {
   const { id } = await params;
-  const me = await getMe();
-  if (!me) redirect("/login");
+  if (!(await getMe())) redirect("/login");
   const log = await getLog(id);
   if (!log) notFound();
 
@@ -35,15 +34,11 @@ export default async function LogPage({ params }: PageProps<"/logs/[id]">) {
           </h1>
           <p className="font-mono text-[13px] text-muted">
             {formatPeriod(log.showStartDate, log.showStartDate)} · {log.cutCount}컷
-            {log.visibility === "PRIVATE" && " · 나만 보기"}
           </p>
         </div>
         {log.song && <p className="text-[15px]">그날의 한 곡 · {log.song}</p>}
         {log.note && <p className="text-[15px] leading-relaxed">“{log.note}”</p>}
-        <Link href={`/users/${log.userId}`} className="self-start text-sm font-semibold underline underline-offset-4">
-          {log.nickname}의 로그 더 보기
-        </Link>
-        {log.userId === me.id && <DeleteLogButton logId={log.id} />}
+        <DeleteLogButton logId={log.id} />
       </div>
     </AppFrame>
   );

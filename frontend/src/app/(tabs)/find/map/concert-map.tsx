@@ -4,7 +4,7 @@ import Link from "next/link";
 import Script from "next/script";
 import { useEffect, useRef, useState, ViewTransition } from "react";
 import { formatDday, formatPeriod } from "@/lib/format";
-import type { Facility } from "@/lib/show";
+import type { Facility } from "@/lib/show-types";
 
 type LatLng = object;
 type Point = { x: number; y: number };

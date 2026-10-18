@@ -4,7 +4,7 @@ import { BrowseHeader } from "@/components/browse-header";
 import { getFacilities } from "@/lib/show";
 import { ConcertMap } from "./concert-map";
 
-export default async function MapPage({ searchParams }: PageProps<"/map">) {
+export default async function MapPage({ searchParams }: PageProps<"/find/map">) {
   const { facility } = await searchParams;
   const facilities = await getFacilities();
   const initialFacilityId = typeof facility === "string" ? Number(facility) : null;

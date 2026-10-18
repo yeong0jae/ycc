@@ -1,5 +1,4 @@
 export type Moment = "GOODS" | "ENTRY" | "BEFORE_SHOW" | "AFTER";
-export type Visibility = "PUBLIC" | "PRIVATE";
 
 export const MOMENTS: { key: Moment; label: string; hint: string }[] = [
   { key: "GOODS", label: "굿즈 줄", hint: "줄 서 있는 지금" },
@@ -14,34 +13,37 @@ export type MyLog = {
   clips: { moment: Moment; durationMs: number }[];
   song: string | null;
   note: string | null;
-  visibility: Visibility;
 };
 
 export type ShowLog = {
   id: number;
-  userId: number;
-  nickname: string | null;
   showId: number;
   showName: string;
   showStartDate: string;
   song: string | null;
   note: string | null;
-  visibility: Visibility;
   cutCount: number;
   videoUrl: string;
   thumbnailUrl: string;
 };
 
-export type FeedShow = { id: number; name: string; startDate: string; endDate: string; venue: string };
+export type AttendanceStatus = "GOING" | "ATTENDED";
 
-export type FeedPerson = {
-  userId: number;
-  nickname: string | null;
-  log: ShowLog | null;
-  wasThereSent: boolean;
-  nextTogetherSent: boolean;
-  nextTogetherMatched: boolean;
+export type Attendance = { date: string; status: AttendanceStatus };
+
+export type AttendanceItem = {
+  showId: number;
+  showName: string;
+  posterUrl: string;
+  venue: string;
+  date: string;
+  status: AttendanceStatus;
+  logId: number | null;
 };
 
-export type PastFeedItem = { show: FeedShow; myLogId: number; people: FeedPerson[] };
-export type NextFeedItem = { show: FeedShow; people: FeedPerson[] };
+export type Home = { upcoming: AttendanceItem[]; unrecorded: AttendanceItem[] };
+
+export type Records = {
+  stats: { thisYear: number; total: number; topVenue: { name: string; count: number } | null };
+  years: { year: number; items: AttendanceItem[] }[];
+};

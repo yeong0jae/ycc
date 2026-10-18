@@ -3,13 +3,13 @@ import Link from "next/link";
 const tabs = [
   {
     key: "list",
-    href: "/",
+    href: "/find",
     label: "목록",
     icon: <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />,
   },
   {
     key: "map",
-    href: "/map",
+    href: "/find/map",
     label: "지도",
     icon: <path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14" />,
   },

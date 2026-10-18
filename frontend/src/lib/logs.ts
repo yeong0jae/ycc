@@ -1,5 +1,5 @@
 import { backendFetch } from "./auth";
-import type { MyLog, NextFeedItem, PastFeedItem, ShowLog } from "./log-types";
+import type { Attendance, Home, MyLog, Records, ShowLog } from "./log-types";
 
 export type * from "./log-types";
 
@@ -10,10 +10,8 @@ async function json<T>(path: string): Promise<T | null> {
   return res.json();
 }
 
-export const getShowMe = (showId: string) => json<{ planned: boolean; log: MyLog | null }>(`/api/shows/${showId}/me`);
-export const getPastFeed = () => json<PastFeedItem[]>("/api/feed/past");
-export const getNextFeed = () => json<NextFeedItem[]>("/api/feed/next");
+export const getShowMe = (showId: string) => json<{ attendances: Attendance[]; log: MyLog | null }>(`/api/shows/${showId}/me`);
 export const getLog = (logId: string) => json<ShowLog>(`/api/logs/${logId}`);
-export const getUserLogs = (userId: string | number) => json<ShowLog[]>(`/api/users/${userId}/logs`);
-export const getUserProfile = (userId: string) =>
-  json<{ id: number; nickname: string | null; logCount: number }>(`/api/users/${userId}`);
+export const getMyLogs = () => json<ShowLog[]>("/api/me/logs");
+export const getHome = () => json<Home>("/api/home");
+export const getRecords = () => json<Records>("/api/me/records");

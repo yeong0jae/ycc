@@ -39,7 +39,7 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
                 <dd>
                   {show.facilityId ? (
                     <Link
-                      href={`/map?facility=${show.facilityId}`}
+                      href={`/find/map?facility=${show.facilityId}`}
                       className="inline-flex items-center gap-1 underline decoration-line decoration-2 underline-offset-4"
                     >
                       <svg
@@ -110,7 +110,7 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
         )}
       </article>
       <Suspense fallback={null}>
-        <ShowActions showId={show.id} startDate={show.startDate} />
+        <ShowActions showId={show.id} startDate={show.startDate} endDate={show.endDate} />
       </Suspense>
       <KopisSource className="px-4 pt-6 pb-8 text-center" />
     </AppFrame>
