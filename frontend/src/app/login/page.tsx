@@ -10,7 +10,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   return (
     <AppFrame className="flex min-h-dvh flex-col">
       <AppHeader title="로그인" />
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-4 pt-6 pb-8">
+      <div className="flex flex-1 flex-col px-4 pt-6 pb-8">
         <div className="flex flex-1 flex-col justify-center">
           <div className="relative overflow-hidden rounded-3xl bg-stub">
             <div className="flex flex-col gap-2.5 px-6 py-7">
