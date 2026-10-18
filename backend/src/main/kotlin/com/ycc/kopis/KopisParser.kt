@@ -28,7 +28,6 @@ data class KopisDetail(
 	val ticketUrl: String?,
 	val scheduleGuide: String?,
 	val priceGuide: String?,
-	val festival: Boolean,
 ) {
 	fun toShow() = Show(
 		kopisId = kopisId,
@@ -89,7 +88,6 @@ object KopisParser {
 			ticketUrl = db.getElementsByTagName("relateurl").item(0)?.textContent?.trim()?.ifBlank { null },
 			scheduleGuide = db.text("dtguidance"),
 			priceGuide = db.text("pcseguidance"),
-			festival = db.text("festival") == "Y",
 		)
 	}
 

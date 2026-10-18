@@ -18,11 +18,15 @@ class ShowController(
 
 	@GetMapping
 	fun list(): List<ShowResponse> =
-		showRepository.findUpcoming(LocalDate.now(clock))
+		showRepository.findEndingOnOrAfter(LocalDate.now(clock).minusMonths(PAST_MONTHS))
 			.map(ShowResponse::from)
 
 	@GetMapping("/{id}")
 	fun detail(@PathVariable id: Long): ShowResponse =
 		showRepository.findWithFacilityById(id)?.let(ShowResponse::from)
 			?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+
+	companion object {
+		private const val PAST_MONTHS = 3L
+	}
 }

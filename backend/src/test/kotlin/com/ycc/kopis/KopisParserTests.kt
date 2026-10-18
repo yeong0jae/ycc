@@ -3,7 +3,6 @@ package com.ycc.kopis
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -32,15 +31,13 @@ class KopisParserTests {
 		assertEquals("토요일(18:00)", detail.scheduleGuide)
 		assertEquals("전석 110,000원", detail.priceGuide)
 		assertEquals("FC000001", detail.facilityId)
-		assertFalse(detail.festival)
 	}
 
 	@Test
-	fun `예매처가 없으면 예매 링크는 비어 있고 페스티벌 여부를 읽는다`() {
+	fun `예매처가 없으면 예매 링크는 비어 있다`() {
 		val detail = KopisParser.parseDetail(fixture("detail-PF000004.xml"))!!
 
 		assertNull(detail.ticketUrl)
-		assertTrue(detail.festival)
 	}
 
 	@Test

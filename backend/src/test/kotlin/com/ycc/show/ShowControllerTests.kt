@@ -53,6 +53,7 @@ class ShowControllerTests(
 		val hall = facilityRepository.save(Facility("FC1", "테스트홀", "서울 마포구", 37.55, 126.92))
 		showRepository.saveAll(
 			listOf(
+				show("PF0", "3개월 넘게 지난 공연", "2026-07-01", "2026-07-01"),
 				show("PF1", "끝난 공연", "2026-10-01", "2026-10-01"),
 				show("PF2", "나중 공연", "2026-12-05", "2026-12-05", hall),
 				show("PF3", "진행 중인 공연", "2026-10-17", "2026-10-18"),
@@ -61,12 +62,13 @@ class ShowControllerTests(
 	}
 
 	@Test
-	fun `목록은 종료된 공연을 빼고 시작일 순으로 준다`() {
+	fun `목록은 최근 3개월 안에 끝난 공연부터 시작일 순으로 준다`() {
 		mockMvc.get("/api/shows").andExpect {
 			status { isOk() }
-			jsonPath("$.length()") { value(2) }
-			jsonPath("$[0].name") { value("진행 중인 공연") }
-			jsonPath("$[1].name") { value("나중 공연") }
+			jsonPath("$.length()") { value(3) }
+			jsonPath("$[0].name") { value("끝난 공연") }
+			jsonPath("$[1].name") { value("진행 중인 공연") }
+			jsonPath("$[2].name") { value("나중 공연") }
 		}
 	}
 

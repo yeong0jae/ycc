@@ -41,10 +41,10 @@ class KopisSyncServiceTests(
 	}
 
 	@Test
-	fun `팬미팅, 페스티벌, 오픈런, 31일 넘는 공연은 빼고 중복은 한 번만 저장한다`() {
+	fun `팬미팅, 오픈런, 31일 넘는 공연은 빼고 페스티벌은 넣으며 중복은 한 번만 저장한다`() {
 		syncService.sync()
 
-		assertEquals(listOf("PF000001"), showRepository.findAll().map { it.kopisId })
+		assertEquals(listOf("PF000001", "PF000004"), showRepository.findAll().map { it.kopisId })
 	}
 
 	@Test
@@ -58,12 +58,15 @@ class KopisSyncServiceTests(
 	}
 
 	@Test
-	fun `이번 동기화 결과에 없는 공연은 지운다`() {
-		showRepository.save(KopisParser.parseDetail(javaClass.getResource("/kopis/detail-PF000004.xml")!!.readText())!!.toShow())
+	fun `이번 동기화 결과에 없는 앞으로의 공연은 지우고 끝난 공연은 남긴다`() {
+		val stale = KopisParser.parseDetail(javaClass.getResource("/kopis/detail-PF000004.xml")!!.readText())!!
+		showRepository.save(stale.copy(kopisId = "PF999999").toShow())
+		val ended = LocalDate.now(clock).minusDays(10)
+		showRepository.save(stale.copy(kopisId = "PF888888", startDate = ended, endDate = ended).toShow())
 
 		syncService.sync()
 
-		assertEquals(listOf("PF000001"), showRepository.findAll().map { it.kopisId })
+		assertEquals(listOf("PF000001", "PF000004", "PF888888"), showRepository.findAll().map { it.kopisId }.sorted())
 	}
 
 	@Test
@@ -71,7 +74,7 @@ class KopisSyncServiceTests(
 		syncService.sync()
 		syncService.sync()
 
-		assertEquals(1, showRepository.count())
+		assertEquals(2, showRepository.count())
 		assertEquals("테스트 밴드 내한공연", showRepository.findByKopisId("PF000001")!!.name)
 	}
 }
