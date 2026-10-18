@@ -1,14 +1,6 @@
-import { ViewTransition } from "react";
+import { AppHeader } from "./app-header";
 import { ViewToggle } from "./view-toggle";
 
-export function BrowseHeader({ current }: { current?: "list" | "map" }) {
-  const Title = current ? "h1" : "p";
-  return (
-    <ViewTransition name="browse-header">
-      <header className="sticky top-0 z-10 flex h-20 items-center justify-between gap-3 bg-paper px-4 shadow-[0_1px_0_var(--color-line)]">
-        <Title className="font-display text-3xl leading-tight">다가오는 콘서트</Title>
-        <ViewToggle current={current} />
-      </header>
-    </ViewTransition>
-  );
+export function BrowseHeader({ current }: { current: "list" | "map" }) {
+  return <AppHeader title="다가오는 콘서트" trailing={<ViewToggle current={current} />} />;
 }

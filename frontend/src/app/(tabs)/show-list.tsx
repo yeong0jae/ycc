@@ -201,7 +201,7 @@ export function ShowList({ shows, initialQuery }: { shows: Show[]; initialQuery:
         onClick={() =>
           scrollToToday(window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth")
         }
-        className={`fixed bottom-6 left-1/2 z-20 flex h-11 -translate-x-1/2 cursor-pointer items-center gap-1.5 rounded-full bg-ink px-4 text-sm font-semibold text-stub shadow-[0_4px_16px_rgb(17_19_24/0.25)] transition duration-200 active:scale-95 motion-reduce:transition-none ${
+        className={`fixed bottom-28 left-1/2 z-20 flex h-11 -translate-x-1/2 cursor-pointer items-center gap-1.5 rounded-full bg-ink px-4 text-sm font-semibold text-stub shadow-[0_4px_16px_rgb(17_19_24/0.25)] transition duration-200 active:scale-95 motion-reduce:transition-none ${
           todayDirection ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
         }`}
       >

@@ -217,7 +217,7 @@ export function ConcertMap({
               </button>
             </div>
             <div className="mx-5 border-t-2 border-dashed border-line" />
-            <ul className="overflow-y-auto px-5 pb-4">
+            <ul className="overflow-y-auto px-5 pb-28">
               {sheet.shows.map((show) => (
                 <li key={show.id} className="border-b border-paper last:border-b-0">
                   <Link
@@ -251,7 +251,7 @@ export function ConcertMap({
       </section>
       <div
         inert={sheetOpen}
-        className={`absolute inset-x-4 bottom-6 z-10 flex items-center justify-between gap-3 rounded-2xl bg-stub px-4 py-3.5 shadow-[0_4px_16px_rgb(17_19_24/0.12)] transition-opacity duration-200 motion-reduce:transition-none ${
+        className={`absolute inset-x-4 bottom-28 z-10 flex items-center justify-between gap-3 rounded-2xl bg-stub px-4 py-3.5 shadow-[0_4px_16px_rgb(17_19_24/0.12)] transition-opacity duration-200 motion-reduce:transition-none ${
           sheetOpen ? "opacity-0" : "opacity-100"
         }`}
       >

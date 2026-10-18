@@ -1,4 +1,5 @@
 import { ViewTransition } from "react";
+import { AppFrame } from "@/components/app-frame";
 import { BrowseHeader } from "@/components/browse-header";
 import { getFacilities } from "@/lib/show";
 import { ConcertMap } from "./concert-map";
@@ -14,7 +15,7 @@ export default async function MapPage({ searchParams }: PageProps<"/map">) {
       exit={{ "view-switch": "view-fade", default: "none" }}
       default="none"
     >
-      <main className="mx-auto flex h-dvh w-full max-w-2xl flex-col">
+      <AppFrame className="flex h-dvh flex-col">
         <BrowseHeader current="map" />
         <ConcertMap
           key={initialFacilityId ?? "all"}
@@ -22,7 +23,7 @@ export default async function MapPage({ searchParams }: PageProps<"/map">) {
           appKey={process.env.KAKAO_MAP_KEY ?? ""}
           initialFacilityId={initialFacilityId}
         />
-      </main>
+      </AppFrame>
     </ViewTransition>
   );
 }

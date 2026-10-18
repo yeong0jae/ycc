@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ViewTransition } from "react";
-import { BrowseHeader } from "@/components/browse-header";
+import { AppFrame } from "@/components/app-frame";
+import { AppHeader } from "@/components/app-header";
+import { BackButton } from "@/components/back-button";
 import { KopisSource } from "@/components/kopis-source";
 import { formatPeriod } from "@/lib/format";
 import { getShow } from "@/lib/show";
@@ -12,8 +14,8 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
   if (!show) notFound();
 
   return (
-    <main className="mx-auto w-full max-w-2xl">
-      <BrowseHeader />
+    <AppFrame>
+      <AppHeader as="p" title="콘서트" leading={<BackButton />} />
       <article className="relative m-4 mt-6 overflow-hidden rounded-[20px] bg-stub">
         <div className="sm:flex">
           <ViewTransition name={`poster-${show.id}`} share="morph" default="none">
@@ -107,6 +109,6 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
         )}
       </article>
       <KopisSource className="px-4 pb-8 text-center" />
-    </main>
+    </AppFrame>
   );
 }
