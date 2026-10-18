@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useLayoutEffect, useRef, useState, ViewTransition } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, ViewTransition } from "react";
 import { formatDday, formatPeriod, todayInSeoul } from "@/lib/format";
 import type { Show } from "@/lib/show";
 
@@ -62,13 +62,31 @@ export function ShowList({ shows, initialQuery }: { shows: Show[]; initialQuery:
 
   const searchBar = useRef<HTMLDivElement>(null);
   const divider = useRef<HTMLDivElement>(null);
-  useLayoutEffect(() => {
+  const [todayDirection, setTodayDirection] = useState<"up" | "down" | null>(null);
+
+  const scrollToToday = (behavior: ScrollBehavior) => {
     if (!divider.current || !searchBar.current) {
-      window.scrollTo({ top: 0 });
+      window.scrollTo({ top: 0, behavior });
       return;
     }
     const top = divider.current.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo({ top: top - searchBar.current.getBoundingClientRect().height - SEARCH_BAR_TOP });
+    window.scrollTo({ top: top - searchBar.current.getBoundingClientRect().height - SEARCH_BAR_TOP, behavior });
+  };
+
+  useLayoutEffect(() => scrollToToday("instant"), [keyword]);
+
+  useEffect(() => {
+    const update = () => {
+      if (!divider.current || !searchBar.current) return setTodayDirection(null);
+      const { top, bottom } = divider.current.getBoundingClientRect();
+      const visibleTop = searchBar.current.getBoundingClientRect().bottom;
+      if (bottom < visibleTop) setTodayDirection("up");
+      else if (top > window.innerHeight) setTodayDirection("down");
+      else setTodayDirection(null);
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
   }, [keyword]);
 
   const search = (value: string) => {
@@ -177,6 +195,32 @@ export function ShowList({ shows, initialQuery }: { shows: Show[]; initialQuery:
           ))}
         </ul>
       )}
+      <button
+        type="button"
+        inert={!todayDirection}
+        onClick={() =>
+          scrollToToday(window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth")
+        }
+        className={`fixed bottom-6 left-1/2 z-20 flex h-11 -translate-x-1/2 cursor-pointer items-center gap-1.5 rounded-full bg-ink px-4 text-sm font-semibold text-stub shadow-[0_4px_16px_rgb(17_19_24/0.25)] transition duration-200 active:scale-95 motion-reduce:transition-none ${
+          todayDirection ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
+        }`}
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+          className={todayDirection === "down" ? "rotate-180" : ""}
+        >
+          <path d="M12 19V5M5 12l7-7 7 7" />
+        </svg>
+        {todayDirection === "down" ? "다가오는 공연" : "오늘로"}
+      </button>
     </>
   );
 }
