@@ -7,8 +7,11 @@ export function formatPeriod(startDate: string, endDate: string) {
   return startDate === endDate ? fmt(startDate) : `${fmt(startDate)} — ${fmt(endDate)}`;
 }
 
+export function todayInSeoul() {
+  return new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
+}
+
 export function formatDday(startDate: string) {
-  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
-  const days = (Date.parse(startDate) - Date.parse(today)) / 86_400_000;
+  const days = (Date.parse(startDate) - Date.parse(todayInSeoul())) / 86_400_000;
   return days <= 0 ? "NOW" : `D-${days}`;
 }
