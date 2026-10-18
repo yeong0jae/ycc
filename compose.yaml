@@ -20,6 +20,9 @@ services:
       DB_USERNAME: root
       DB_PASSWORD: root
       KOPIS_API_KEY: ${KOPIS_API_KEY}
+      KAKAO_REST_API_KEY: ${KAKAO_REST_API_KEY}
+      KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
+      FRONTEND_URL: http://localhost:3000
     ports:
       - "8080:8080"
     depends_on:
