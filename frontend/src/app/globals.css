@@ -7,7 +7,7 @@
   --color-lime: #c6f432;
   --color-muted: #5b606b;
   --color-line: #d9dce1;
-  --font-display: var(--font-black-han-sans);
+  --font-display: var(--font-hahmlet);
   --font-sans: var(--font-plex-sans-kr);
   --font-mono: var(--font-plex-mono);
   --animate-marker-pop: marker-pop 260ms ease-out;

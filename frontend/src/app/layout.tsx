@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Black_Han_Sans, IBM_Plex_Mono, IBM_Plex_Sans_KR } from "next/font/google";
+import { Hahmlet, IBM_Plex_Mono, IBM_Plex_Sans_KR } from "next/font/google";
 import "./globals.css";
 
-const blackHanSans = Black_Han_Sans({
-  variable: "--font-black-han-sans",
-  weight: "400",
+const hahmlet = Hahmlet({
+  variable: "--font-hahmlet",
+  weight: "600",
   preload: false,
 });
 
@@ -29,7 +29,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="ko"
-      className={`${blackHanSans.variable} ${plexSansKr.variable} ${plexMono.variable} h-full antialiased`}
+      className={`${hahmlet.variable} ${plexSansKr.variable} ${plexMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>

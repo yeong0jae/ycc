@@ -32,7 +32,7 @@ function ShowCard({ show, ended }: { show: Show; ended: boolean }) {
       <div className="absolute -bottom-2.5 left-24.75 size-5 rounded-full bg-paper" />
       <div className="flex min-w-0 flex-1 flex-col justify-between gap-3 p-4">
         <div>
-          <p className="font-display text-xl leading-snug">{show.name}</p>
+          <p className="font-display text-lg leading-snug tracking-tight">{show.name}</p>
           <p className="text-sm text-muted">{show.venue}</p>
         </div>
         <div className="flex items-center justify-between font-mono text-[13px]">
