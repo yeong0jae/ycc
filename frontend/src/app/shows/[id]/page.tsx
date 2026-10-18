@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ViewTransition } from "react";
+import { BrowseHeader } from "@/components/browse-header";
 import { formatPeriod } from "@/lib/format";
 import { getShow } from "@/lib/show";
 
@@ -10,85 +11,69 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
   if (!show) notFound();
 
   return (
-    <main className="mx-auto w-full max-w-md px-4 py-4">
-      <Link
-        href="/"
-        className="inline-flex h-11 items-center gap-1.5 px-1 text-[15px] text-muted"
-      >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M15 18l-6-6 6-6" />
-        </svg>
-        목록
-      </Link>
-      <article className="relative mt-4 overflow-hidden rounded-[20px] bg-stub">
-        <ViewTransition name={`poster-${show.id}`} share="morph" default="none">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={show.posterUrl}
-            alt={`${show.name} 포스터`}
-            className="aspect-[3/4] w-full object-cover"
-          />
-        </ViewTransition>
-        <div className="flex flex-col gap-4 p-5">
-          <h1 className="font-display text-3xl leading-tight">{show.name}</h1>
-          <dl className="grid grid-cols-2 gap-3 text-[15px]">
-            <div>
-              <dt className="text-[13px] text-muted">일정</dt>
-              <dd className="font-mono">{formatPeriod(show.startDate, show.endDate)}</dd>
-            </div>
-            <div>
-              <dt className="text-[13px] text-muted">장소</dt>
-              <dd>
-                {show.facilityId ? (
-                  <Link
-                    href={`/map?facility=${show.facilityId}`}
-                    className="inline-flex items-center gap-1 underline decoration-line decoration-2 underline-offset-4"
-                  >
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden="true"
-                      className="shrink-0"
+    <main className="mx-auto w-full max-w-2xl">
+      <BrowseHeader />
+      <article className="relative m-4 mt-6 overflow-hidden rounded-[20px] bg-stub">
+        <div className="sm:flex">
+          <ViewTransition name={`poster-${show.id}`} share="morph" default="none">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={show.posterUrl}
+              alt={`${show.name} 포스터`}
+              className="aspect-[3/4] w-full object-cover sm:w-64 sm:shrink-0 sm:self-start"
+            />
+          </ViewTransition>
+          <div className="flex flex-1 flex-col gap-4 p-5">
+            <h1 className="font-display text-3xl leading-tight">{show.name}</h1>
+            <dl className="grid grid-cols-2 gap-3 text-[15px]">
+              <div>
+                <dt className="text-[13px] text-muted">일정</dt>
+                <dd className="font-mono">{formatPeriod(show.startDate, show.endDate)}</dd>
+              </div>
+              <div>
+                <dt className="text-[13px] text-muted">장소</dt>
+                <dd>
+                  {show.facilityId ? (
+                    <Link
+                      href={`/map?facility=${show.facilityId}`}
+                      className="inline-flex items-center gap-1 underline decoration-line decoration-2 underline-offset-4"
                     >
-                      <path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z" />
-                      <circle cx="12" cy="10" r="2.5" />
-                    </svg>
-                    {show.venue}
-                  </Link>
-                ) : (
-                  show.venue
-                )}
-              </dd>
-            </div>
-            {show.scheduleGuide && (
-              <div className="col-span-2">
-                <dt className="text-[13px] text-muted">회차</dt>
-                <dd>{show.scheduleGuide}</dd>
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                        className="shrink-0"
+                      >
+                        <path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z" />
+                        <circle cx="12" cy="10" r="2.5" />
+                      </svg>
+                      {show.venue}
+                    </Link>
+                  ) : (
+                    show.venue
+                  )}
+                </dd>
               </div>
-            )}
-            {show.priceGuide && (
-              <div className="col-span-2">
-                <dt className="text-[13px] text-muted">가격</dt>
-                <dd>{show.priceGuide}</dd>
-              </div>
-            )}
-          </dl>
+              {show.scheduleGuide && (
+                <div className="col-span-2">
+                  <dt className="text-[13px] text-muted">회차</dt>
+                  <dd>{show.scheduleGuide}</dd>
+                </div>
+              )}
+              {show.priceGuide && (
+                <div className="col-span-2">
+                  <dt className="text-[13px] text-muted">가격</dt>
+                  <dd>{show.priceGuide}</dd>
+                </div>
+              )}
+            </dl>
+          </div>
         </div>
         {(show.ticketUrl || show.officialUrl) && (
           <>

@@ -14,7 +14,7 @@ export default async function Home() {
       default="none"
     >
       <main className="mx-auto w-full max-w-2xl">
-        <BrowseHeader current="list" count={shows.length} />
+        <BrowseHeader current="list" />
         <div className="px-4 py-6">
           {shows.length === 0 ? (
             <p className="text-muted">예정된 콘서트가 없어요.</p>

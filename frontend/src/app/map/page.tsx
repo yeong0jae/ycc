@@ -7,7 +7,6 @@ export default async function MapPage({ searchParams }: PageProps<"/map">) {
   const { facility } = await searchParams;
   const facilities = await getFacilities();
   const initialFacilityId = typeof facility === "string" ? Number(facility) : null;
-  const showCount = facilities.reduce((sum, facility) => sum + facility.shows.length, 0);
 
   return (
     <ViewTransition
@@ -16,7 +15,7 @@ export default async function MapPage({ searchParams }: PageProps<"/map">) {
       default="none"
     >
       <main className="mx-auto flex h-dvh w-full max-w-2xl flex-col">
-        <BrowseHeader current="map" count={showCount} />
+        <BrowseHeader current="map" />
         <ConcertMap
           key={initialFacilityId ?? "all"}
           facilities={facilities}
