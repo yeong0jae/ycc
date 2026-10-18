@@ -9,15 +9,15 @@ export function BackButton() {
       type="button"
       aria-label="뒤로"
       onClick={() => (window.history.length > 1 ? router.back() : router.push("/"))}
-      className="-ml-3 flex size-11 shrink-0 cursor-pointer items-center justify-center"
+      className="flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-full bg-pill"
     >
       <svg
-        width="22"
-        height="22"
+        width="20"
+        height="20"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        strokeWidth="2"
+        strokeWidth="2.4"
         strokeLinecap="round"
         strokeLinejoin="round"
         aria-hidden="true"

@@ -1,11 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ShowCard } from "@/components/show-card";
 import { todayInSeoul } from "@/lib/format";
 import type { Show } from "@/lib/show-types";
-
-const SEARCH_BAR_TOP = 80;
 
 function normalize(text: string) {
   return text.toLowerCase().replace(/\s+/g, "");
@@ -15,7 +14,9 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
   const [query, setQuery] = useState(initialQuery);
   const keyword = normalize(query);
   const results = keyword
-    ? shows.filter((show) => normalize(`${show.name} ${show.venue} ${show.cast ?? ""}`).includes(keyword))
+    ? shows.filter((show) =>
+        normalize(`${show.name} ${show.venue} ${show.area ?? ""} ${show.cast ?? ""}`).includes(keyword),
+      )
     : shows;
   const today = todayInSeoul();
   const past = results.filter((show) => show.endDate < today);
@@ -31,7 +32,7 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
       return;
     }
     const top = divider.current.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo({ top: top - searchBar.current.getBoundingClientRect().height - SEARCH_BAR_TOP, behavior });
+    window.scrollTo({ top: top - searchBar.current.getBoundingClientRect().height, behavior });
   };
 
   useLayoutEffect(() => scrollToToday("instant"), [keyword]);
@@ -60,8 +61,8 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
 
   return (
     <>
-      <div ref={searchBar} className="sticky top-20 z-[5] -mx-4 mb-4 bg-paper px-4 pt-2 pb-3">
-        <div className="relative">
+      <div ref={searchBar} className="sticky top-0 z-10 flex items-center gap-2 bg-paper px-3 pt-2.5 pb-3">
+        <div className="relative flex-1">
           <label htmlFor="show-search" className="sr-only">
             페스티벌 검색
           </label>
@@ -71,22 +72,22 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="2.4"
             strokeLinecap="round"
             aria-hidden="true"
             className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-muted"
           >
-            <circle cx="11" cy="11" r="7" />
-            <path d="m20 20-3.5-3.5" />
+            <circle cx="11" cy="11" r="6.5" />
+            <path d="m20 20-4.2-4.2" />
           </svg>
           <input
             id="show-search"
             type="search"
             value={query}
             onChange={(event) => search(event.target.value)}
-            placeholder="페스티벌, 출연진, 장소"
+            placeholder="페스티벌, 출연진, 지역"
             autoComplete="off"
-            className="h-12 w-full rounded-xl border border-line bg-stub pr-12 pl-11 text-[15px] outline-none placeholder:text-muted focus:border-ink [&::-webkit-search-cancel-button]:hidden"
+            className="h-12 w-full rounded-full bg-pill pr-12 pl-11 text-[15px] outline-none placeholder:text-muted focus:ring-2 focus:ring-ink [&::-webkit-search-cancel-button]:hidden"
           />
           {query && (
             <button
@@ -95,74 +96,64 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
               onClick={() => search("")}
               className="absolute top-1/2 right-1 flex size-11 -translate-y-1/2 cursor-pointer items-center justify-center text-muted"
             >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                aria-hidden="true"
-              >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
                 <path d="M6 6l12 12M18 6 6 18" />
               </svg>
             </button>
           )}
         </div>
+        <Link
+          href="/find/map"
+          aria-label="지도로 보기"
+          className="flex size-12 shrink-0 items-center justify-center rounded-full bg-pill"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14" />
+          </svg>
+        </Link>
+      </div>
+
+      <div className="px-3">
         {keyword && (
-          <p aria-live="polite" className="mt-2 text-sm text-muted">
+          <p aria-live="polite" className="pb-3 text-sm text-muted">
             {results.length > 0 ? `${results.length}개` : `‘${query}’에 맞는 페스티벌이 없어요.`}
           </p>
         )}
+        {shows.length === 0 && <p className="py-16 text-center text-sm text-muted">아직 띄운 페스티벌이 없어요.</p>}
+        {past.length > 0 && (
+          <ul aria-label="지난 페스티벌" className="grid grid-cols-2 gap-x-2.5 gap-y-4.5 opacity-50 sm:grid-cols-3">
+            {past.map((show) => (
+              <li key={show.id}>
+                <ShowCard show={show} />
+              </li>
+            ))}
+          </ul>
+        )}
+        {past.length > 0 && upcoming.length > 0 && (
+          <div ref={divider} aria-hidden="true" className="flex items-center gap-2 py-5 text-muted">
+            <span className="h-px flex-1 bg-line" />
+            <span className="text-xs">↑ 지난 페스티벌</span>
+            <span className="h-px flex-1 bg-line" />
+          </div>
+        )}
+        {upcoming.length > 0 && (
+          <ul className="grid grid-cols-2 gap-x-2.5 gap-y-4.5 sm:grid-cols-3">
+            {upcoming.map((show) => (
+              <li key={show.id}>
+                <ShowCard show={show} />
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
-      {shows.length === 0 && <p className="text-muted">아직 띄운 페스티벌이 없어요.</p>}
-      {past.length > 0 && (
-        <ul aria-label="이전 공연" className="grid gap-3 opacity-60 grayscale sm:grid-cols-2">
-          {past.map((show) => (
-            <li key={show.id}>
-              <ShowCard show={show} ended />
-            </li>
-          ))}
-        </ul>
-      )}
-      {past.length > 0 && upcoming.length > 0 && (
-        <div ref={divider} aria-hidden="true" className="flex items-center gap-3 py-5 text-muted">
-          <span className="flex-1 border-t-2 border-dashed border-line" />
-          <span className="flex items-center gap-1 text-xs font-semibold">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 19V5M5 12l7-7 7 7" />
-            </svg>
-            이전 공연
-          </span>
-          <span className="flex-1 border-t-2 border-dashed border-line" />
-        </div>
-      )}
-      {upcoming.length > 0 && (
-        <ul className="grid gap-3 sm:grid-cols-2">
-          {upcoming.map((show) => (
-            <li key={show.id}>
-              <ShowCard show={show} ended={false} />
-            </li>
-          ))}
-        </ul>
-      )}
+
       <button
         type="button"
         inert={!todayDirection}
         onClick={() =>
           scrollToToday(window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth")
         }
-        className={`fixed bottom-28 left-1/2 z-20 flex h-11 -translate-x-1/2 cursor-pointer items-center gap-1.5 rounded-full bg-ink px-4 text-sm font-semibold text-stub shadow-[0_4px_16px_rgb(17_19_24/0.25)] transition duration-200 active:scale-95 motion-reduce:transition-none ${
+        className={`fixed bottom-26 left-1/2 z-20 flex h-11 -translate-x-1/2 cursor-pointer items-center gap-1.5 rounded-full bg-ink px-4 text-sm font-bold text-stub shadow-[0_4px_16px_rgb(17_17_17/0.25)] transition duration-200 active:scale-95 motion-reduce:transition-none ${
           todayDirection ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
         }`}
       >
@@ -172,7 +163,7 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          strokeWidth="2"
+          strokeWidth="2.4"
           strokeLinecap="round"
           strokeLinejoin="round"
           aria-hidden="true"
@@ -180,7 +171,7 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
         >
           <path d="M12 19V5M5 12l7-7 7 7" />
         </svg>
-        {todayDirection === "down" ? "다가오는 공연" : "오늘"}
+        {todayDirection === "down" ? "다가오는 페스티벌" : "오늘"}
       </button>
     </>
   );

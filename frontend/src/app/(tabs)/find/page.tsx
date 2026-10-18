@@ -1,6 +1,5 @@
 import { ViewTransition } from "react";
 import { AppFrame } from "@/components/app-frame";
-import { BrowseHeader } from "@/components/browse-header";
 import { KopisSource } from "@/components/kopis-source";
 import { getShows } from "@/lib/show";
 import { ShowSearch } from "./show-search";
@@ -15,12 +14,9 @@ export default async function FindPage({ searchParams }: PageProps<"/find">) {
       exit={{ "view-switch": "view-fade", default: "none" }}
       default="none"
     >
-      <AppFrame className="pb-28">
-        <BrowseHeader current="list" />
-        <div className="px-4 py-6">
-          <ShowSearch shows={shows} initialQuery={typeof q === "string" ? q : ""} />
-          <KopisSource className="mt-8 text-center" />
-        </div>
+      <AppFrame className="pb-32">
+        <ShowSearch shows={shows} initialQuery={typeof q === "string" ? q : ""} />
+        <KopisSource className="mt-10 px-4 text-center" />
       </AppFrame>
     </ViewTransition>
   );

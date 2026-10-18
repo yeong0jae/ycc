@@ -17,7 +17,7 @@ const tabs = [
 
 export function ViewToggle({ current }: { current?: "list" | "map" }) {
   return (
-    <nav aria-label="보기 방식" className="flex shrink-0 rounded-full border border-line bg-stub p-1">
+    <nav aria-label="보기 방식" className="flex shrink-0 rounded-full bg-pill p-1">
       {tabs.map((tab) => {
         const active = tab.key === current;
         return (

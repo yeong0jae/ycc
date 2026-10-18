@@ -14,9 +14,9 @@ export function AppHeader({
 }) {
   return (
     <ViewTransition name="app-header">
-      <header className="sticky top-0 z-10 flex h-20 items-center gap-2 bg-paper px-4 shadow-[0_1px_0_var(--color-line)]">
+      <header className="sticky top-0 z-10 flex h-17 items-center gap-2 bg-paper px-3">
         {leading}
-        <Title className="min-w-0 flex-1 truncate font-display text-[26px] leading-tight tracking-tight">{title}</Title>
+        <Title className="min-w-0 flex-1 truncate px-1 font-display text-[22px] leading-tight">{title}</Title>
         {trailing}
       </header>
     </ViewTransition>

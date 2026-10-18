@@ -2,113 +2,114 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ViewTransition } from "react";
 import { AppFrame } from "@/components/app-frame";
-import { AppHeader } from "@/components/app-header";
 import { BackButton } from "@/components/back-button";
 import { KopisSource } from "@/components/kopis-source";
-import { formatPeriod } from "@/lib/format";
+import { festivalBadge, formatLongPeriod, shortRegion } from "@/lib/format";
 import { getShow } from "@/lib/show";
 
 export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
   const { id } = await params;
   const show = await getShow(id);
   if (!show) notFound();
+  const badge = festivalBadge(show.startDate, show.endDate);
+  const region = shortRegion(show.area);
+  const ticketUrl = show.ticketUrl ?? show.officialUrl;
 
   return (
-    <AppFrame>
-      <AppHeader as="p" title="페스티벌" leading={<BackButton />} />
-      <article className="relative m-4 mt-6 overflow-hidden rounded-[20px] bg-stub">
-        <div className="sm:flex">
-          <ViewTransition name={`poster-${show.id}`} share="morph" default="none">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={show.posterUrl}
-              alt={`${show.name} 포스터`}
-              className="aspect-[3/4] w-full object-cover sm:w-64 sm:shrink-0 sm:self-start"
-            />
-          </ViewTransition>
-          <div className="flex flex-1 flex-col gap-4 p-5">
-            <h1 className="font-display text-3xl leading-tight">{show.name}</h1>
-            <dl className="grid grid-cols-2 gap-3 text-[15px]">
-              <div>
-                <dt className="text-[13px] text-muted">일정</dt>
-                <dd className="font-mono">{formatPeriod(show.startDate, show.endDate)}</dd>
-              </div>
-              <div>
-                <dt className="text-[13px] text-muted">장소</dt>
-                <dd>
-                  {show.facilityId ? (
-                    <Link
-                      href={`/find/map?facility=${show.facilityId}`}
-                      className="inline-flex items-center gap-1 underline decoration-line decoration-2 underline-offset-4"
-                    >
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                        className="shrink-0"
-                      >
-                        <path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z" />
-                        <circle cx="12" cy="10" r="2.5" />
-                      </svg>
-                      {show.venue}
-                    </Link>
-                  ) : (
-                    show.venue
-                  )}
-                </dd>
-              </div>
-              {show.scheduleGuide && (
-                <div className="col-span-2">
-                  <dt className="text-[13px] text-muted">회차</dt>
-                  <dd>{show.scheduleGuide}</dd>
-                </div>
-              )}
-              {show.priceGuide && (
-                <div className="col-span-2">
-                  <dt className="text-[13px] text-muted">가격</dt>
-                  <dd>{show.priceGuide}</dd>
-                </div>
-              )}
-            </dl>
-          </div>
-        </div>
-        {(show.ticketUrl || show.officialUrl) && (
-          <>
-            <div className="mx-4.5 border-t-2 border-dashed border-line" />
-            <div className="absolute -left-2.5 bottom-17.5 size-5 rounded-full bg-paper" />
-            <div className="absolute -right-2.5 bottom-17.5 size-5 rounded-full bg-paper" />
-            <div className="flex gap-2 px-4 pt-3.5 pb-4">
-              {show.ticketUrl && (
-                <a
-                  href={show.ticketUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex h-12 flex-1 items-center justify-center rounded-xl bg-ink font-semibold text-stub hover:bg-ink/85 transition duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100"
-                >
-                  예매하기
-                </a>
-              )}
-              {show.officialUrl && (
-                <a
-                  href={show.officialUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex h-12 flex-1 items-center justify-center rounded-xl border-[1.5px] border-ink font-semibold hover:bg-ink/5 transition duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100"
-                >
-                  공식 사이트
-                </a>
-              )}
-            </div>
-          </>
+    <AppFrame className="pb-32">
+      <div className="px-3 pt-2.5">
+        <BackButton />
+      </div>
+
+      <header className="flex flex-col gap-2.5 px-5 pt-3.5">
+        {badge && (
+          <span
+            className={`flex h-6.5 items-center self-start rounded-full px-2.5 font-num text-[13px] ${
+              badge.live ? "bg-lime" : "bg-pill"
+            }`}
+          >
+            {badge.label}
+          </span>
         )}
-      </article>
-      <KopisSource className="px-4 pt-6 pb-8 text-center" />
+        <h1 className="font-display text-[26px] leading-snug">{show.name}</h1>
+        <p className="text-base leading-normal">
+          <b>{formatLongPeriod(show.startDate, show.endDate)}</b>
+          <span className="text-muted">
+            {" · "}
+            {show.venue}
+            {region && `, ${region}`}
+          </span>
+        </p>
+      </header>
+
+      <a href={show.posterUrl} target="_blank" rel="noopener noreferrer" className="relative mx-3 mt-4 block">
+        <ViewTransition name={`poster-${show.id}`} share="morph" default="none">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={show.posterUrl} alt={`${show.name} 포스터`} className="w-full rounded-[20px] bg-pill" />
+        </ViewTransition>
+        <span className="absolute top-3 right-3 flex h-7.5 items-center rounded-full bg-ink/55 px-3 text-xs text-stub">
+          눌러서 크게 보기
+        </span>
+      </a>
+
+      <dl className="mx-5 mt-2">
+        {show.scheduleGuide && (
+          <div className="flex gap-3 border-b border-line py-3.5">
+            <dt className="w-11 shrink-0 text-sm text-muted">회차</dt>
+            <dd className="text-[15px] leading-relaxed">{show.scheduleGuide}</dd>
+          </div>
+        )}
+        {show.priceGuide && (
+          <div className="flex gap-3 border-b border-line py-3.5">
+            <dt className="w-11 shrink-0 text-sm text-muted">가격</dt>
+            <dd className="text-[15px] leading-relaxed whitespace-pre-line">{show.priceGuide}</dd>
+          </div>
+        )}
+        {show.cast && (
+          <div className="flex gap-3 border-b border-line py-3.5">
+            <dt className="w-11 shrink-0 text-sm text-muted">출연</dt>
+            <dd className="text-[15px] leading-relaxed">{show.cast}</dd>
+          </div>
+        )}
+        <div className="flex items-center gap-3 py-3.5">
+          <dt className="w-11 shrink-0 text-sm text-muted">장소</dt>
+          <dd className="flex flex-1 items-center justify-between gap-2 text-[15px]">
+            {show.venue}
+            {show.facilityId && (
+              <Link
+                href={`/find/map?facility=${show.facilityId}`}
+                className="flex h-8.5 shrink-0 items-center rounded-full bg-pill px-3 text-[13px] font-medium"
+              >
+                지도
+              </Link>
+            )}
+          </dd>
+        </div>
+      </dl>
+
+      <KopisSource className="px-5 pt-4 text-center" />
+
+      <div className="fixed inset-x-0 bottom-0 z-20 bg-paper shadow-[0_-1px_0_var(--color-line)]">
+        <div className="mx-auto flex max-w-2xl gap-2 px-3 pt-3 pb-7">
+          {ticketUrl && (
+            <a
+              href={ticketUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex h-14 w-30 shrink-0 items-center justify-center rounded-full bg-pill text-[15px] font-bold"
+            >
+              예매처 ↗
+            </a>
+          )}
+          <button
+            type="button"
+            disabled
+            className="h-14 flex-1 rounded-full bg-lime text-base font-bold disabled:opacity-50"
+          >
+            예매 인증 · 곧 열려요
+          </button>
+        </div>
+      </div>
     </AppFrame>
   );
 }

@@ -1,33 +1,22 @@
 import { AppFrame } from "@/components/app-frame";
-import { BrowseHeader } from "@/components/browse-header";
 
 export default function Loading() {
   return (
-    <AppFrame className="pb-28">
+    <AppFrame className="pb-32">
       <div aria-busy="true">
-        <BrowseHeader current="list" />
-        <div className="px-4 py-6">
-          <ul className="grid gap-3 sm:grid-cols-2">
-            {Array.from({ length: 4 }, (_, i) => (
-              <li key={i} className="relative flex min-h-37 overflow-hidden rounded-2xl bg-stub">
-                <div className="w-27 shrink-0 animate-pulse bg-line motion-reduce:animate-none" />
-                <div className="my-3.5 border-l-2 border-dashed border-line" />
-                <div className="absolute -top-2.5 left-24.75 size-5 rounded-full bg-paper" />
-                <div className="absolute -bottom-2.5 left-24.75 size-5 rounded-full bg-paper" />
-                <div className="flex flex-1 animate-pulse flex-col justify-between p-4 motion-reduce:animate-none">
-                  <div className="space-y-2">
-                    <div className="h-5 w-3/4 rounded bg-line" />
-                    <div className="h-4 w-1/2 rounded bg-line" />
-                  </div>
-                  <div className="flex justify-between">
-                    <div className="h-4 w-24 rounded bg-line" />
-                    <div className="h-5 w-12 rounded-full bg-line" />
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
+        <div className="flex gap-2 px-3 pt-2.5 pb-3">
+          <div className="h-12 flex-1 rounded-full bg-pill" />
+          <div className="size-12 rounded-full bg-pill" />
         </div>
+        <ul className="grid animate-pulse grid-cols-2 gap-x-2.5 gap-y-4.5 px-3 motion-reduce:animate-none sm:grid-cols-3">
+          {Array.from({ length: 6 }, (_, i) => (
+            <li key={i} className="flex flex-col gap-2">
+              <div className="aspect-[3/4] rounded-2xl bg-pill" />
+              <div className="h-4 w-4/5 rounded bg-pill" />
+              <div className="h-3.5 w-1/2 rounded bg-pill" />
+            </li>
+          ))}
+        </ul>
         <p className="sr-only">불러오는 중</p>
       </div>
     </AppFrame>

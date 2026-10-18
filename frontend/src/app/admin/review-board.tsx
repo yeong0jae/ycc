@@ -188,7 +188,7 @@ export function ReviewBoard({ initial, today }: { initial: ReviewList; today: st
                     aria-current={active}
                     onClick={() => setCurrentId(item.show.id)}
                     className={`flex w-full cursor-pointer items-center gap-2.5 border-b border-[#E3E5E9] px-4 py-2.5 text-left ${
-                      active ? "bg-stub shadow-[inset_3px_0_0_var(--color-ink)]" : ""
+                      active ? "bg-pill shadow-[inset_3px_0_0_var(--color-ink)]" : ""
                     } ${past && !active ? "opacity-55" : ""}`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -251,7 +251,7 @@ export function ReviewBoard({ initial, today }: { initial: ReviewList; today: st
                       href={current.show.ticketUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex h-10 items-center rounded-xl border border-line bg-stub px-3.5 text-[13px] font-semibold"
+                      className="flex h-10 items-center rounded-full bg-pill px-3.5 text-[13px] font-semibold"
                     >
                       예매처 열기 ↗
                     </a>
@@ -260,7 +260,7 @@ export function ReviewBoard({ initial, today }: { initial: ReviewList; today: st
                     href={kopisUrl(current.kopisId)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex h-10 items-center rounded-xl border border-line bg-stub px-3.5 text-[13px] font-semibold"
+                    className="flex h-10 items-center rounded-full bg-pill px-3.5 text-[13px] font-semibold"
                   >
                     KOPIS 원문 ↗
                   </a>
@@ -270,7 +270,7 @@ export function ReviewBoard({ initial, today }: { initial: ReviewList; today: st
           )}
         </section>
 
-        <aside className="hidden w-85 shrink-0 flex-col gap-3.5 border-l border-line bg-stub p-6 lg:flex">
+        <aside className="hidden w-85 shrink-0 flex-col gap-3.5 border-l border-line p-6 lg:flex">
           <p className="text-[13px] text-muted">찾기에 띄울까요?</p>
           {targets.map((target) => (
             <button

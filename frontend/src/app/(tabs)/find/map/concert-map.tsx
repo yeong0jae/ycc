@@ -200,7 +200,7 @@ export function ConcertMap({
                 type="button"
                 aria-label="닫기"
                 onClick={() => setSelectedId(null)}
-                className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-paper transition-transform duration-150 active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100"
+                className="flex size-11 shrink-0 items-center justify-center rounded-full bg-pill transition-transform duration-150 active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100"
               >
                 <svg
                   width="18"
@@ -219,7 +219,7 @@ export function ConcertMap({
             <div className="mx-5 border-t-2 border-dashed border-line" />
             <ul className="overflow-y-auto px-5 pb-28">
               {sheet.shows.map((show) => (
-                <li key={show.id} className="border-b border-paper last:border-b-0">
+                <li key={show.id} className="border-b border-line last:border-b-0">
                   <Link
                     href={`/shows/${show.id}`}
                     prefetch

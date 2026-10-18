@@ -39,7 +39,7 @@ export function ProfileForm({
           minLength={2}
           maxLength={12}
           autoComplete="off"
-          className="h-13 rounded-xl border-[1.5px] border-line bg-stub px-4 text-base outline-none focus:border-ink"
+          className="h-13 rounded-full bg-pill px-5 text-base outline-none focus:ring-2 focus:ring-ink"
         />
         <p className="text-[13px] text-muted">카카오 이름 대신 이 닉네임만 보여요. 2~12자예요.</p>
       </div>
@@ -49,8 +49,8 @@ export function ProfileForm({
           {genders.map(([value, label]) => (
             <label
               key={value}
-              className={`flex h-12 cursor-pointer items-center justify-center rounded-xl border text-[15px] font-semibold has-focus-visible:ring-2 has-focus-visible:ring-ink ${
-                picked === value ? "border-ink bg-ink text-stub" : "border-line bg-stub"
+              className={`flex h-12 cursor-pointer items-center justify-center rounded-full text-[15px] font-bold has-focus-visible:ring-2 has-focus-visible:ring-ink ${
+                picked === value ? "bg-ink text-stub" : "bg-pill"
               }`}
             >
               <input
@@ -67,7 +67,7 @@ export function ProfileForm({
           ))}
         </div>
         <p className="text-[13px] leading-relaxed text-muted">
-          다른 사람에게는 보이지 않아요. &quot;동성만&quot; 조건을 건 동행에서만 쓰여요.
+          다른 사람에게는 보이지 않아요.
         </p>
       </fieldset>
       {state.error && (
@@ -78,7 +78,7 @@ export function ProfileForm({
       <button
         type="submit"
         disabled={pending}
-        className="mt-auto h-13 cursor-pointer rounded-2xl bg-ink font-semibold text-stub transition-transform duration-150 active:scale-[0.98] disabled:opacity-60 motion-reduce:transition-none motion-reduce:active:scale-100"
+        className="mt-auto h-14 cursor-pointer rounded-full bg-ink font-bold text-stub transition-transform duration-150 active:scale-[0.98] disabled:opacity-60 motion-reduce:transition-none motion-reduce:active:scale-100"
       >
         {pending ? "저장하는 중…" : submitLabel}
       </button>

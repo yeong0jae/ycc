@@ -15,12 +15,12 @@ export default async function OnboardingPage({ searchParams }: PageProps<"/onboa
   return (
     <AppFrame className="flex min-h-dvh flex-col">
       <AppHeader title={editing ? "프로필 수정" : "시작 설정"} leading={editing ? <BackButton /> : undefined} />
-      <div className="flex flex-1 flex-col gap-7 px-4 pt-8 pb-8">
+      <div className="flex flex-1 flex-col gap-7 px-5 pt-6 pb-8">
         {!editing && (
-          <p className="font-display text-[28px] leading-snug">
-            같이 갈 사람에게
+          <p className="font-display text-[26px] leading-snug">
+            앱에서 쓸
             <br />
-            보여 줄 이름을 정해요
+            이름을 정해요
           </p>
         )}
         <ProfileForm

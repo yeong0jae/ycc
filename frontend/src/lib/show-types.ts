@@ -10,6 +10,7 @@ export type Show = {
   scheduleGuide: string | null;
   priceGuide: string | null;
   cast: string | null;
+  area: string | null;
   facilityId: number | null;
 };
 

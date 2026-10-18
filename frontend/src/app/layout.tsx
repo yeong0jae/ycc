@@ -1,22 +1,16 @@
 import type { Metadata } from "next";
-import { Hahmlet, IBM_Plex_Mono, IBM_Plex_Sans_KR } from "next/font/google";
+import { Noto_Sans_KR, Nunito } from "next/font/google";
 import "./globals.css";
 
-const hahmlet = Hahmlet({
-  variable: "--font-hahmlet",
-  weight: "600",
+const notoSansKr = Noto_Sans_KR({
+  variable: "--font-noto-sans-kr",
+  weight: ["400", "500", "700"],
   preload: false,
 });
 
-const plexSansKr = IBM_Plex_Sans_KR({
-  variable: "--font-plex-sans-kr",
-  weight: ["400", "600"],
-  preload: false,
-});
-
-const plexMono = IBM_Plex_Mono({
-  variable: "--font-plex-mono",
-  weight: "500",
+const nunito = Nunito({
+  variable: "--font-nunito",
+  weight: ["800", "900"],
   subsets: ["latin"],
 });
 
@@ -29,7 +23,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="ko"
-      className={`${hahmlet.variable} ${plexSansKr.variable} ${plexMono.variable} h-full antialiased`}
+      className={`${notoSansKr.variable} ${nunito.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>

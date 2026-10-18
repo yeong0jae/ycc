@@ -45,7 +45,7 @@ export function TabBar() {
   return (
     <nav
       aria-label="탭"
-      className="fixed bottom-6 left-1/2 z-30 grid h-16 w-[calc(100%-40px)] max-w-80 -translate-x-1/2 grid-cols-3 items-center gap-1 rounded-full border border-white/80 bg-white/60 p-1 shadow-[0_10px_30px_rgb(17_19_24/0.16),inset_0_1px_0_rgb(255_255_255/0.9)] backdrop-blur-xl backdrop-saturate-150"
+      className="fixed bottom-6 left-1/2 z-30 flex h-15 -translate-x-1/2 items-center gap-2 rounded-full bg-pill px-1.5 shadow-[0_8px_24px_rgb(17_17_17/0.12)]"
     >
       {tabs.map((tab) => {
         const active = tab.key === current;
@@ -53,25 +53,25 @@ export function TabBar() {
           <Link
             key={tab.key}
             href={tab.href}
+            aria-label={tab.label}
             aria-current={active ? "page" : undefined}
-            className={`flex h-14 flex-col items-center justify-center gap-0.5 rounded-full text-ink transition-colors duration-150 ${
-              active ? "bg-ink/8 font-bold" : "font-medium"
+            className={`flex size-12 items-center justify-center rounded-full transition-colors duration-150 ${
+              active ? "bg-ink text-stub" : "text-ink"
             }`}
           >
             <svg
-              width="24"
-              height="24"
+              width="22"
+              height="22"
               viewBox="0 0 24 24"
-              fill={active && tab.key !== "find" ? "currentColor" : "none"}
+              fill="none"
               stroke="currentColor"
-              strokeWidth="1.8"
+              strokeWidth="2.2"
               strokeLinecap="round"
               strokeLinejoin="round"
               aria-hidden="true"
             >
               {tab.icon}
             </svg>
-            <span className="text-[11px]">{tab.label}</span>
           </Link>
         );
       })}

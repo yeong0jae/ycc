@@ -17,15 +17,15 @@ export default async function MePage() {
         trailing={
           <Link
             href="/onboarding?edit"
-            className="flex h-10 items-center rounded-xl border border-line bg-stub px-3.5 text-[13px] font-semibold"
+            className="flex h-11 items-center rounded-full bg-pill px-4 text-sm font-bold"
           >
             수정
           </Link>
         }
       />
-      <div className="flex flex-col gap-5 px-4 py-6">
+      <div className="flex flex-col gap-5 px-5 py-4">
         <div className="flex items-center gap-3.5">
-          <span className="flex size-14 items-center justify-center rounded-full bg-ink text-xl font-semibold text-stub">
+          <span className="flex size-14 items-center justify-center rounded-full bg-ink text-xl font-bold text-stub">
             {me.nickname!.slice(0, 1)}
           </span>
           <span className="font-display text-[22px]">{me.nickname}</span>

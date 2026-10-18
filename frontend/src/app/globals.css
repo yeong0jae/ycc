@@ -1,15 +1,16 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-ink: #111318;
-  --color-paper: #f2f3f5;
+  --color-ink: #111111;
+  --color-paper: #ffffff;
   --color-stub: #ffffff;
+  --color-pill: #f1f1f3;
+  --color-cream: #efe8dd;
   --color-lime: #c6f432;
-  --color-muted: #5b606b;
-  --color-line: #d9dce1;
-  --font-display: var(--font-hahmlet);
-  --font-sans: var(--font-plex-sans-kr);
-  --font-mono: var(--font-plex-mono);
+  --color-muted: #6b6b72;
+  --color-line: #e4e4e8;
+  --font-sans: var(--font-noto-sans-kr);
+  --font-mono: var(--font-nunito);
   --animate-marker-pop: marker-pop 260ms ease-out;
 
   @keyframes marker-pop {
@@ -17,6 +18,17 @@
       transform: translateY(-6px) scale(1.06);
     }
   }
+}
+
+@utility font-display {
+  font-family: var(--font-noto-sans-kr);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+@utility font-num {
+  font-family: var(--font-nunito);
+  font-weight: 900;
 }
 
 body {
