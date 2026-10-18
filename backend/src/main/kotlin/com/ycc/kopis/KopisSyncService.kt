@@ -2,6 +2,8 @@ package com.ycc.kopis
 
 import com.ycc.facility.Facility
 import com.ycc.facility.FacilityRepository
+import com.ycc.log.ShowLogRepository
+import com.ycc.log.ShowPlanRepository
 import com.ycc.show.ShowRepository
 import org.springframework.stereotype.Service
 import java.time.Clock
@@ -13,6 +15,8 @@ class KopisSyncService(
 	private val kopisClient: KopisClient,
 	private val showRepository: ShowRepository,
 	private val facilityRepository: FacilityRepository,
+	private val planRepository: ShowPlanRepository,
+	private val logRepository: ShowLogRepository,
 	private val clock: Clock,
 ) {
 
@@ -35,7 +39,12 @@ class KopisSyncService(
 		}
 
 		val keptIds = shows.map { it.kopisId }.toSet()
-		showRepository.deleteAll(showRepository.findAll().filter { it.kopisId !in keptIds && it.endDate >= today })
+		showRepository.deleteAll(
+			showRepository.findAll().filter {
+				it.kopisId !in keptIds && it.endDate >= today &&
+					!planRepository.existsByShowId(it.id) && !logRepository.existsByShowId(it.id)
+			},
+		)
 		shows.forEach { show ->
 			showRepository.save(showRepository.findByKopisId(show.kopisId)?.apply { update(show) } ?: show)
 		}

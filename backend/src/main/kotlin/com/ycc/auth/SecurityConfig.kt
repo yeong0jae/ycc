@@ -25,7 +25,16 @@ class SecurityConfig(
 			.csrf { it.disable() }
 			.requestCache { it.disable() }
 			.authorizeHttpRequests {
-				it.requestMatchers("/api/me/**", "/api/logout").authenticated()
+				it.requestMatchers(
+					"/api/me/**",
+					"/api/logout",
+					"/api/logs/**",
+					"/api/feed/**",
+					"/api/users/**",
+					"/api/shows/*/me",
+					"/api/shows/*/plan",
+					"/api/shows/*/log/**",
+				).authenticated()
 				it.anyRequest().permitAll()
 			}
 			.exceptionHandling {

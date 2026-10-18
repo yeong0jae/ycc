@@ -1,6 +1,8 @@
 package com.ycc.kopis
 
 import com.ycc.facility.FacilityRepository
+import com.ycc.log.ShowLogRepository
+import com.ycc.log.ShowPlanRepository
 import com.ycc.show.ShowRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -14,6 +16,8 @@ import kotlin.test.assertEquals
 class KopisSyncServiceTests(
 	@Autowired private val showRepository: ShowRepository,
 	@Autowired private val facilityRepository: FacilityRepository,
+	@Autowired private val planRepository: ShowPlanRepository,
+	@Autowired private val logRepository: ShowLogRepository,
 	@Autowired private val clock: Clock,
 ) {
 
@@ -32,7 +36,7 @@ class KopisSyncServiceTests(
 
 	private var facilityCalls = 0
 
-	private val syncService by lazy { KopisSyncService(fakeClient, showRepository, facilityRepository, clock) }
+	private val syncService by lazy { KopisSyncService(fakeClient, showRepository, facilityRepository, planRepository, logRepository, clock) }
 
 	@BeforeEach
 	fun clear() {
