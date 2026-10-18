@@ -21,8 +21,8 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "콘서트 모아보기",
-  description: "다가오는 콘서트를 한곳에서",
+  title: "페스티벌 모아보기",
+  description: "다가오는 페스티벌을 한곳에서",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

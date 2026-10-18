@@ -16,7 +16,7 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
 
   return (
     <AppFrame>
-      <AppHeader as="p" title="콘서트" leading={<BackButton />} />
+      <AppHeader as="p" title="페스티벌" leading={<BackButton />} />
       <article className="relative m-4 mt-6 overflow-hidden rounded-[20px] bg-stub">
         <div className="sm:flex">
           <ViewTransition name={`poster-${show.id}`} share="morph" default="none">

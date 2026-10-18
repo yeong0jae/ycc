@@ -92,7 +92,7 @@ export function ShowSearch({
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="공연 이름, 아티스트"
+            placeholder="페스티벌 이름"
             autoComplete="off"
             className="h-12 w-full rounded-xl border border-line bg-stub pr-12 pl-11 text-[15px] outline-none placeholder:text-muted focus:border-ink [&::-webkit-search-cancel-button]:hidden"
           />
@@ -142,7 +142,7 @@ export function ShowSearch({
       </div>
       {shows.length === 0 && !loading && (
         <p aria-live="polite" className="py-10 text-center text-sm text-muted">
-          {query.trim() ? `‘${query.trim()}’에 맞는 공연이 없어요.` : "공연이 없어요."}
+          {query.trim() ? `‘${query.trim()}’에 맞는 페스티벌이 없어요.` : "페스티벌이 없어요."}
         </p>
       )}
       <ul className={`grid gap-3 sm:grid-cols-2 ${loading && page === 0 ? "opacity-60" : ""}`}>

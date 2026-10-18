@@ -5,7 +5,7 @@ import { BackButton } from "@/components/back-button";
 export default function Loading() {
   return (
     <AppFrame>
-      <AppHeader as="p" title="콘서트" leading={<BackButton />} />
+      <AppHeader as="p" title="페스티벌" leading={<BackButton />} />
       <div aria-busy="true">
         <div className="relative m-4 mt-6 overflow-hidden rounded-[20px] bg-stub">
           <div className="sm:flex">

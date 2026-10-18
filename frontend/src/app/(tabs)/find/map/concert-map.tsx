@@ -255,7 +255,7 @@ export function ConcertMap({
           sheetOpen ? "opacity-0" : "opacity-100"
         }`}
       >
-        <p className="text-sm">공연장을 누르면 그곳의 콘서트가 보여요</p>
+        <p className="text-sm">공연장을 누르면 그곳의 페스티벌이 보여요</p>
         <button
           type="button"
           aria-label="서울 시내로"
