@@ -1,5 +1,6 @@
 package com.ycc.facility
 
+import com.ycc.show.ReviewStatus
 import com.ycc.show.Show
 import com.ycc.show.ShowRepository
 import org.junit.jupiter.api.BeforeEach
@@ -44,6 +45,7 @@ class FacilityControllerTests(
 		scheduleGuide = null,
 		priceGuide = null,
 		facility = facility,
+		reviewStatus = ReviewStatus.VISIBLE,
 	)
 
 	@BeforeEach

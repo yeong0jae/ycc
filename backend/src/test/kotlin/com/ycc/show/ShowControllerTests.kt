@@ -44,6 +44,7 @@ class ShowControllerTests(
 		scheduleGuide = "토요일(18:00)",
 		priceGuide = "전석 110,000원",
 		facility = facility,
+		reviewStatus = ReviewStatus.VISIBLE,
 	)
 
 	@BeforeEach
@@ -96,6 +97,17 @@ class ShowControllerTests(
 		mockMvc.get("/api/shows?when=PAST&q=3개월").andExpect {
 			jsonPath("$.items.length()") { value(1) }
 			jsonPath("$.items[0].name") { value("3개월 넘게 지난 공연") }
+		}
+	}
+
+	@Test
+	fun `검수 대기나 무시한 공연은 찾기에 나오지 않는다`() {
+		showRepository.save(show("PX1", "대기 공연", "2026-11-01", "2026-11-01").apply { reviewStatus = ReviewStatus.PENDING })
+		showRepository.save(show("PX2", "무시한 공연", "2026-11-01", "2026-11-01").apply { reviewStatus = ReviewStatus.HIDDEN })
+
+		mockMvc.get("/api/shows").andExpect {
+			jsonPath("$.items.length()") { value(1) }
+			jsonPath("$.items[0].name") { value("나중 공연") }
 		}
 	}
 

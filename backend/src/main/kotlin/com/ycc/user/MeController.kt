@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-data class MeResponse(val id: Long, val nickname: String?, val gender: Gender?, val onboarded: Boolean) {
+data class MeResponse(val id: Long, val nickname: String?, val gender: Gender?, val onboarded: Boolean, val admin: Boolean) {
 	companion object {
-		fun from(user: User) = MeResponse(user.id, user.nickname, user.gender, user.onboarded)
+		fun from(user: User) = MeResponse(user.id, user.nickname, user.gender, user.onboarded, user.admin)
 	}
 }
 

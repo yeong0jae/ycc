@@ -5,9 +5,11 @@ import com.ycc.attendance.AttendanceRepository
 import com.ycc.attendance.AttendanceStatus
 import com.ycc.facility.FacilityRepository
 import com.ycc.log.ShowLogRepository
+import com.ycc.show.ReviewStatus
 import com.ycc.show.ShowRepository
 import com.ycc.user.User
 import com.ycc.user.UserRepository
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -44,6 +46,7 @@ class KopisSyncServiceTests(
 	private val syncService by lazy { KopisSyncService(fakeClient, showRepository, facilityRepository, attendanceRepository, logRepository, clock) }
 
 	@BeforeEach
+	@AfterEach
 	fun clear() {
 		attendanceRepository.deleteAll()
 		userRepository.deleteAll()
@@ -65,7 +68,8 @@ class KopisSyncServiceTests(
 
 		assertEquals(1, facilityCalls)
 		assertEquals(37.5515788, facilityRepository.findByKopisId("FC000001")!!.latitude)
-		assertEquals(1, showRepository.findUpcomingWithFacility(LocalDate.of(2026, 10, 18)).size)
+		val show = showRepository.findWithFacilityById(showRepository.findByKopisId("PF000001")!!.id)!!
+		assertEquals("FC000001", show.facility!!.kopisId)
 	}
 
 	@Test
@@ -90,6 +94,17 @@ class KopisSyncServiceTests(
 		syncService.sync()
 
 		assertEquals(listOf("PF000001", "PF000004", "PF999999"), showRepository.findAll().map { it.kopisId }.sorted())
+	}
+
+	@Test
+	fun `다시 동기화해도 검수 상태는 그대로 둔다`() {
+		syncService.sync()
+		showRepository.findByKopisId("PF000001")!!.let { showRepository.save(it.apply { reviewStatus = ReviewStatus.HIDDEN }) }
+
+		syncService.sync()
+
+		assertEquals(ReviewStatus.HIDDEN, showRepository.findByKopisId("PF000001")!!.reviewStatus)
+		assertEquals(ReviewStatus.PENDING, showRepository.findByKopisId("PF000004")!!.reviewStatus)
 	}
 
 	@Test

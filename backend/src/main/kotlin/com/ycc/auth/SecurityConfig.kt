@@ -27,6 +27,7 @@ class SecurityConfig(
 			.authorizeHttpRequests {
 				it.requestMatchers(
 					"/api/me/**",
+					"/api/admin/**",
 					"/api/logout",
 					"/api/home",
 					"/api/logs/**",
