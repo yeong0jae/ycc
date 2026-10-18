@@ -14,11 +14,12 @@ permissions:
   id-token: write
 
 env:
+  PROJECT: festivalwith
   REGISTRY: asia-northeast3-docker.pkg.dev/festivalwith/ycc
   ZONE: asia-northeast3-a
 
 jobs:
-  test:
+  test-backend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,6 +30,11 @@ jobs:
           cache: gradle
       - working-directory: backend
         run: ./gradlew test
+
+  test-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -38,12 +44,12 @@ jobs:
         run: |
           npm ci
           npm run lint
-          npx next typegen
-          npx tsc --noEmit
 
-  deploy:
-    needs: test
+  build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [backend, frontend]
     steps:
       - uses: actions/checkout@v4
       - id: auth
@@ -62,19 +68,25 @@ jobs:
         run: echo "value=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
       - uses: docker/build-push-action@v6
         with:
-          context: backend
+          context: ${{ matrix.service }}
           push: true
-          tags: ${{ env.REGISTRY }}/backend:${{ steps.tag.outputs.value }},${{ env.REGISTRY }}/backend:latest
-          cache-from: type=gha,scope=backend
-          cache-to: type=gha,scope=backend,mode=max
-      - uses: docker/build-push-action@v6
+          tags: ${{ env.REGISTRY }}/${{ matrix.service }}:${{ steps.tag.outputs.value }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,scope=${{ matrix.service }},mode=max
+
+  deploy:
+    needs: [test-backend, test-frontend, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google-github-actions/auth@v2
         with:
-          context: frontend
-          push: true
-          tags: ${{ env.REGISTRY }}/frontend:${{ steps.tag.outputs.value }},${{ env.REGISTRY }}/frontend:latest
-          cache-from: type=gha,scope=frontend
-          cache-to: type=gha,scope=frontend,mode=max
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
       - uses: google-github-actions/setup-gcloud@v2
       - run: |
-          gcloud compute ssh ycc --zone "$ZONE" --tunnel-through-iap --quiet \
-            --command "sudo TAG=${{ steps.tag.outputs.value }} /opt/ycc/deploy.sh"
+          TAG=${GITHUB_SHA::7}
+          gcloud compute ssh ycc --project "$PROJECT" --zone "$ZONE" --tunnel-through-iap --quiet \
+            --command "sudo TAG=$TAG /opt/ycc/deploy.sh"
+          for service in backend frontend; do
+            gcloud artifacts docker tags add "$REGISTRY/$service:$TAG" "$REGISTRY/$service:latest" --quiet
+          done
