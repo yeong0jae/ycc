@@ -11,16 +11,6 @@
   --font-sans: var(--font-plex-sans-kr);
   --font-mono: var(--font-plex-mono);
   --animate-marker-pop: marker-pop 260ms ease-out;
-  --animate-record-ring: record-ring 3s linear forwards;
-
-  @keyframes record-ring {
-    from {
-      stroke-dashoffset: 100;
-    }
-    to {
-      stroke-dashoffset: 0;
-    }
-  }
 
   @keyframes marker-pop {
     50% {

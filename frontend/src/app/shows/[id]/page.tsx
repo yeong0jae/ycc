@@ -1,13 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense, ViewTransition } from "react";
+import { ViewTransition } from "react";
 import { AppFrame } from "@/components/app-frame";
 import { AppHeader } from "@/components/app-header";
 import { BackButton } from "@/components/back-button";
 import { KopisSource } from "@/components/kopis-source";
 import { formatPeriod } from "@/lib/format";
 import { getShow } from "@/lib/show";
-import { ShowActions } from "./show-actions";
 
 export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
   const { id } = await params;
@@ -109,9 +108,6 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
           </>
         )}
       </article>
-      <Suspense fallback={null}>
-        <ShowActions showId={show.id} startDate={show.startDate} endDate={show.endDate} />
-      </Suspense>
       <KopisSource className="px-4 pt-6 pb-8 text-center" />
     </AppFrame>
   );
