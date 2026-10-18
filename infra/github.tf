@@ -33,7 +33,7 @@ resource "google_service_account_iam_member" "deploy_github" {
 resource "google_artifact_registry_repository_iam_member" "deploy" {
   repository = google_artifact_registry_repository.ycc.name
   location   = var.region
-  role       = "roles/artifactregistry.writer"
+  role       = "roles/artifactregistry.repoAdmin"
   member     = "serviceAccount:${google_service_account.deploy.email}"
 }
 
@@ -56,4 +56,16 @@ resource "google_service_account_iam_member" "deploy_vm" {
   service_account_id = google_service_account.vm.name
   role               = "roles/iam.serviceAccountUser"
   member             = "serviceAccount:${google_service_account.deploy.email}"
+}
+
+resource "google_project_iam_custom_role" "deploy_project_reader" {
+  role_id     = "yccDeployProjectReader"
+  title       = "ycc deploy project reader"
+  permissions = ["compute.projects.get"]
+}
+
+resource "google_project_iam_member" "deploy_project_reader" {
+  project = var.project_id
+  role    = google_project_iam_custom_role.deploy_project_reader.name
+  member  = "serviceAccount:${google_service_account.deploy.email}"
 }
