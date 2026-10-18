@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ViewTransition } from "react";
+import { connection } from "next/server";
+import { Suspense, ViewTransition } from "react";
 import { AppFrame } from "@/components/app-frame";
 import { BackButton } from "@/components/back-button";
 import { KopisSource } from "@/components/kopis-source";
@@ -8,11 +9,24 @@ import { LiveBadge } from "@/components/live-badge";
 import { festivalBadge, formatLongPeriod, shortRegion } from "@/lib/format";
 import { getShow } from "@/lib/show";
 
+async function DetailBadge({ startDate, endDate }: { startDate: string; endDate: string }) {
+  await connection();
+  const badge = festivalBadge(startDate, endDate);
+  if (!badge) return null;
+  return (
+    <LiveBadge
+      label={badge.label}
+      live={badge.live}
+      idle="bg-pill"
+      className="h-6.5 animate-rise self-start px-2.5 text-[13px] motion-reduce:animate-none"
+    />
+  );
+}
+
 export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
   const { id } = await params;
   const show = await getShow(id);
   if (!show) notFound();
-  const badge = festivalBadge(show.startDate, show.endDate);
   const region = shortRegion(show.area);
   const ticketUrl = show.ticketUrl ?? show.officialUrl;
 
@@ -23,14 +37,11 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
       </div>
 
       <header className="flex flex-col gap-2.5 px-5 pt-3.5">
-        {badge && (
-          <LiveBadge
-            label={badge.label}
-            live={badge.live}
-            idle="bg-pill"
-            className="h-6.5 animate-rise self-start px-2.5 text-[13px] motion-reduce:animate-none"
-          />
-        )}
+        <div className="flex h-6.5">
+          <Suspense fallback={null}>
+            <DetailBadge startDate={show.startDate} endDate={show.endDate} />
+          </Suspense>
+        </div>
         <h1 className="animate-rise font-display text-[26px] leading-snug [animation-delay:50ms] motion-reduce:animate-none">
           {show.name}
         </h1>
