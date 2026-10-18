@@ -131,6 +131,11 @@ export default async function MePage({ searchParams }: PageProps<"/me">) {
             ))
           ))}
 
+        {me.admin && (
+          <Link href="/admin" className="flex h-12 items-center justify-center rounded-xl bg-ink text-sm font-semibold text-stub">
+            운영 · 페스티벌 검수
+          </Link>
+        )}
         <form action={logout}>
           <button type="submit" className="h-11 cursor-pointer text-sm text-muted">
             로그아웃

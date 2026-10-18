@@ -11,6 +11,7 @@ export type Me = {
   nickname: string | null;
   gender: Gender | null;
   onboarded: boolean;
+  admin: boolean;
 };
 
 export async function backendFetch(path: string, init: RequestInit = {}) {
