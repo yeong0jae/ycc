@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ShowCard } from "@/components/show-card";
 import { RESTORE_KEY, SCROLL_KEY } from "@/lib/back-transition";
@@ -119,15 +118,7 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
             </button>
           )}
         </div>
-        <Link
-          href="/find/map"
-          aria-label="지도로 보기"
-          className="press flex size-12 shrink-0 items-center justify-center rounded-full bg-pill"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14" />
-          </svg>
-        </Link>
+        <span aria-hidden="true" className="w-23 shrink-0" />
       </div>
 
       <div className="px-3" onClickCapture={() => sessionStorage.setItem(SCROLL_KEY, String(window.scrollY))}>

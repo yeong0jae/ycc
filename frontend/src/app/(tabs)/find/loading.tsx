@@ -6,7 +6,7 @@ export default function Loading() {
       <div aria-busy="true">
         <div className="flex gap-2 px-3 pt-2.5 pb-3">
           <div className="h-12 flex-1 rounded-full bg-pill" />
-          <div className="size-12 rounded-full bg-pill" />
+          <div className="w-23 shrink-0" />
         </div>
         <ul className="grid animate-pulse grid-cols-2 gap-x-2.5 gap-y-4.5 px-3 motion-reduce:animate-none sm:grid-cols-3">
           {Array.from({ length: 6 }, (_, i) => (

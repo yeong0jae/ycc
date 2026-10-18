@@ -1,6 +1,5 @@
 import { ViewTransition } from "react";
 import { AppFrame } from "@/components/app-frame";
-import { BrowseHeader } from "@/components/browse-header";
 import { getFacilities } from "@/lib/show";
 import { ConcertMap } from "./concert-map";
 
@@ -15,8 +14,7 @@ export default async function MapPage({ searchParams }: PageProps<"/find/map">) 
       exit={{ "view-switch": "view-fade", default: "none" }}
       default="none"
     >
-      <AppFrame className="flex h-dvh flex-col">
-        <BrowseHeader current="map" />
+      <AppFrame className="relative flex h-dvh flex-col">
         <ConcertMap
           key={initialFacilityId ?? "all"}
           facilities={facilities}
