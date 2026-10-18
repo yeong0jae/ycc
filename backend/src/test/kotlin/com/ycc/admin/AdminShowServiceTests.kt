@@ -50,16 +50,26 @@ class AdminShowServiceTests(
 		adminShowService.review(admin, ReviewRequest(shows.take(2).map { it.id }, ReviewStatus.VISIBLE))
 		adminShowService.review(admin, ReviewRequest(listOf(shows[2].id), ReviewStatus.HIDDEN))
 
-		val page = adminShowService.shows(admin, ReviewStatus.VISIBLE, 0)
+		val page = adminShowService.shows(admin, ReviewStatus.VISIBLE)
 		assertEquals(listOf("PF1", "PF2"), page.items.map { it.show.name.removePrefix("페스티벌 ") })
 		assertEquals(mapOf(ReviewStatus.PENDING to 0L, ReviewStatus.VISIBLE to 2L, ReviewStatus.HIDDEN to 1L), page.counts)
+	}
+
+	@Test
+	fun `검수 목록은 지난 공연까지 전부 시작일 순으로 준다`() {
+		showRepository.save(show("PF2").apply { startDate = LocalDate.parse("2026-12-01") })
+		showRepository.save(show("PF1").apply { startDate = LocalDate.parse("2025-01-01") })
+
+		val names = adminShowService.shows(admin, ReviewStatus.PENDING).items.map { it.kopisId }
+
+		assertEquals(listOf("PF1", "PF2"), names)
 	}
 
 	@Test
 	fun `관리자가 아니면 검수할 수 없다`() {
 		val show = show("PF1")
 
-		assertThrows<ResponseStatusException> { adminShowService.shows(user, ReviewStatus.PENDING, 0) }
+		assertThrows<ResponseStatusException> { adminShowService.shows(user, ReviewStatus.PENDING) }
 		assertThrows<ResponseStatusException> { adminShowService.review(user, ReviewRequest(listOf(show.id), ReviewStatus.VISIBLE)) }
 	}
 }

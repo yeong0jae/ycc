@@ -24,8 +24,7 @@ interface ShowRepository : JpaRepository<Show, Long> {
 	@Query("select s from Show s join fetch s.facility where s.reviewStatus = com.ycc.show.ReviewStatus.VISIBLE and s.endDate >= :date order by s.startDate")
 	fun findUpcomingWithFacility(date: LocalDate): List<Show>
 
-	@Query("select s from Show s where s.reviewStatus = :status order by s.startDate, s.id")
-	fun findByReviewStatus(status: ReviewStatus, pageable: Pageable): Slice<Show>
+	fun findByReviewStatusOrderByStartDateAscIdAsc(status: ReviewStatus): List<Show>
 
 	fun countByReviewStatus(status: ReviewStatus): Long
 }

@@ -24,6 +24,7 @@ data class KopisDetail(
 	val endDate: LocalDate,
 	val venue: String,
 	val area: String?,
+	val cast: String?,
 	val facilityId: String?,
 	val posterUrl: String,
 	val ticketUrl: String?,
@@ -41,6 +42,8 @@ data class KopisDetail(
 		officialUrl = null,
 		scheduleGuide = scheduleGuide?.take(500),
 		priceGuide = priceGuide?.take(2000),
+		area = area?.take(50),
+		castText = cast?.take(1000),
 	)
 }
 
@@ -85,6 +88,7 @@ object KopisParser {
 			endDate = LocalDate.parse(db.text("prfpdto"), DATE),
 			venue = db.text("fcltynm").orEmpty(),
 			area = db.text("area"),
+			cast = db.text("prfcast"),
 			facilityId = db.text("mt10id"),
 			posterUrl = poster,
 			ticketUrl = db.getElementsByTagName("relateurl").item(0)?.textContent?.trim()?.ifBlank { null },

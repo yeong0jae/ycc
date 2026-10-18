@@ -25,8 +25,7 @@ class AdminShowController(
 	fun shows(
 		@AuthenticationPrincipal principal: OAuth2User,
 		@RequestParam(defaultValue = "PENDING") status: ReviewStatus,
-		@RequestParam(defaultValue = "0") page: Int,
-	) = adminShowService.shows(principal.user(), status, page)
+	) = adminShowService.shows(principal.user(), status)
 
 	@PutMapping("/review")
 	fun review(@AuthenticationPrincipal principal: OAuth2User, @RequestBody request: ReviewRequest) =

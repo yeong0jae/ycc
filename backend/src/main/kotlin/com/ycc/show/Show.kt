@@ -28,6 +28,8 @@ class Show(
 	var officialUrl: String?,
 	var scheduleGuide: String?,
 	var priceGuide: String?,
+	var area: String? = null,
+	var castText: String? = null,
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "facility_id")
 	var facility: Facility? = null,
@@ -47,6 +49,8 @@ class Show(
 		officialUrl = other.officialUrl
 		scheduleGuide = other.scheduleGuide
 		priceGuide = other.priceGuide
+		area = other.area
+		castText = other.castText
 		facility = other.facility
 	}
 }

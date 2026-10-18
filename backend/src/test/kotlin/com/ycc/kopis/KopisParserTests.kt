@@ -31,6 +31,7 @@ class KopisParserTests {
 		assertEquals("토요일(18:00)", detail.scheduleGuide)
 		assertEquals("전석 110,000원", detail.priceGuide)
 		assertEquals("FC000001", detail.facilityId)
+		assertEquals("서울특별시", detail.area)
 	}
 
 	@Test
