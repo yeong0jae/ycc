@@ -70,6 +70,17 @@ class ShowControllerTests(
 	}
 
 	@Test
+	fun `출연진으로도 검색한다`() {
+		showRepository.save(show("PX3", "어느 록 페스티벌", "2026-11-01", "2026-11-01").apply { castText = "하현상, 이기용" })
+
+		mockMvc.get("/api/shows?q=하현상").andExpect {
+			jsonPath("$.length()") { value(1) }
+			jsonPath("$[0].name") { value("어느 록 페스티벌") }
+			jsonPath("$[0].cast") { value("하현상, 이기용") }
+		}
+	}
+
+	@Test
 	fun `검수 대기나 무시한 공연은 찾기에 나오지 않는다`() {
 		showRepository.save(show("PX1", "대기 공연", "2026-11-01", "2026-11-01").apply { reviewStatus = ReviewStatus.PENDING })
 		showRepository.save(show("PX2", "무시한 공연", "2026-11-01", "2026-11-01").apply { reviewStatus = ReviewStatus.HIDDEN })

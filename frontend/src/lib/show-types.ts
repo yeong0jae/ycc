@@ -9,6 +9,7 @@ export type Show = {
   officialUrl: string | null;
   scheduleGuide: string | null;
   priceGuide: string | null;
+  cast: string | null;
   facilityId: number | null;
 };
 

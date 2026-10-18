@@ -15,7 +15,7 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
   const [query, setQuery] = useState(initialQuery);
   const keyword = normalize(query);
   const results = keyword
-    ? shows.filter((show) => normalize(`${show.name} ${show.venue}`).includes(keyword))
+    ? shows.filter((show) => normalize(`${show.name} ${show.venue} ${show.cast ?? ""}`).includes(keyword))
     : shows;
   const today = todayInSeoul();
   const past = results.filter((show) => show.endDate < today);
@@ -84,7 +84,7 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
             type="search"
             value={query}
             onChange={(event) => search(event.target.value)}
-            placeholder="페스티벌 이름, 장소"
+            placeholder="페스티벌, 출연진, 장소"
             autoComplete="off"
             className="h-12 w-full rounded-xl border border-line bg-stub pr-12 pl-11 text-[15px] outline-none placeholder:text-muted focus:border-ink [&::-webkit-search-cancel-button]:hidden"
           />
