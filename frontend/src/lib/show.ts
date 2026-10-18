@@ -1,13 +1,13 @@
 import { cacheLife } from "next/cache";
-import { type Facility, type Show, type ShowPage, type ShowWhen, showSearchPath } from "./show-types";
+import type { Facility, Show } from "./show-types";
 
 export type * from "./show-types";
 
 const API_URL = process.env.API_URL ?? "http://localhost:8080";
 
-export async function searchShows(q: string, when: ShowWhen): Promise<ShowPage> {
-  const res = await fetch(`${API_URL}${showSearchPath(q, when, 0)}`);
-  if (!res.ok) throw new Error(`공연 검색 실패: ${res.status}`);
+export async function getShows(): Promise<Show[]> {
+  const res = await fetch(`${API_URL}/api/shows`);
+  if (!res.ok) throw new Error(`페스티벌 목록 조회 실패: ${res.status}`);
   return res.json();
 }
 

@@ -1,77 +1,69 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ShowCard } from "@/components/show-card";
-import { type Show, type ShowPage, type ShowWhen, showSearchPath } from "@/lib/show-types";
+import { todayInSeoul } from "@/lib/format";
+import type { Show } from "@/lib/show-types";
 
-export function ShowSearch({
-  initialQuery,
-  initialWhen,
-  initial,
-}: {
-  initialQuery: string;
-  initialWhen: ShowWhen;
-  initial: ShowPage;
-}) {
+const SEARCH_BAR_TOP = 80;
+
+function normalize(text: string) {
+  return text.toLowerCase().replace(/\s+/g, "");
+}
+
+export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuery: string }) {
   const [query, setQuery] = useState(initialQuery);
-  const [when, setWhen] = useState(initialWhen);
-  const [shows, setShows] = useState<Show[]>(initial.items);
-  const [hasNext, setHasNext] = useState(initial.hasNext);
-  const [page, setPage] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const first = useRef(true);
-  const busy = useRef(false);
-  const sentinel = useRef<HTMLDivElement>(null);
+  const keyword = normalize(query);
+  const results = keyword
+    ? shows.filter((show) => normalize(`${show.name} ${show.venue}`).includes(keyword))
+    : shows;
+  const today = todayInSeoul();
+  const past = results.filter((show) => show.endDate < today);
+  const upcoming = results.filter((show) => show.endDate >= today);
 
-  const load = async (q: string, w: ShowWhen, nextPage: number) => {
-    busy.current = true;
-    setLoading(true);
-    try {
-      const res = await fetch(showSearchPath(q, w, nextPage));
-      if (!res.ok) return;
-      const body: ShowPage = await res.json();
-      setShows((prev) => (nextPage === 0 ? body.items : [...prev, ...body.items]));
-      setHasNext(body.hasNext);
-      setPage(nextPage);
-    } finally {
-      busy.current = false;
-      setLoading(false);
-    }
-  };
+  const searchBar = useRef<HTMLDivElement>(null);
+  const divider = useRef<HTMLDivElement>(null);
+  const [todayDirection, setTodayDirection] = useState<"up" | "down" | null>(null);
 
-  useEffect(() => {
-    if (!hasNext || !sentinel.current) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !busy.current) load(query, when, page + 1);
-      },
-      { rootMargin: "600px" },
-    );
-    observer.observe(sentinel.current);
-    return () => observer.disconnect();
-  }, [hasNext, query, when, page]);
-
-  useEffect(() => {
-    if (first.current) {
-      first.current = false;
+  const scrollToToday = (behavior: ScrollBehavior) => {
+    if (!divider.current || !searchBar.current) {
+      window.scrollTo({ top: 0, behavior });
       return;
     }
+    const top = divider.current.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({ top: top - searchBar.current.getBoundingClientRect().height - SEARCH_BAR_TOP, behavior });
+  };
+
+  useLayoutEffect(() => scrollToToday("instant"), [keyword]);
+
+  useEffect(() => {
+    const update = () => {
+      if (!divider.current || !searchBar.current) return setTodayDirection(null);
+      const { top, bottom } = divider.current.getBoundingClientRect();
+      const visibleTop = searchBar.current.getBoundingClientRect().bottom;
+      if (bottom < visibleTop) setTodayDirection("up");
+      else if (top > window.innerHeight) setTodayDirection("down");
+      else setTodayDirection(null);
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
+  }, [keyword]);
+
+  const search = (value: string) => {
+    setQuery(value);
     const url = new URL(window.location.href);
-    if (query.trim()) url.searchParams.set("q", query.trim());
+    if (value) url.searchParams.set("q", value);
     else url.searchParams.delete("q");
-    if (when === "UPCOMING") url.searchParams.delete("when");
-    else url.searchParams.set("when", when.toLowerCase());
     window.history.replaceState(null, "", url);
-    const timer = setTimeout(() => load(query, when, 0), 250);
-    return () => clearTimeout(timer);
-  }, [query, when]);
+  };
 
   return (
     <>
-      <div className="sticky top-20 z-[5] -mx-4 mb-4 flex flex-col gap-3 bg-paper px-4 pt-2 pb-3">
+      <div ref={searchBar} className="sticky top-20 z-[5] -mx-4 mb-4 bg-paper px-4 pt-2 pb-3">
         <div className="relative">
           <label htmlFor="show-search" className="sr-only">
-            공연 검색
+            페스티벌 검색
           </label>
           <svg
             width="18"
@@ -91,8 +83,8 @@ export function ShowSearch({
             id="show-search"
             type="search"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="페스티벌 이름"
+            onChange={(event) => search(event.target.value)}
+            placeholder="페스티벌 이름, 장소"
             autoComplete="off"
             className="h-12 w-full rounded-xl border border-line bg-stub pr-12 pl-11 text-[15px] outline-none placeholder:text-muted focus:border-ink [&::-webkit-search-cancel-button]:hidden"
           />
@@ -100,7 +92,7 @@ export function ShowSearch({
             <button
               type="button"
               aria-label="검색어 지우기"
-              onClick={() => setQuery("")}
+              onClick={() => search("")}
               className="absolute top-1/2 right-1 flex size-11 -translate-y-1/2 cursor-pointer items-center justify-center text-muted"
             >
               <svg
@@ -118,45 +110,78 @@ export function ShowSearch({
             </button>
           )}
         </div>
-        <div role="group" aria-label="공연 시기" className="flex self-start rounded-full border border-line bg-stub p-1">
-          {(
-            [
-              ["ONGOING", "진행 중"],
-              ["UPCOMING", "다가오는"],
-              ["PAST", "지난"],
-            ] as const
-          ).map(([value, label]) => (
-            <button
-              key={value}
-              type="button"
-              aria-pressed={when === value}
-              onClick={() => setWhen(value)}
-              className={`h-9 cursor-pointer rounded-full px-3.5 text-sm font-semibold ${
-                when === value ? "bg-ink text-stub" : "text-ink"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        {keyword && (
+          <p aria-live="polite" className="mt-2 text-sm text-muted">
+            {results.length > 0 ? `${results.length}개` : `‘${query}’에 맞는 페스티벌이 없어요.`}
+          </p>
+        )}
       </div>
-      {shows.length === 0 && !loading && (
-        <p aria-live="polite" className="py-10 text-center text-sm text-muted">
-          {query.trim() ? `‘${query.trim()}’에 맞는 페스티벌이 없어요.` : "페스티벌이 없어요."}
-        </p>
+      {shows.length === 0 && <p className="text-muted">아직 띄운 페스티벌이 없어요.</p>}
+      {past.length > 0 && (
+        <ul aria-label="이전 공연" className="grid gap-3 opacity-60 grayscale sm:grid-cols-2">
+          {past.map((show) => (
+            <li key={show.id}>
+              <ShowCard show={show} ended />
+            </li>
+          ))}
+        </ul>
       )}
-      <ul className={`grid gap-3 sm:grid-cols-2 ${loading && page === 0 ? "opacity-60" : ""}`}>
-        {shows.map((show) => (
-          <li key={show.id}>
-            <ShowCard show={show} ended={when === "PAST"} />
-          </li>
-        ))}
-      </ul>
-      {hasNext && (
-        <div ref={sentinel} aria-live="polite" className="py-6 text-center text-sm text-muted">
-          불러오는 중…
+      {past.length > 0 && upcoming.length > 0 && (
+        <div ref={divider} aria-hidden="true" className="flex items-center gap-3 py-5 text-muted">
+          <span className="flex-1 border-t-2 border-dashed border-line" />
+          <span className="flex items-center gap-1 text-xs font-semibold">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 19V5M5 12l7-7 7 7" />
+            </svg>
+            이전 공연
+          </span>
+          <span className="flex-1 border-t-2 border-dashed border-line" />
         </div>
       )}
+      {upcoming.length > 0 && (
+        <ul className="grid gap-3 sm:grid-cols-2">
+          {upcoming.map((show) => (
+            <li key={show.id}>
+              <ShowCard show={show} ended={false} />
+            </li>
+          ))}
+        </ul>
+      )}
+      <button
+        type="button"
+        inert={!todayDirection}
+        onClick={() =>
+          scrollToToday(window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth")
+        }
+        className={`fixed bottom-28 left-1/2 z-20 flex h-11 -translate-x-1/2 cursor-pointer items-center gap-1.5 rounded-full bg-ink px-4 text-sm font-semibold text-stub shadow-[0_4px_16px_rgb(17_19_24/0.25)] transition duration-200 active:scale-95 motion-reduce:transition-none ${
+          todayDirection ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
+        }`}
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+          className={todayDirection === "down" ? "rotate-180" : ""}
+        >
+          <path d="M12 19V5M5 12l7-7 7 7" />
+        </svg>
+        {todayDirection === "down" ? "다가오는 공연" : "오늘"}
+      </button>
     </>
   );
 }

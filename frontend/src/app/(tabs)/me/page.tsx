@@ -84,7 +84,7 @@ export default async function MePage({ searchParams }: PageProps<"/me">) {
         {!wall &&
           (years.length === 0 ? (
             <Link
-              href="/find?when=past"
+              href="/find"
               className="flex flex-col items-center gap-2 rounded-[20px] border-2 border-dashed border-line px-6 py-10 text-center"
             >
               <span className="font-display text-lg">다녀온 공연이 아직 없어요</span>
