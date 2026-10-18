@@ -5,7 +5,6 @@ import { AppFrame } from "@/components/app-frame";
 import { BackButton } from "@/components/back-button";
 import { KopisSource } from "@/components/kopis-source";
 import { LiveBadge } from "@/components/live-badge";
-import { PosterImage } from "@/components/poster-image";
 import { festivalBadge, formatLongPeriod, shortRegion } from "@/lib/format";
 import { getShow } from "@/lib/show";
 
@@ -47,7 +46,8 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
 
       <a href={show.posterUrl} target="_blank" rel="noopener noreferrer" className="relative mx-3 mt-4 block">
         <ViewTransition name={`poster-${show.id}`} share="morph" default="none">
-          <PosterImage src={show.posterUrl} alt={`${show.name} 포스터`} className="w-full rounded-[20px] bg-pill" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={show.posterUrl} alt={`${show.name} 포스터`} className="w-full rounded-[20px] bg-pill" />
         </ViewTransition>
         <span className="absolute top-3 right-3 flex h-7.5 items-center rounded-full bg-ink/55 px-3 text-xs text-stub">
           눌러서 크게 보기
