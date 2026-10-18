@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ViewTransition } from "react";
 import { BrowseHeader } from "@/components/browse-header";
+import { KopisSource } from "@/components/kopis-source";
 import { formatPeriod } from "@/lib/format";
 import { getShow } from "@/lib/show";
 
@@ -105,6 +106,7 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
           </>
         )}
       </article>
+      <KopisSource className="px-4 pb-8 text-center" />
     </main>
   );
 }
