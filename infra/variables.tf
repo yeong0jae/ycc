@@ -26,3 +26,8 @@ variable "budget_krw" {
   type    = number
   default = 50000
 }
+
+variable "github_repository" {
+  type    = string
+  default = "yeong0jae/ycc"
+}

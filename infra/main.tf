@@ -10,6 +10,10 @@ locals {
     "billingbudgets.googleapis.com",
     "sqladmin.googleapis.com",
     "cloudresourcemanager.googleapis.com",
+    "iam.googleapis.com",
+    "iamcredentials.googleapis.com",
+    "sts.googleapis.com",
+    "oslogin.googleapis.com",
   ]
   secrets      = ["db-password", "kopis-api-key", "kakao-rest-api-key", "kakao-client-secret", "kakao-map-key"]
   registry     = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.ycc.repository_id}"
@@ -186,6 +190,7 @@ resource "google_compute_instance" "ycc" {
     registry       = local.registry
     site-address   = local.site_address
     sql-connection = google_sql_database_instance.ycc.connection_name
+    enable-oslogin = "TRUE"
   }
 
   depends_on = [google_project_iam_member.vm, google_secret_manager_secret.secrets, google_sql_user.ycc, google_sql_database.ycc]
