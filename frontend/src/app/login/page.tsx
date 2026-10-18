@@ -14,24 +14,24 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
         <div className="flex flex-1 flex-col justify-center">
           <div className="relative overflow-hidden rounded-3xl bg-stub">
             <div className="flex flex-col gap-2.5 px-6 py-7">
-              <p className="font-mono text-xs tracking-[0.12em] text-muted">ADMIT TWO</p>
-              <h1 className="font-display text-4xl leading-tight">같이 갈 사람</h1>
+              <p className="font-mono text-xs tracking-[0.12em] text-muted">ADMIT ONE</p>
+              <h1 className="font-display text-4xl leading-tight">페스티벌</h1>
               <p className="leading-relaxed">
-                표 있는 사람끼리,
+                전국 페스티벌을
                 <br />
-                굿즈 줄부터 같이 가요.
+                한곳에서 봐요.
               </p>
             </div>
             <div className="mx-5 border-t-2 border-dashed border-line" />
             <div className="absolute -left-3 bottom-15 size-6 rounded-full bg-paper" />
             <div className="absolute -right-3 bottom-15 size-6 rounded-full bg-paper" />
             <p className="flex items-center gap-2 px-6 py-5 text-sm">
-              <span className="flex size-4.5 items-center justify-center rounded-full bg-lime">
+              <span className="flex size-4.5 items-center justify-center rounded-full bg-line">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M5 12l5 5L20 7" />
                 </svg>
               </span>
-              예매 인증한 사람만 서로 보여요
+              카카오로 3초 만에 시작
             </p>
           </div>
         </div>
