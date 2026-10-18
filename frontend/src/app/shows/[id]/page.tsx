@@ -58,7 +58,7 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
       <a href={show.posterUrl} target="_blank" rel="noopener noreferrer" className="relative mx-3 mt-4 block">
         <ViewTransition name={`poster-${show.id}`} share="morph" default="none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={show.posterUrl} alt={`${show.name} 포스터`} className="w-full rounded-[20px] bg-pill" />
+          <img src={show.posterUrl} alt={`${show.name} 포스터`} data-poster={show.id} className="w-full rounded-[20px] bg-pill" />
         </ViewTransition>
         <span className="absolute top-3 right-3 flex h-7.5 items-center rounded-full bg-ink/55 px-3 text-xs text-stub">
           눌러서 크게 보기

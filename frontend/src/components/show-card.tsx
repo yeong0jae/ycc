@@ -12,7 +12,13 @@ export function ShowCard({ show }: { show: Show }) {
     <Link href={`/shows/${show.id}`} prefetch className="press flex min-w-0 flex-col gap-2">
       <span className="relative block aspect-[3/4] overflow-hidden rounded-2xl bg-pill">
         <ViewTransition name={`poster-${show.id}`} share="morph" default="none">
-          <PosterImage src={show.posterUrl} alt={`${show.name} 포스터`} loading="lazy" className="size-full object-cover" />
+          <PosterImage
+            src={show.posterUrl}
+            alt={`${show.name} 포스터`}
+            loading="lazy"
+            data-poster={show.id}
+            className="size-full object-cover"
+          />
         </ViewTransition>
         {badge && <LiveBadge label={badge.label} live={badge.live} className="absolute top-2 left-2 h-6 px-2 text-xs" />}
       </span>

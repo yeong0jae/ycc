@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ShowCard } from "@/components/show-card";
+import { RESTORE_KEY, SCROLL_KEY } from "@/lib/back-transition";
 import { todayInSeoul } from "@/lib/format";
 import type { Show } from "@/lib/show-types";
 
@@ -36,7 +37,16 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
     window.scrollTo({ top: top - searchBar.current.getBoundingClientRect().height, behavior });
   };
 
-  useLayoutEffect(() => scrollToToday("instant"), [keyword]);
+  useLayoutEffect(() => {
+    const saved = sessionStorage.getItem(SCROLL_KEY);
+    const restore = sessionStorage.getItem(RESTORE_KEY);
+    sessionStorage.removeItem(RESTORE_KEY);
+    if (restore && saved) {
+      window.scrollTo({ top: Number(saved), behavior: "instant" });
+      return;
+    }
+    scrollToToday("instant");
+  }, [keyword]);
 
   useEffect(() => {
     const update = () => {
@@ -120,7 +130,7 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
         </Link>
       </div>
 
-      <div className="px-3">
+      <div className="px-3" onClickCapture={() => sessionStorage.setItem(SCROLL_KEY, String(window.scrollY))}>
         {keyword && (
           <p aria-live="polite" className="pb-3 text-sm text-muted">
             {results.length > 0 ? `${results.length}개` : `‘${query}’에 맞는 페스티벌이 없어요.`}
