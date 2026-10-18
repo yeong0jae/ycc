@@ -13,6 +13,17 @@ const tabs = [
     ),
   },
   {
+    key: "log",
+    href: "/logs",
+    label: "로그",
+    icon: (
+      <>
+        <rect x="4" y="3" width="16" height="18" rx="3" />
+        <path d="M10 9l5 3-5 3z" />
+      </>
+    ),
+  },
+  {
     key: "together",
     href: "/together",
     label: "내 동행",
@@ -39,6 +50,7 @@ const tabs = [
 ] as const;
 
 function currentTab(pathname: string) {
+  if (pathname.startsWith("/logs")) return "log";
   if (pathname.startsWith("/together")) return "together";
   if (pathname.startsWith("/me")) return "me";
   return "concert";
@@ -49,7 +61,7 @@ export function TabBar() {
   return (
     <nav
       aria-label="탭"
-      className="fixed bottom-6 left-1/2 z-30 grid h-16 w-[calc(100%-40px)] max-w-158 -translate-x-1/2 grid-cols-3 items-center gap-1 rounded-full border border-white/80 bg-white/60 p-1 shadow-[0_10px_30px_rgb(17_19_24/0.16),inset_0_1px_0_rgb(255_255_255/0.9)] backdrop-blur-xl backdrop-saturate-150"
+      className="fixed bottom-6 left-1/2 z-30 grid h-16 w-[calc(100%-40px)] max-w-158 -translate-x-1/2 grid-cols-4 items-center gap-1 rounded-full border border-white/80 bg-white/60 p-1 shadow-[0_10px_30px_rgb(17_19_24/0.16),inset_0_1px_0_rgb(255_255_255/0.9)] backdrop-blur-xl backdrop-saturate-150"
     >
       {tabs.map((tab) => {
         const active = tab.key === current;

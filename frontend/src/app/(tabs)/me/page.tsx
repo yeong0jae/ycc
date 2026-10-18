@@ -3,12 +3,15 @@ import { redirect } from "next/navigation";
 import { AppFrame } from "@/components/app-frame";
 import { AppHeader } from "@/components/app-header";
 import { logout } from "@/lib/actions";
+import { LogWall } from "@/components/log-wall";
 import { getMe } from "@/lib/auth";
+import { getUserLogs } from "@/lib/logs";
 
 export default async function MePage() {
   const me = await getMe();
   if (!me) redirect("/login");
   if (!me.onboarded) redirect("/onboarding");
+  const logs = (await getUserLogs(me.id)) ?? [];
 
   return (
     <AppFrame className="pb-32">
@@ -30,6 +33,10 @@ export default async function MePage() {
           </span>
           <p className="flex-1 font-display text-[26px]">{me.nickname}</p>
         </div>
+        <section className="flex flex-col gap-2.5">
+          <h2 className="font-display text-xl">내 로그</h2>
+          <LogWall logs={logs} empty="공연 날 로그를 남기면 여기 쌓여요." />
+        </section>
         <section className="flex flex-col gap-2.5">
           <h2 className="font-display text-xl">내 표</h2>
           <p className="rounded-2xl bg-stub px-4 py-5 text-sm text-muted">
