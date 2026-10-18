@@ -14,7 +14,7 @@ class KopisParserTests {
 	fun `목록에서 공연 ID와 이름, 기간, 오픈런 여부를 읽는다`() {
 		val summaries = KopisParser.parseList(fixture("list.xml"))
 
-		assertEquals(5, summaries.size)
+		assertEquals(6, summaries.size)
 		assertEquals(
 			KopisSummary("PF000001", "테스트 밴드 내한공연", LocalDate.of(2026, 11, 7), LocalDate.of(2026, 11, 7), openRun = false),
 			summaries[0],

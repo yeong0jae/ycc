@@ -27,8 +27,8 @@ class KopisSyncServiceTests(
 ) {
 
 	private val fakeClient = object : KopisClient("test-key") {
-		override fun fetchList(from: LocalDate, to: LocalDate, region: String, page: Int, rows: Int) =
-			if (region == "11") javaClass.getResource("/kopis/list.xml")!!.readText() else "<dbs></dbs>"
+		override fun fetchFestivals(from: LocalDate, to: LocalDate, page: Int, rows: Int) =
+			javaClass.getResource("/kopis/list.xml")!!.readText()
 
 		override fun fetchDetail(kopisId: String) =
 			javaClass.getResource("/kopis/detail-$kopisId.xml")!!.readText()
@@ -52,7 +52,7 @@ class KopisSyncServiceTests(
 	}
 
 	@Test
-	fun `팬미팅, 오픈런, 31일 넘는 공연은 빼고 페스티벌은 넣으며 중복은 한 번만 저장한다`() {
+	fun `팬미팅, 오픈런, 31일 넘는 공연, 해외 공연은 빼고 중복은 한 번만 저장한다`() {
 		syncService.sync()
 
 		assertEquals(listOf("PF000001", "PF000004"), showRepository.findAll().map { it.kopisId })

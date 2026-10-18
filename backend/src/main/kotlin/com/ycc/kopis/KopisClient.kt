@@ -23,17 +23,16 @@ class KopisClient(@Value("\${kopis.api-key:}") private val apiKey: String) {
 
 	val enabled: Boolean get() = apiKey.isNotBlank()
 
-	fun fetchList(from: LocalDate, to: LocalDate, region: String, page: Int, rows: Int): String = call {
+	fun fetchFestivals(from: LocalDate, to: LocalDate, page: Int, rows: Int): String = call {
 		restClient.get()
 			.uri {
-				it.path("/pblprfr")
+				it.path("/prffest")
 					.queryParam("service", apiKey)
 					.queryParam("stdate", from.format(DATE))
 					.queryParam("eddate", to.format(DATE))
 					.queryParam("cpage", page)
 					.queryParam("rows", rows)
 					.queryParam("shcate", POPULAR_MUSIC)
-					.queryParam("signgucode", region)
 					.build()
 			}
 			.accept(MediaType.APPLICATION_XML)

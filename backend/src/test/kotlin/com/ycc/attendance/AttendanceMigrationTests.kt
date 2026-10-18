@@ -26,7 +26,7 @@ class AttendanceMigrationTests {
 		jdbc.update("INSERT INTO show_plans (user_id, show_id, created_at) VALUES (1, 10, NOW()), (1, 11, NOW())")
 		jdbc.update("INSERT INTO show_logs (user_id, show_id, visibility, status, created_at) VALUES (1, 10, 'PUBLIC', 'READY', NOW()), (1, 12, 'PUBLIC', 'READY', NOW())")
 
-		migrate("latest")
+		migrate("8")
 
 		val rows = jdbc.queryForList("SELECT show_id, show_date, status FROM attendances ORDER BY show_id")
 			.map { Triple((it["show_id"] as Number).toLong(), it["show_date"].toString(), it["status"]) }

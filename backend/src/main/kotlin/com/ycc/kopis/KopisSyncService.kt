@@ -24,7 +24,7 @@ class KopisSyncService(
 		val today = LocalDate.now(clock)
 		val summaries = generateSequence(today.minusMonths(PAST_MONTHS)) { it.plusDays(WINDOW_DAYS) }
 			.takeWhile { it < today.plusMonths(FUTURE_MONTHS) }
-			.flatMap { from -> REGIONS.asSequence().flatMap { fetchAllPages(from, from.plusDays(WINDOW_DAYS - 1), it) } }
+			.flatMap { fetchAllPages(it, it.plusDays(WINDOW_DAYS - 1)) }
 			.distinctBy { it.kopisId }
 			.toList()
 
@@ -32,6 +32,7 @@ class KopisSyncService(
 			.filter { !it.openRun && !FAN_MEETING.containsMatchIn(it.name) }
 			.filter { ChronoUnit.DAYS.between(it.startDate, it.endDate) < MAX_DURATION_DAYS }
 			.mapNotNull { KopisParser.parseDetail(kopisClient.fetchDetail(it.kopisId)) }
+			.filter { it.area != OVERSEAS }
 
 		val facilities = details.mapNotNull { it.facilityId }.distinct().associateWith(::findOrFetchFacility)
 		val shows = details.map { detail ->
@@ -55,11 +56,11 @@ class KopisSyncService(
 		facilityRepository.findByKopisId(facilityId)
 			?: KopisParser.parseFacility(kopisClient.fetchFacility(facilityId))?.let { facilityRepository.save(it.toFacility()) }
 
-	private fun fetchAllPages(from: LocalDate, to: LocalDate, region: String): List<KopisSummary> {
+	private fun fetchAllPages(from: LocalDate, to: LocalDate): List<KopisSummary> {
 		val summaries = mutableListOf<KopisSummary>()
 		var page = 1
 		do {
-			val batch = KopisParser.parseList(kopisClient.fetchList(from, to, region, page++, ROWS))
+			val batch = KopisParser.parseList(kopisClient.fetchFestivals(from, to, page++, ROWS))
 			summaries += batch
 		} while (batch.size == ROWS)
 		return summaries
@@ -71,7 +72,7 @@ class KopisSyncService(
 		private const val FUTURE_MONTHS = 6L
 		private const val WINDOW_DAYS = 31L
 		private const val MAX_DURATION_DAYS = 31L
-		private val REGIONS = listOf("11", "41")
+		private const val OVERSEAS = "해외"
 		private val FAN_MEETING = Regex("팬미팅|FAN ?MEETING|MEET ?& ?GREET", RegexOption.IGNORE_CASE)
 	}
 }
