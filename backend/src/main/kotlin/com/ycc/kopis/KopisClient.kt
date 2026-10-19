@@ -23,16 +23,23 @@ class KopisClient(@Value("\${kopis.api-key:}") private val apiKey: String) {
 
 	val enabled: Boolean get() = apiKey.isNotBlank()
 
-	fun fetchFestivals(from: LocalDate, to: LocalDate, page: Int, rows: Int): String = call {
+	fun fetchFestivals(from: LocalDate, to: LocalDate, page: Int, rows: Int): String =
+		fetchList("/prffest", from, to, page, rows, null)
+
+	fun fetchPerformances(from: LocalDate, to: LocalDate, page: Int, rows: Int, changedSince: LocalDate? = null): String =
+		fetchList("/pblprfr", from, to, page, rows, changedSince)
+
+	private fun fetchList(path: String, from: LocalDate, to: LocalDate, page: Int, rows: Int, changedSince: LocalDate?): String = call {
 		restClient.get()
 			.uri {
-				it.path("/prffest")
+				it.path(path)
 					.queryParam("service", apiKey)
 					.queryParam("stdate", from.format(DATE))
 					.queryParam("eddate", to.format(DATE))
 					.queryParam("cpage", page)
 					.queryParam("rows", rows)
 					.queryParam("shcate", POPULAR_MUSIC)
+					.queryParamIfPresent("afterdate", java.util.Optional.ofNullable(changedSince?.format(DATE)))
 					.build()
 			}
 			.accept(MediaType.APPLICATION_XML)

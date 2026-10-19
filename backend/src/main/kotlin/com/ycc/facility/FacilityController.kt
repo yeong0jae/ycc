@@ -1,8 +1,10 @@
 package com.ycc.facility
 
+import com.ycc.show.ShowKind
 import com.ycc.show.ShowRepository
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.time.Clock
 import java.time.LocalDate
@@ -15,8 +17,8 @@ class FacilityController(
 ) {
 
 	@GetMapping
-	fun list(): List<FacilityResponse> =
-		showRepository.findUpcomingWithFacility(LocalDate.now(clock))
+	fun list(@RequestParam(defaultValue = "FESTIVAL") kind: ShowKind): List<FacilityResponse> =
+		showRepository.findUpcomingWithFacility(LocalDate.now(clock), kind)
 			.groupBy { it.facility!! }
 			.mapNotNull { (facility, shows) ->
 				val latitude = facility.latitude ?: return@mapNotNull null

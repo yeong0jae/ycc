@@ -13,9 +13,12 @@ import org.springframework.web.server.ResponseStatusException
 class ShowController(private val showRepository: ShowRepository) {
 
 	@GetMapping
-	fun search(@RequestParam(required = false) q: String?): List<ShowResponse> {
+	fun search(
+		@RequestParam(required = false) q: String?,
+		@RequestParam(defaultValue = "FESTIVAL") kind: ShowKind,
+	): List<ShowResponse> {
 		val pattern = q?.lowercase()?.replace(Regex("[%_]"), "")?.trim()?.ifBlank { null }?.let { "%$it%" }
-		return showRepository.searchVisible(pattern).map(ShowResponse::from)
+		return showRepository.searchVisible(kind, pattern).map(ShowResponse::from)
 	}
 
 	@GetMapping("/{id}")

@@ -62,6 +62,20 @@ class ShowControllerTests(
 	}
 
 	@Test
+	fun `종류를 고르면 그 종류만 준다`() {
+		showRepository.save(show("PX9", "콘서트 하나", "2026-11-01", "2026-11-01").apply { kind = ShowKind.CONCERT })
+
+		mockMvc.get("/api/shows?kind=CONCERT").andExpect {
+			jsonPath("$.length()") { value(1) }
+			jsonPath("$[0].name") { value("콘서트 하나") }
+			jsonPath("$[0].kind") { value("CONCERT") }
+		}
+		mockMvc.get("/api/shows").andExpect {
+			jsonPath("$.length()") { value(4) }
+		}
+	}
+
+	@Test
 	fun `이름으로 검색한다`() {
 		mockMvc.get("/api/shows?q=3개월").andExpect {
 			jsonPath("$.length()") { value(1) }

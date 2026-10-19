@@ -15,6 +15,7 @@ data class ShowResponse(
 	val priceGuide: String?,
 	val cast: String?,
 	val area: String?,
+	val kind: ShowKind,
 	val facilityId: Long?,
 ) {
 	companion object {
@@ -31,6 +32,7 @@ data class ShowResponse(
 			priceGuide = show.priceGuide,
 			cast = show.castText,
 			area = show.area,
+			kind = show.kind,
 			facilityId = show.facility?.takeIf { it.latitude != null && it.longitude != null }?.id,
 		)
 	}

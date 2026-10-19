@@ -2,6 +2,7 @@ package com.ycc.admin
 
 import com.ycc.show.ReviewStatus
 import com.ycc.show.Show
+import com.ycc.show.ShowKind
 import com.ycc.show.ShowRepository
 import com.ycc.user.Role
 import com.ycc.user.User
@@ -50,7 +51,7 @@ class AdminShowServiceTests(
 		adminShowService.review(admin, ReviewRequest(shows.take(2).map { it.id }, ReviewStatus.VISIBLE))
 		adminShowService.review(admin, ReviewRequest(listOf(shows[2].id), ReviewStatus.HIDDEN))
 
-		val page = adminShowService.shows(admin, ReviewStatus.VISIBLE)
+		val page = adminShowService.shows(admin, ReviewStatus.VISIBLE, ShowKind.FESTIVAL)
 		assertEquals(listOf("PF1", "PF2"), page.items.map { it.show.name.removePrefix("페스티벌 ") })
 		assertEquals(mapOf(ReviewStatus.PENDING to 0L, ReviewStatus.VISIBLE to 2L, ReviewStatus.HIDDEN to 1L), page.counts)
 	}
@@ -60,7 +61,7 @@ class AdminShowServiceTests(
 		showRepository.save(show("PF2").apply { startDate = LocalDate.parse("2026-12-01") })
 		showRepository.save(show("PF1").apply { startDate = LocalDate.parse("2025-01-01") })
 
-		val names = adminShowService.shows(admin, ReviewStatus.PENDING).items.map { it.kopisId }
+		val names = adminShowService.shows(admin, ReviewStatus.PENDING, ShowKind.FESTIVAL).items.map { it.kopisId }
 
 		assertEquals(listOf("PF1", "PF2"), names)
 	}
@@ -69,7 +70,7 @@ class AdminShowServiceTests(
 	fun `관리자가 아니면 검수할 수 없다`() {
 		val show = show("PF1")
 
-		assertThrows<ResponseStatusException> { adminShowService.shows(user, ReviewStatus.PENDING) }
+		assertThrows<ResponseStatusException> { adminShowService.shows(user, ReviewStatus.PENDING, ShowKind.FESTIVAL) }
 		assertThrows<ResponseStatusException> { adminShowService.review(user, ReviewRequest(listOf(show.id), ReviewStatus.VISIBLE)) }
 	}
 }

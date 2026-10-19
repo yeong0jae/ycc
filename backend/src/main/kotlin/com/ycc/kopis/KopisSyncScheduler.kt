@@ -22,7 +22,7 @@ class KopisSyncScheduler(
 			return
 		}
 		runCatching { kopisSyncService.sync() }
-			.onSuccess { log.info("KOPIS 동기화 완료: {}건", it) }
+			.onSuccess { log.info("KOPIS 동기화 완료: {}건, 상세 조회 {}건, 전체 동기화 {}", it.total, it.detailCount, it.full) }
 			.onFailure { log.error("KOPIS 동기화 실패", it) }
 	}
 }

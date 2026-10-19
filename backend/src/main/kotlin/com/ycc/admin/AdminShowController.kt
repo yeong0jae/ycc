@@ -1,6 +1,7 @@
 package com.ycc.admin
 
 import com.ycc.show.ReviewStatus
+import com.ycc.show.ShowKind
 import com.ycc.user.User
 import com.ycc.user.UserService
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -25,7 +26,8 @@ class AdminShowController(
 	fun shows(
 		@AuthenticationPrincipal principal: OAuth2User,
 		@RequestParam(defaultValue = "PENDING") status: ReviewStatus,
-	) = adminShowService.shows(principal.user(), status)
+		@RequestParam(defaultValue = "FESTIVAL") kind: ShowKind,
+	) = adminShowService.shows(principal.user(), status, kind)
 
 	@PutMapping("/review")
 	fun review(@AuthenticationPrincipal principal: OAuth2User, @RequestBody request: ReviewRequest) =

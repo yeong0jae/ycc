@@ -15,6 +15,8 @@ import java.time.LocalDate
 
 enum class ReviewStatus { PENDING, VISIBLE, HIDDEN }
 
+enum class ShowKind { FESTIVAL, CONCERT }
+
 @Entity
 @Table(name = "shows")
 class Show(
@@ -35,6 +37,8 @@ class Show(
 	var facility: Facility? = null,
 	@Enumerated(EnumType.STRING)
 	var reviewStatus: ReviewStatus = ReviewStatus.PENDING,
+	@Enumerated(EnumType.STRING)
+	var kind: ShowKind = ShowKind.FESTIVAL,
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	val id: Long = 0,

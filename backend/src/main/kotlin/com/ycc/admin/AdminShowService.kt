@@ -1,6 +1,7 @@
 package com.ycc.admin
 
 import com.ycc.show.ReviewStatus
+import com.ycc.show.ShowKind
 import com.ycc.show.ShowRepository
 import com.ycc.show.ShowResponse
 import com.ycc.user.User
@@ -26,13 +27,13 @@ data class ReviewRequest(val ids: List<Long>, val status: ReviewStatus)
 class AdminShowService(private val showRepository: ShowRepository) {
 
 	@Transactional(readOnly = true)
-	fun shows(admin: User, status: ReviewStatus): ReviewListResponse {
+	fun shows(admin: User, status: ReviewStatus, kind: ShowKind): ReviewListResponse {
 		requireAdmin(admin)
 		return ReviewListResponse(
-			items = showRepository.findByReviewStatusOrderByStartDateAscIdAsc(status).map {
+			items = showRepository.findByReviewStatusAndKindOrderByStartDateAscIdAsc(status, kind).map {
 				ReviewShowResponse(ShowResponse.from(it), it.kopisId, it.area, it.castText, it.reviewStatus)
 			},
-			counts = ReviewStatus.entries.associateWith(showRepository::countByReviewStatus),
+			counts = ReviewStatus.entries.associateWith { showRepository.countByReviewStatusAndKind(it, kind) },
 		)
 	}
 
