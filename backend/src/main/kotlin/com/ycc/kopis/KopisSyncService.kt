@@ -56,7 +56,6 @@ class KopisSyncService(
 			}
 			val current = existing[detail.kopisId]
 			if (current == null) {
-				show.reviewStatus = if (kind == ShowKind.CONCERT) ReviewStatus.VISIBLE else ReviewStatus.PENDING
 				showRepository.save(show)
 			} else {
 				current.update(show)

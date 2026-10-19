@@ -72,7 +72,7 @@ class KopisSyncServiceTests(
 	}
 
 	@Test
-	fun `축제 목록에 있으면 페스티벌, 공연 목록에만 있으면 콘서트로 저장하고 콘서트는 바로 띄운다`() {
+	fun `축제 목록에 있으면 페스티벌, 공연 목록에만 있으면 콘서트로 저장하고 둘 다 대기로 시작한다`() {
 		syncService.sync()
 
 		val festival = showRepository.findByKopisId("PF000001")!!
@@ -80,7 +80,7 @@ class KopisSyncServiceTests(
 		assertEquals(ShowKind.FESTIVAL, festival.kind)
 		assertEquals(ReviewStatus.PENDING, festival.reviewStatus)
 		assertEquals(ShowKind.CONCERT, concert.kind)
-		assertEquals(ReviewStatus.VISIBLE, concert.reviewStatus)
+		assertEquals(ReviewStatus.PENDING, concert.reviewStatus)
 	}
 
 	@Test
@@ -144,7 +144,7 @@ class KopisSyncServiceTests(
 
 		assertEquals(ReviewStatus.HIDDEN, showRepository.findByKopisId("PF000001")!!.reviewStatus)
 		assertEquals(ShowKind.FESTIVAL, showRepository.findByKopisId("PF000001")!!.kind)
-		assertEquals(ReviewStatus.VISIBLE, showRepository.findByKopisId("PF000010")!!.reviewStatus)
+		assertEquals(ReviewStatus.PENDING, showRepository.findByKopisId("PF000010")!!.reviewStatus)
 		assertEquals(3, showRepository.count())
 	}
 }
