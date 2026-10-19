@@ -22,6 +22,7 @@ async function proxy(request: Request, { params }: { params: Promise<{ path: str
     const value = response.headers.get(name);
     if (value) responseHeaders.set(name, value);
   });
+  response.headers.getSetCookie().forEach((cookie) => responseHeaders.append("set-cookie", cookie));
   return new Response(response.body, { status: response.status, headers: responseHeaders });
 }
 

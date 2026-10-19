@@ -1,13 +1,9 @@
-import { notFound, redirect } from "next/navigation";
-import { type ReviewList, reviewPath } from "@/lib/admin-types";
-import { backendFetch, getMe } from "@/lib/auth";
+import { type ReviewList, reviewPath } from "@/lib/dev-types";
+import { backendFetch } from "@/lib/auth";
 import { todayInSeoul } from "@/lib/format";
 import { ReviewBoard } from "./review-board";
 
-export default async function AdminPage() {
-  const me = await getMe();
-  if (!me) redirect("/login");
-  if (!me.admin) notFound();
+export default async function DevReviewPage() {
   const res = await backendFetch(reviewPath("PENDING", "FESTIVAL"));
   if (!res.ok) throw new Error(`검수 목록 조회 실패: ${res.status}`);
   const initial: ReviewList = await res.json();

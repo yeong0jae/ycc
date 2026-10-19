@@ -8,7 +8,7 @@ import {
   type ReviewList,
   type ReviewStatus,
   reviewPath,
-} from "@/lib/admin-types";
+} from "@/lib/dev-types";
 import { formatPeriod } from "@/lib/format";
 import type { ShowKind } from "@/lib/show-types";
 
@@ -59,7 +59,7 @@ export function ReviewBoard({ initial, today }: { initial: ReviewList; today: st
   }, [currentId]);
 
   const put = async (ids: number[], target: ReviewStatus) => {
-    const res = await fetch("/api/admin/shows/review", {
+    const res = await fetch("/api/dev/shows/review", {
       method: "PUT",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ ids, status: target }),
@@ -142,9 +142,8 @@ export function ReviewBoard({ initial, today }: { initial: ReviewList; today: st
   const shortcut = (target: ReviewStatus) => (target === "VISIBLE" ? "V" : target === "HIDDEN" ? "X" : null);
 
   return (
-    <div className="flex h-dvh flex-col">
-      <header className="flex h-16 shrink-0 items-center gap-4 bg-ink px-4 text-stub lg:px-6">
-        <p className="font-display text-lg lg:text-xl">운영 · 검수</p>
+    <div className="flex h-full flex-col">
+      <div className="flex h-14 shrink-0 items-center gap-4 border-b border-line px-4 lg:px-6">
         <nav aria-label="공연 종류" className="flex gap-1.5 text-[13px] font-semibold">
           {KINDS.map((it) => (
             <button
@@ -152,17 +151,17 @@ export function ReviewBoard({ initial, today }: { initial: ReviewList; today: st
               type="button"
               aria-pressed={kind === it.key}
               onClick={() => switchTo(status, it.key)}
-              className={`h-9 cursor-pointer rounded-full px-3 ${kind === it.key ? "bg-stub text-ink" : "border border-[#3A3D45]"}`}
+              className={`h-9 cursor-pointer rounded-full px-3 ${kind === it.key ? "bg-ink text-stub" : "bg-pill"}`}
             >
               {it.label}
             </button>
           ))}
         </nav>
         <div className="hidden flex-1 items-center gap-2.5 lg:flex">
-          <span className="h-1.5 max-w-80 flex-1 overflow-hidden rounded-full bg-[#2E3139]">
-            <span className="block h-full bg-stub" style={{ width: `${total ? (done / total) * 100 : 0}%` }} />
+          <span className="h-1.5 max-w-80 flex-1 overflow-hidden rounded-full bg-line">
+            <span className="block h-full bg-ink" style={{ width: `${total ? (done / total) * 100 : 0}%` }} />
           </span>
-          <span className="font-mono text-[13px] text-[#C9CCD3]">
+          <span className="font-mono text-[13px] text-muted">
             {done} / {total} 처리
           </span>
         </div>
@@ -173,13 +172,13 @@ export function ReviewBoard({ initial, today }: { initial: ReviewList; today: st
               type="button"
               aria-pressed={status === it}
               onClick={() => switchTo(it, kind)}
-              className={`h-9 cursor-pointer rounded-full px-3 ${status === it ? "bg-stub text-ink" : "border border-[#3A3D45]"}`}
+              className={`h-9 cursor-pointer rounded-full px-3 ${status === it ? "bg-ink text-stub" : "bg-pill"}`}
             >
               {REVIEW_LABELS[it]} {counts[it]}
             </button>
           ))}
         </nav>
-      </header>
+      </div>
       <div className="h-1 bg-line lg:hidden">
         <span className="block h-full bg-ink" style={{ width: `${total ? (done / total) * 100 : 0}%` }} />
       </div>
