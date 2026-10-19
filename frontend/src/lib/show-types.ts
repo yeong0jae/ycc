@@ -8,6 +8,14 @@ export function kindQuery(kind: ShowKind) {
   return kind === "CONCERT" ? "?kind=concert" : "";
 }
 
+export type ShowPeriod = "PAST" | "UPCOMING";
+
+export function showsQuery({ kind, q, period, page }: { kind: ShowKind; q: string; period: ShowPeriod; page: number }) {
+  const params = new URLSearchParams({ kind, period, page: String(page) });
+  if (q) params.set("q", q);
+  return params.toString();
+}
+
 export type Show = {
   id: number;
   name: string;
@@ -24,6 +32,8 @@ export type Show = {
   facilityId: number | null;
   kind: ShowKind;
 };
+
+export type ShowPage = { items: Show[]; hasNext: boolean; total: number };
 
 export type FacilityShow = Pick<Show, "id" | "name" | "startDate" | "endDate" | "posterUrl">;
 

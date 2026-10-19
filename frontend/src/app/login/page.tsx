@@ -7,7 +7,7 @@ import { getShows } from "@/lib/show";
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   const { error } = await searchParams;
   if (await getMe()) redirect("/");
-  const posters = (await getShows("FESTIVAL")).slice(0, 9);
+  const posters = (await getShows({ kind: "FESTIVAL" })).items.slice(0, 9);
 
   return (
     <AppFrame className="flex min-h-dvh flex-col">

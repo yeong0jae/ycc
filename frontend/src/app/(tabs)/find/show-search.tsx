@@ -3,28 +3,49 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ShowCard } from "@/components/show-card";
 import { RESTORE_KEY, SCROLL_KEY } from "@/lib/back-transition";
-import { todayInSeoul } from "@/lib/format";
-import type { Show, ShowKind } from "@/lib/show-types";
+import { type Show, type ShowKind, type ShowPage, type ShowPeriod, showsQuery } from "@/lib/show-types";
 
-function normalize(text: string) {
-  return text.toLowerCase().replace(/\s+/g, "");
+const SEARCH_DELAY_MS = 250;
+const LOAD_MARGIN = "800px 0px";
+
+type Feed = { items: Show[]; page: number; hasNext: boolean; total: number };
+
+function toFeed({ items, hasNext, total }: ShowPage): Feed {
+  return { items, page: 0, hasNext, total };
 }
 
-export function ShowSearch({ kind, shows, initialQuery }: { kind: ShowKind; shows: Show[]; initialQuery: string }) {
+async function fetchPage(kind: ShowKind, q: string, period: ShowPeriod, page: number): Promise<ShowPage> {
+  const res = await fetch(`/api/shows?${showsQuery({ kind, q, period, page })}`);
+  if (!res.ok) throw new Error(`공연 목록 조회 실패: ${res.status}`);
+  return res.json();
+}
+
+export function ShowSearch({
+  kind,
+  initialQuery,
+  initialPast,
+  initialUpcoming,
+}: {
+  kind: ShowKind;
+  initialQuery: string;
+  initialPast: ShowPage;
+  initialUpcoming: ShowPage;
+}) {
   const scrollKey = `${SCROLL_KEY}:${kind}`;
   const [query, setQuery] = useState(initialQuery);
-  const keyword = normalize(query);
-  const results = keyword
-    ? shows.filter((show) =>
-        normalize(`${show.name} ${show.venue} ${show.area ?? ""} ${show.cast ?? ""}`).includes(keyword),
-      )
-    : shows;
-  const today = todayInSeoul();
-  const past = results.filter((show) => show.endDate < today);
-  const upcoming = results.filter((show) => show.endDate >= today);
+  const [searched, setSearched] = useState(initialQuery);
+  const [past, setPast] = useState(() => toFeed(initialPast));
+  const [upcoming, setUpcoming] = useState(() => toFeed(initialUpcoming));
+  const [version, setVersion] = useState(0);
+  const pastItems = [...past.items].reverse();
 
   const searchBar = useRef<HTMLDivElement>(null);
   const divider = useRef<HTMLDivElement>(null);
+  const topSentinel = useRef<HTMLDivElement>(null);
+  const bottomSentinel = useRef<HTMLDivElement>(null);
+  const latestQuery = useRef(initialQuery);
+  const loading = useRef<Record<ShowPeriod, boolean>>({ PAST: false, UPCOMING: false });
+  const anchor = useRef<{ height: number; y: number } | null>(null);
   const [todayDirection, setTodayDirection] = useState<"up" | "down" | null>(null);
   const [scrolled, setScrolled] = useState(false);
 
@@ -46,7 +67,69 @@ export function ShowSearch({ kind, shows, initialQuery }: { kind: ShowKind; show
       return;
     }
     scrollToToday("instant");
-  }, [keyword, scrollKey]);
+  }, [version, scrollKey]);
+
+  useLayoutEffect(() => {
+    if (!anchor.current) return;
+    const { height, y } = anchor.current;
+    anchor.current = null;
+    window.scrollTo({ top: y + document.documentElement.scrollHeight - height, behavior: "instant" });
+  }, [past]);
+
+  useEffect(() => {
+    if (query === searched) return;
+    const timer = setTimeout(async () => {
+      try {
+        const [nextPast, nextUpcoming] = await Promise.all([
+          fetchPage(kind, query, "PAST", 0),
+          fetchPage(kind, query, "UPCOMING", 0),
+        ]);
+        if (latestQuery.current !== query) return;
+        setPast(toFeed(nextPast));
+        setUpcoming(toFeed(nextUpcoming));
+        setSearched(query);
+        setVersion((it) => it + 1);
+      } catch {}
+    }, SEARCH_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [query, searched, kind]);
+
+  const loadMore = async (period: ShowPeriod) => {
+    const feed = period === "PAST" ? past : upcoming;
+    if (!feed.hasNext || loading.current[period]) return;
+    loading.current[period] = true;
+    try {
+      const next = await fetchPage(kind, searched, period, feed.page + 1);
+      if (latestQuery.current !== searched) return;
+      const append = (prev: Feed) => ({
+        items: [...prev.items, ...next.items],
+        page: prev.page + 1,
+        hasNext: next.hasNext,
+        total: next.total,
+      });
+      if (period === "PAST") {
+        anchor.current = { height: document.documentElement.scrollHeight, y: window.scrollY };
+        setPast(append);
+      } else {
+        setUpcoming(append);
+      }
+    } catch {
+    } finally {
+      loading.current[period] = false;
+    }
+  };
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) loadMore(entry.target === topSentinel.current ? "PAST" : "UPCOMING");
+        }),
+      { rootMargin: LOAD_MARGIN },
+    );
+    [topSentinel.current, bottomSentinel.current].forEach((it) => it && observer.observe(it));
+    return () => observer.disconnect();
+  });
 
   useEffect(() => {
     const update = () => {
@@ -61,10 +144,11 @@ export function ShowSearch({ kind, shows, initialQuery }: { kind: ShowKind; show
     update();
     window.addEventListener("scroll", update, { passive: true });
     return () => window.removeEventListener("scroll", update);
-  }, [keyword]);
+  }, [version]);
 
   const search = (value: string) => {
     setQuery(value);
+    latestQuery.current = value;
     const url = new URL(window.location.href);
     if (value) url.searchParams.set("q", value);
     else url.searchParams.delete("q");
@@ -122,38 +206,45 @@ export function ShowSearch({ kind, shows, initialQuery }: { kind: ShowKind; show
         </div>
       </div>
 
-      <div className="px-3" onClickCapture={() => sessionStorage.setItem(scrollKey, String(window.scrollY))}>
-        {keyword && (
+      <div
+        className="px-3"
+        onClickCapture={() => sessionStorage.setItem(scrollKey, String(window.scrollY))}
+      >
+        {searched && (
           <p aria-live="polite" className="pb-3 text-sm text-muted">
-            {results.length > 0 ? `${results.length}개` : `‘${query}’에 맞는 공연이 없어요.`}
+            {past.total + upcoming.total > 0 ? `${past.total + upcoming.total}개` : `‘${searched}’에 맞는 공연이 없어요.`}
           </p>
         )}
-        {shows.length === 0 && <p className="py-16 text-center text-sm text-muted">아직 띄운 공연이 없어요.</p>}
-        {past.length > 0 && (
+        {!searched && past.total + upcoming.total === 0 && (
+          <p className="py-16 text-center text-sm text-muted">아직 띄운 공연이 없어요.</p>
+        )}
+        <div ref={topSentinel} aria-hidden="true" />
+        {pastItems.length > 0 && (
           <ul aria-label="지난 공연" className="grid grid-cols-2 gap-x-2.5 gap-y-4.5 opacity-50 sm:grid-cols-3">
-            {past.map((show) => (
+            {pastItems.map((show) => (
               <li key={show.id}>
                 <ShowCard show={show} />
               </li>
             ))}
           </ul>
         )}
-        {past.length > 0 && upcoming.length > 0 && (
+        {pastItems.length > 0 && upcoming.items.length > 0 && (
           <div ref={divider} aria-hidden="true" className="flex items-center gap-2 py-5 text-muted">
             <span className="h-px flex-1 bg-line" />
             <span className="text-xs">↑ 지난 공연</span>
             <span className="h-px flex-1 bg-line" />
           </div>
         )}
-        {upcoming.length > 0 && (
+        {upcoming.items.length > 0 && (
           <ul className="grid grid-cols-2 gap-x-2.5 gap-y-4.5 sm:grid-cols-3">
-            {upcoming.map((show) => (
+            {upcoming.items.map((show) => (
               <li key={show.id}>
                 <ShowCard show={show} />
               </li>
             ))}
           </ul>
         )}
+        <div ref={bottomSentinel} aria-hidden="true" />
       </div>
 
       <button

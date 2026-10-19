@@ -8,7 +8,11 @@ import { ShowSearch } from "./show-search";
 export default async function FindPage({ searchParams }: PageProps<"/find">) {
   const { q, kind: kindParam } = await searchParams;
   const kind = parseKind(kindParam);
-  const shows = await getShows(kind);
+  const query = typeof q === "string" ? q : "";
+  const [past, upcoming] = await Promise.all([
+    getShows({ kind, q: query, period: "PAST" }),
+    getShows({ kind, q: query, period: "UPCOMING" }),
+  ]);
 
   return (
     <ViewTransition
@@ -16,8 +20,8 @@ export default async function FindPage({ searchParams }: PageProps<"/find">) {
       exit={{ "view-switch": "view-fade", default: "none" }}
       default="none"
     >
-      <AppFrame className="pb-32">
-        <ShowSearch key={kind} kind={kind} shows={shows} initialQuery={typeof q === "string" ? q : ""} />
+      <AppFrame className="pb-32 [overflow-anchor:none]">
+        <ShowSearch key={kind} kind={kind} initialQuery={query} initialPast={past} initialUpcoming={upcoming} />
         <KopisSource className="mt-10 px-4 text-center" />
       </AppFrame>
     </ViewTransition>
