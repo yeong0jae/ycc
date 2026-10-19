@@ -70,7 +70,7 @@ export function RequestButton({ kind }: { kind: ShowKind }) {
         ref={dialog}
         aria-labelledby="request-title"
         onClick={(event) => event.target === dialog.current && close()}
-        className="inset-x-0 top-auto bottom-0 mx-auto mb-0 max-h-[90dvh] w-full max-w-2xl rounded-t-3xl bg-paper p-0 text-ink backdrop:bg-ink/40"
+        className="sheet inset-x-0 top-auto bottom-0 mx-auto mb-0 max-h-[90dvh] w-full max-w-2xl rounded-t-3xl bg-paper p-0 text-ink"
       >
         <div className="flex flex-col gap-5 px-5 pt-6 pb-8">
           <h2 id="request-title" className="font-display text-xl">

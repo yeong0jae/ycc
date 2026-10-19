@@ -90,7 +90,46 @@ body {
   }
 }
 
+.sheet {
+  translate: 0 100%;
+  transition:
+    translate 320ms cubic-bezier(0.2, 0, 0, 1),
+    overlay 320ms allow-discrete,
+    display 320ms allow-discrete;
+}
+
+.sheet[open] {
+  translate: 0 0;
+}
+
+.sheet::backdrop {
+  background-color: rgb(17 17 17 / 0);
+  transition:
+    background-color 320ms ease-out,
+    overlay 320ms allow-discrete,
+    display 320ms allow-discrete;
+}
+
+.sheet[open]::backdrop {
+  background-color: rgb(17 17 17 / 0.4);
+}
+
+@starting-style {
+  .sheet[open] {
+    translate: 0 100%;
+  }
+
+  .sheet[open]::backdrop {
+    background-color: rgb(17 17 17 / 0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .sheet,
+  .sheet::backdrop {
+    transition: none;
+  }
+
   ::view-transition-group(*),
   ::view-transition-old(*),
   ::view-transition-new(*) {
