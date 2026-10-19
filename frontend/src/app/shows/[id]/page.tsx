@@ -90,7 +90,7 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
             {show.venue}
             {show.facilityId && (
               <Link
-                href={`/find/map?facility=${show.facilityId}`}
+                href={`/find/map?facility=${show.facilityId}${show.kind === "CONCERT" ? "&kind=concert" : ""}`}
                 className="press flex h-8.5 shrink-0 items-center rounded-full bg-pill px-3 text-[13px] font-medium"
               >
                 지도

@@ -15,8 +15,8 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "페스티벌 모아보기",
-  description: "다가오는 페스티벌을 한곳에서",
+  title: "공연 모아보기",
+  description: "다가오는 페스티벌과 콘서트를 한곳에서",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -7,7 +7,7 @@ import { getShows } from "@/lib/show";
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   const { error } = await searchParams;
   if (await getMe()) redirect("/");
-  const posters = (await getShows()).slice(0, 9);
+  const posters = (await getShows("FESTIVAL")).slice(0, 9);
 
   return (
     <AppFrame className="flex min-h-dvh flex-col">
@@ -27,7 +27,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
       </div>
       <div className="flex flex-col gap-2 px-5.5">
         <h1 className="font-display text-[28px]">페스티벌</h1>
-        <p className="text-base leading-relaxed text-[#444449]">전국 페스티벌을 한곳에서 봐요.</p>
+        <p className="text-base leading-relaxed text-[#444449]">전국 페스티벌과 콘서트를 한곳에서 봐요.</p>
       </div>
       <div className="mt-auto px-3 pt-6 pb-7.5">
         {error !== undefined && (

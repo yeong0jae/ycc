@@ -8,7 +8,7 @@ export default async function AdminPage() {
   const me = await getMe();
   if (!me) redirect("/login");
   if (!me.admin) notFound();
-  const res = await backendFetch(reviewPath("PENDING"));
+  const res = await backendFetch(reviewPath("PENDING", "FESTIVAL"));
   if (!res.ok) throw new Error(`검수 목록 조회 실패: ${res.status}`);
   const initial: ReviewList = await res.json();
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { kindQuery, type ShowKind } from "@/lib/show-types";
 
 const tabs = [
   {
@@ -18,7 +19,7 @@ const tabs = [
   },
 ] as const;
 
-export function ViewToggle() {
+export function ViewToggle({ kind }: { kind: ShowKind }) {
   const current = usePathname().startsWith("/find/map") ? "map" : "list";
   return (
     <nav aria-label="보기 방식" className="relative flex shrink-0 gap-1 rounded-full bg-pill p-1">
@@ -32,7 +33,7 @@ export function ViewToggle() {
         return (
           <Link
             key={tab.key}
-            href={tab.href}
+            href={`${tab.href}${kindQuery(kind)}`}
             transitionTypes={["view-switch"]}
             aria-label={tab.label}
             aria-current={active ? "page" : undefined}

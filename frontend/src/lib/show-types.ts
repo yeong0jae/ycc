@@ -1,3 +1,13 @@
+export type ShowKind = "FESTIVAL" | "CONCERT";
+
+export function parseKind(value: unknown): ShowKind {
+  return value === "concert" ? "CONCERT" : "FESTIVAL";
+}
+
+export function kindQuery(kind: ShowKind) {
+  return kind === "CONCERT" ? "?kind=concert" : "";
+}
+
 export type Show = {
   id: number;
   name: string;
@@ -12,6 +22,7 @@ export type Show = {
   cast: string | null;
   area: string | null;
   facilityId: number | null;
+  kind: ShowKind;
 };
 
 export type FacilityShow = Pick<Show, "id" | "name" | "startDate" | "endDate" | "posterUrl">;

@@ -1,4 +1,4 @@
-import type { Show } from "./show-types";
+import type { Show, ShowKind } from "./show-types";
 
 export type ReviewStatus = "PENDING" | "VISIBLE" | "HIDDEN";
 
@@ -18,8 +18,8 @@ export type ReviewItem = {
 
 export type ReviewList = { items: ReviewItem[]; counts: Record<ReviewStatus, number> };
 
-export function reviewPath(status: ReviewStatus) {
-  return `/api/admin/shows?status=${status}`;
+export function reviewPath(status: ReviewStatus, kind: ShowKind) {
+  return `/api/admin/shows?status=${status}&kind=${kind}`;
 }
 
 export function kopisUrl(kopisId: string) {

@@ -4,13 +4,14 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ShowCard } from "@/components/show-card";
 import { RESTORE_KEY, SCROLL_KEY } from "@/lib/back-transition";
 import { todayInSeoul } from "@/lib/format";
-import type { Show } from "@/lib/show-types";
+import type { Show, ShowKind } from "@/lib/show-types";
 
 function normalize(text: string) {
   return text.toLowerCase().replace(/\s+/g, "");
 }
 
-export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuery: string }) {
+export function ShowSearch({ kind, shows, initialQuery }: { kind: ShowKind; shows: Show[]; initialQuery: string }) {
+  const scrollKey = `${SCROLL_KEY}:${kind}`;
   const [query, setQuery] = useState(initialQuery);
   const keyword = normalize(query);
   const results = keyword
@@ -33,11 +34,11 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
       return;
     }
     const top = divider.current.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo({ top: top - searchBar.current.getBoundingClientRect().height, behavior });
+    window.scrollTo({ top: top - searchBar.current.getBoundingClientRect().bottom, behavior });
   };
 
   useLayoutEffect(() => {
-    const saved = sessionStorage.getItem(SCROLL_KEY);
+    const saved = sessionStorage.getItem(scrollKey);
     const restore = sessionStorage.getItem(RESTORE_KEY);
     sessionStorage.removeItem(RESTORE_KEY);
     if (restore && saved) {
@@ -45,7 +46,7 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
       return;
     }
     scrollToToday("instant");
-  }, [keyword]);
+  }, [keyword, scrollKey]);
 
   useEffect(() => {
     const update = () => {
@@ -72,15 +73,16 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
 
   return (
     <>
+      <div aria-hidden="true" className="h-[58px]" />
       <div
         ref={searchBar}
-        className={`sticky top-0 z-10 flex items-center gap-2 bg-paper px-3 pt-2.5 pb-3 transition-shadow duration-200 ${
+        className={`sticky top-[58px] z-10 flex items-center gap-2 bg-paper px-3 pt-2 pb-3 transition-shadow duration-200 ${
           scrolled ? "shadow-[0_1px_0_var(--color-line)]" : ""
         }`}
       >
         <div className="relative flex-1">
           <label htmlFor="show-search" className="sr-only">
-            페스티벌 검색
+            공연 검색
           </label>
           <svg
             width="18"
@@ -101,7 +103,7 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
             type="search"
             value={query}
             onChange={(event) => search(event.target.value)}
-            placeholder="페스티벌, 출연진, 지역"
+            placeholder="공연, 출연진, 지역"
             autoComplete="off"
             className="h-12 w-full rounded-full bg-pill pr-12 pl-11 text-[15px] outline-none placeholder:text-muted focus:ring-2 focus:ring-ink [&::-webkit-search-cancel-button]:hidden"
           />
@@ -118,18 +120,17 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
             </button>
           )}
         </div>
-        <span aria-hidden="true" className="w-23 shrink-0" />
       </div>
 
-      <div className="px-3" onClickCapture={() => sessionStorage.setItem(SCROLL_KEY, String(window.scrollY))}>
+      <div className="px-3" onClickCapture={() => sessionStorage.setItem(scrollKey, String(window.scrollY))}>
         {keyword && (
           <p aria-live="polite" className="pb-3 text-sm text-muted">
-            {results.length > 0 ? `${results.length}개` : `‘${query}’에 맞는 페스티벌이 없어요.`}
+            {results.length > 0 ? `${results.length}개` : `‘${query}’에 맞는 공연이 없어요.`}
           </p>
         )}
-        {shows.length === 0 && <p className="py-16 text-center text-sm text-muted">아직 띄운 페스티벌이 없어요.</p>}
+        {shows.length === 0 && <p className="py-16 text-center text-sm text-muted">아직 띄운 공연이 없어요.</p>}
         {past.length > 0 && (
-          <ul aria-label="지난 페스티벌" className="grid grid-cols-2 gap-x-2.5 gap-y-4.5 opacity-50 sm:grid-cols-3">
+          <ul aria-label="지난 공연" className="grid grid-cols-2 gap-x-2.5 gap-y-4.5 opacity-50 sm:grid-cols-3">
             {past.map((show) => (
               <li key={show.id}>
                 <ShowCard show={show} />
@@ -140,7 +141,7 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
         {past.length > 0 && upcoming.length > 0 && (
           <div ref={divider} aria-hidden="true" className="flex items-center gap-2 py-5 text-muted">
             <span className="h-px flex-1 bg-line" />
-            <span className="text-xs">↑ 지난 페스티벌</span>
+            <span className="text-xs">↑ 지난 공연</span>
             <span className="h-px flex-1 bg-line" />
           </div>
         )}
@@ -179,7 +180,7 @@ export function ShowSearch({ shows, initialQuery }: { shows: Show[]; initialQuer
         >
           <path d="M12 19V5M5 12l7-7 7 7" />
         </svg>
-        {todayDirection === "down" ? "다가오는 페스티벌" : "오늘"}
+        {todayDirection === "down" ? "다가오는 공연" : "오늘"}
       </button>
     </>
   );

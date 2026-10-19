@@ -10,8 +10,13 @@ import {
   reviewPath,
 } from "@/lib/admin-types";
 import { formatPeriod } from "@/lib/format";
+import type { ShowKind } from "@/lib/show-types";
 
 const STATUSES: ReviewStatus[] = ["PENDING", "VISIBLE", "HIDDEN"];
+const KINDS: { key: ShowKind; label: string }[] = [
+  { key: "FESTIVAL", label: "페스티벌" },
+  { key: "CONCERT", label: "콘서트" },
+];
 const SWIPE = 80;
 
 type Decision = { item: ReviewItem; index: number; from: ReviewStatus; to: ReviewStatus };
@@ -27,6 +32,7 @@ function actionLabel(target: ReviewStatus) {
 
 export function ReviewBoard({ initial, today }: { initial: ReviewList; today: string }) {
   const [status, setStatus] = useState<ReviewStatus>("PENDING");
+  const [kind, setKind] = useState<ShowKind>("FESTIVAL");
   const [items, setItems] = useState(initial.items);
   const [counts, setCounts] = useState(initial.counts);
   const [currentId, setCurrentId] = useState(() => firstUpcoming(initial.items, today));
@@ -46,7 +52,7 @@ export function ReviewBoard({ initial, today }: { initial: ReviewList; today: st
 
   useLayoutEffect(() => {
     if (queue.current && divider.current) queue.current.scrollTop = divider.current.offsetTop - queue.current.offsetTop;
-  }, [status]);
+  }, [status, kind]);
 
   useEffect(() => {
     queue.current?.querySelector('[aria-current="true"]')?.scrollIntoView({ block: "nearest" });
@@ -93,12 +99,13 @@ export function ReviewBoard({ initial, today }: { initial: ReviewList; today: st
     put([last.item.show.id], last.from);
   }, [last]);
 
-  const switchTo = async (target: ReviewStatus) => {
-    if (target === status) return;
-    const res = await fetch(reviewPath(target));
+  const switchTo = async (target: ReviewStatus, targetKind: ShowKind) => {
+    if (target === status && targetKind === kind) return;
+    const res = await fetch(reviewPath(target, targetKind));
     if (!res.ok) return setError("목록을 불러오지 못했어요.");
     const body: ReviewList = await res.json();
     setStatus(target);
+    setKind(targetKind);
     setItems(body.items);
     setCounts(body.counts);
     setHistory([]);
@@ -137,7 +144,20 @@ export function ReviewBoard({ initial, today }: { initial: ReviewList; today: st
   return (
     <div className="flex h-dvh flex-col">
       <header className="flex h-16 shrink-0 items-center gap-4 bg-ink px-4 text-stub lg:px-6">
-        <p className="font-display text-lg lg:text-xl">운영 · 페스티벌 검수</p>
+        <p className="font-display text-lg lg:text-xl">운영 · 검수</p>
+        <nav aria-label="공연 종류" className="flex gap-1.5 text-[13px] font-semibold">
+          {KINDS.map((it) => (
+            <button
+              key={it.key}
+              type="button"
+              aria-pressed={kind === it.key}
+              onClick={() => switchTo(status, it.key)}
+              className={`h-9 cursor-pointer rounded-full px-3 ${kind === it.key ? "bg-stub text-ink" : "border border-[#3A3D45]"}`}
+            >
+              {it.label}
+            </button>
+          ))}
+        </nav>
         <div className="hidden flex-1 items-center gap-2.5 lg:flex">
           <span className="h-1.5 max-w-80 flex-1 overflow-hidden rounded-full bg-[#2E3139]">
             <span className="block h-full bg-stub" style={{ width: `${total ? (done / total) * 100 : 0}%` }} />
@@ -152,7 +172,7 @@ export function ReviewBoard({ initial, today }: { initial: ReviewList; today: st
               key={it}
               type="button"
               aria-pressed={status === it}
-              onClick={() => switchTo(it)}
+              onClick={() => switchTo(it, kind)}
               className={`h-9 cursor-pointer rounded-full px-3 ${status === it ? "bg-stub text-ink" : "border border-[#3A3D45]"}`}
             >
               {REVIEW_LABELS[it]} {counts[it]}
@@ -212,7 +232,7 @@ export function ReviewBoard({ initial, today }: { initial: ReviewList; today: st
           onTouchEnd={onTouchEnd}
         >
           {!current ? (
-            <p className="py-20 text-center text-sm text-muted">{REVIEW_LABELS[status]} 상태인 페스티벌이 없어요.</p>
+            <p className="py-20 text-center text-sm text-muted">{REVIEW_LABELS[status]} 상태인 {kind === "CONCERT" ? "콘서트가" : "페스티벌이"} 없어요.</p>
           ) : (
             <article className="flex flex-col gap-5 lg:flex-row lg:gap-6">
               {/* eslint-disable-next-line @next/next/no-img-element */}
