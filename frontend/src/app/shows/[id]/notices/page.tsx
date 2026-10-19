@@ -4,6 +4,7 @@ import { Suspense, ViewTransition } from "react";
 import { AppFrame } from "@/components/app-frame";
 import { BackButton } from "@/components/back-button";
 import { DetailBadge } from "@/components/detail-badge";
+import { TabBar } from "@/components/tab-bar";
 import { formatLongPeriod, shortRegion } from "@/lib/format";
 import { getShow, getShowNotices } from "@/lib/show";
 import { NoticeFeed } from "./notice-feed";
@@ -52,16 +53,7 @@ export default async function ShowNoticesPage({ params }: PageProps<"/shows/[id]
         <Notices showId={show.id} />
       </Suspense>
 
-      <div className="fixed inset-x-0 bottom-0 z-20 bg-paper shadow-[0_-1px_0_var(--color-line)]">
-        <div className="mx-auto flex max-w-2xl gap-2 px-3 pt-3 pb-7">
-          <button type="button" disabled className="h-14 flex-1 rounded-full bg-pill text-[15px] font-bold text-muted">
-            예매 인증 · 곧
-          </button>
-          <button type="button" disabled className="h-14 flex-[1.4] rounded-full bg-lime text-base font-bold opacity-50">
-            건의 남기기 · 곧 열려요
-          </button>
-        </div>
-      </div>
+      <TabBar />
     </AppFrame>
   );
 }
