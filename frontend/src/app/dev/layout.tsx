@@ -1,11 +1,11 @@
 import { type ReactNode, Suspense } from "react";
 import { backendFetch } from "@/lib/auth";
+import { AccountLogin } from "@/components/account-login";
 import { DevHeader } from "./dev-header";
-import { DevLogin } from "./dev-login";
 
 async function DevGate({ children }: { children: ReactNode }) {
   const res = await backendFetch("/api/dev/me");
-  if (res.status === 401) return <DevLogin />;
+  if (res.status === 401) return <AccountLogin title="개발자 로그인" loginPath="/api/dev/login" />;
   if (!res.ok) throw new Error(`개발자 정보 조회 실패: ${res.status}`);
 
   return (

@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 const tools = [
   { href: "/dev/review", label: "검수" },
   { href: "/dev/requests", label: "추가 요청" },
+  { href: "/dev/organizers", label: "주최측" },
 ];
 
 export function DevHeader() {

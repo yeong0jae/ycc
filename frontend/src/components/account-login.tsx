@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export function DevLogin() {
+export function AccountLogin({ title, loginPath }: { title: string; loginPath: string }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -13,20 +13,21 @@ export function DevLogin() {
     const form = new FormData(event.currentTarget);
     setPending(true);
     setError(null);
-    const res = await fetch("/api/dev/login", {
+    const res = await fetch(loginPath, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ username: form.get("username"), password: form.get("password") }),
     });
     setPending(false);
     if (res.ok) return router.refresh();
-    setError(res.status === 401 ? "아이디나 비밀번호가 맞지 않아요." : "로그인하지 못했어요. 다시 시도해 주세요.");
+    const body = await res.json().catch(() => null);
+    setError(body?.message || "로그인하지 못했어요. 다시 시도해 주세요.");
   };
 
   return (
     <main className="flex min-h-dvh items-center justify-center px-4">
       <form method="post" onSubmit={submit} className="flex w-full max-w-sm flex-col gap-3">
-        <h1 className="mb-3 font-display text-2xl">개발자 로그인</h1>
+        <h1 className="mb-3 font-display text-2xl">{title}</h1>
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-bold">아이디</span>
           <input

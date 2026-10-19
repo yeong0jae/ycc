@@ -50,3 +50,13 @@ export type ShowRequestList = { items: ShowRequestItem[]; counts: Record<ShowReq
 export function requestsPath(status: ShowRequestStatus) {
   return `/api/dev/show-requests?status=${status}`;
 }
+
+export type OrganizerShow = { id: number; name: string; startDate: string; endDate: string };
+
+export type OrganizerItem = {
+  id: number;
+  username: string;
+  displayName: string;
+  active: boolean;
+  show: OrganizerShow;
+};
