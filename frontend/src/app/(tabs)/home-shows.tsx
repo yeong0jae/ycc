@@ -89,7 +89,7 @@ function Empty() {
           <path d="M14 8v10" strokeDasharray="2 2" />
         </svg>
       </span>
-      <p className="text-lg font-bold">갈 공연에 참여해 보세요</p>
+      <p className="text-lg font-bold">공연에 참여해 보세요</p>
       <p className="text-sm leading-relaxed text-muted">
         참여한 공연은 여기에 모여요.
         <br />
