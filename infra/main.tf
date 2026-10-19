@@ -14,6 +14,7 @@ locals {
     "iamcredentials.googleapis.com",
     "sts.googleapis.com",
     "oslogin.googleapis.com",
+    "storage.googleapis.com",
   ]
   secrets      = ["db-password", "kopis-api-key", "kakao-rest-api-key", "kakao-client-secret", "kakao-map-key"]
   registry     = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.ycc.repository_id}"
@@ -190,6 +191,7 @@ resource "google_compute_instance" "ycc" {
     registry       = local.registry
     site-address   = local.site_address
     sql-connection = google_sql_database_instance.ycc.connection_name
+    notice-images  = google_storage_bucket.notice_images.name
     enable-oslogin = "TRUE"
   }
 
@@ -240,4 +242,23 @@ resource "google_billing_budget" "monthly" {
   threshold_rules {
     threshold_percent = 1.0
   }
+}
+
+resource "google_storage_bucket" "notice_images" {
+  name                        = "${var.project_id}-notice-images"
+  location                    = var.region
+  uniform_bucket_level_access = true
+  depends_on                  = [google_project_service.services]
+}
+
+resource "google_storage_bucket_iam_member" "notice_images_public" {
+  bucket = google_storage_bucket.notice_images.name
+  role   = "roles/storage.objectViewer"
+  member = "allUsers"
+}
+
+resource "google_storage_bucket_iam_member" "notice_images_vm" {
+  bucket = google_storage_bucket.notice_images.name
+  role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${google_service_account.vm.email}"
 }

@@ -23,6 +23,9 @@ services:
       KAKAO_REST_API_KEY: ${KAKAO_REST_API_KEY}
       KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
       FRONTEND_URL: http://localhost:3000
+      NOTICE_IMAGE_DIR: /data/notice-images
+    volumes:
+      - notice-images:/data/notice-images
     ports:
       - "8080:8080"
     depends_on:
@@ -41,3 +44,4 @@ services:
 
 volumes:
   mysql-data:
+  notice-images:

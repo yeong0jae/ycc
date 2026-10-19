@@ -15,6 +15,7 @@ services:
       KAKAO_REST_API_KEY: ${KAKAO_REST_API_KEY}
       KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
       FRONTEND_URL: https://${SITE_ADDRESS}
+      NOTICE_IMAGE_BUCKET: ${NOTICE_IMAGE_BUCKET}
     depends_on:
       - cloudsql-proxy
 
