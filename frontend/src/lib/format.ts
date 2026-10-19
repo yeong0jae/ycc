@@ -52,7 +52,7 @@ export function shortRegion(area: string | null) {
 
 export function festivalBadge(startDate: string, endDate: string) {
   const today = todayInSeoul();
-  if (endDate < today) return null;
+  if (endDate < today) return { label: "END", live: false };
   if (startDate <= today) return { label: startDate === endDate ? "오늘" : "진행 중", live: true };
   return { label: formatDday(startDate), live: false };
 }
