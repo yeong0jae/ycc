@@ -3,6 +3,7 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import { parseKind, type ShowKind } from "@/lib/show-types";
 import { KindToggle } from "./kind-toggle";
+import { RequestButton } from "./request-button";
 import { ViewToggle } from "./view-toggle";
 
 export function FindToolbar({ kind }: { kind: ShowKind }) {
@@ -13,7 +14,8 @@ export function FindToolbar({ kind }: { kind: ShowKind }) {
         <div className="pointer-events-auto">
           <KindToggle kind={kind} />
         </div>
-        <div className="pointer-events-auto">
+        <div className="pointer-events-auto flex items-center gap-2">
+          <RequestButton kind={kind} />
           <ViewToggle kind={kind} />
         </div>
       </div>

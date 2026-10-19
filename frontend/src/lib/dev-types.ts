@@ -25,3 +25,28 @@ export function reviewPath(status: ReviewStatus, kind: ShowKind) {
 export function kopisUrl(kopisId: string) {
   return `https://www.kopis.or.kr/por/db/pblprfr/pblprfrView.do?menuId=MNU_00020&mt20Id=${kopisId}`;
 }
+
+export type ShowRequestStatus = "PENDING" | "DONE" | "IGNORED";
+
+export const REQUEST_LABELS: Record<ShowRequestStatus, string> = {
+  PENDING: "대기",
+  DONE: "처리함",
+  IGNORED: "무시",
+};
+
+export type ShowRequestItem = {
+  id: number;
+  kind: ShowKind;
+  name: string;
+  url: string | null;
+  nickname: string | null;
+  member: boolean;
+  status: ShowRequestStatus;
+  createdAt: string;
+};
+
+export type ShowRequestList = { items: ShowRequestItem[]; counts: Record<ShowRequestStatus, number> };
+
+export function requestsPath(status: ShowRequestStatus) {
+  return `/api/dev/show-requests?status=${status}`;
+}

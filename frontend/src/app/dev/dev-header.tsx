@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
-const tools = [{ href: "/dev/review", label: "검수" }];
+const tools = [
+  { href: "/dev/review", label: "검수" },
+  { href: "/dev/requests", label: "추가 요청" },
+];
 
 export function DevHeader() {
   const pathname = usePathname();
