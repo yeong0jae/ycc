@@ -34,5 +34,7 @@ interface ShowRepository : JpaRepository<Show, Long> {
 
 	fun findByReviewStatusAndKindOrderByStartDateAscIdAsc(status: ReviewStatus, kind: ShowKind): List<Show>
 
+	fun findByReviewStatusOrderByStartDateDescIdDesc(status: ReviewStatus): List<Show>
+
 	fun countByReviewStatusAndKind(status: ReviewStatus, kind: ShowKind): Long
 }

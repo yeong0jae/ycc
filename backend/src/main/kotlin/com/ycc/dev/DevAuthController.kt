@@ -27,7 +27,7 @@ class DevAuthController(
 	fun login(@RequestBody request: DevLoginRequest, httpRequest: HttpServletRequest): DevMeResponse {
 		val developer = developerRepository.findByUsername(request.username)
 			?.takeIf { passwordEncoder.matches(request.password, it.passwordHash) }
-			?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
+			?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "아이디나 비밀번호가 맞지 않아요.")
 		httpRequest.getSession(true)
 		httpRequest.changeSessionId()
 		httpRequest.session.setAttribute(DEVELOPER_ID, developer.id)

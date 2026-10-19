@@ -1,6 +1,8 @@
 package com.ycc.kopis
 
 import com.ycc.facility.FacilityRepository
+import com.ycc.organizer.Organizer
+import com.ycc.organizer.OrganizerRepository
 import com.ycc.show.ReviewStatus
 import com.ycc.show.ShowKind
 import com.ycc.show.ShowRepository
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import java.time.Clock
 import java.time.LocalDate
+import java.time.LocalDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -21,6 +24,7 @@ class KopisSyncServiceTests(
 	@Autowired private val showRepository: ShowRepository,
 	@Autowired private val facilityRepository: FacilityRepository,
 	@Autowired private val syncRepository: KopisSyncRepository,
+	@Autowired private val organizerRepository: OrganizerRepository,
 	@Autowired private val clock: Clock,
 ) {
 
@@ -54,11 +58,12 @@ class KopisSyncServiceTests(
 		}
 	}
 
-	private val syncService by lazy { KopisSyncService(fakeClient, showRepository, facilityRepository, syncRepository, clock) }
+	private val syncService by lazy { KopisSyncService(fakeClient, showRepository, facilityRepository, syncRepository, organizerRepository, clock) }
 
 	@BeforeEach
 	@AfterEach
 	fun clear() {
+		organizerRepository.deleteAll()
 		showRepository.deleteAll()
 		facilityRepository.deleteAll()
 		syncRepository.deleteAll()
@@ -132,6 +137,17 @@ class KopisSyncServiceTests(
 		syncService.sync()
 
 		assertEquals(listOf("PF000001", "PF000004", "PF000010", "PF888888"), showRepository.findAll().map { it.kopisId }.sorted())
+	}
+
+	@Test
+	fun `주최측 계정이 붙은 공연은 결과에 없어도 지우지 않는다`() {
+		val stale = KopisParser.parseDetail(fixture("detail-PF000004.xml"))!!
+		val show = showRepository.save(stale.copy(kopisId = "PF999999").toShow())
+		organizerRepository.save(Organizer("host", "hash", "주최사", show, LocalDateTime.now(clock)))
+
+		syncService.sync()
+
+		assertTrue(showRepository.findByKopisId("PF999999") != null)
 	}
 
 	@Test

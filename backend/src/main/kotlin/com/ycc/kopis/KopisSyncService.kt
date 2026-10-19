@@ -2,6 +2,7 @@ package com.ycc.kopis
 
 import com.ycc.facility.Facility
 import com.ycc.facility.FacilityRepository
+import com.ycc.organizer.OrganizerRepository
 import com.ycc.show.ReviewStatus
 import com.ycc.show.ShowKind
 import com.ycc.show.ShowRepository
@@ -19,6 +20,7 @@ class KopisSyncService(
 	private val showRepository: ShowRepository,
 	private val facilityRepository: FacilityRepository,
 	private val syncRepository: KopisSyncRepository,
+	private val organizerRepository: OrganizerRepository,
 	private val clock: Clock,
 ) {
 
@@ -68,7 +70,8 @@ class KopisSyncService(
 			.forEach { showRepository.save(it.apply { kind = kindOf(kopisId, festivalIds) }) }
 
 		val keptIds = summaries.map { it.kopisId }.toSet()
-		showRepository.deleteAll(existing.values.filter { it.kopisId !in keptIds && it.endDate >= today })
+		val organizerShowIds = organizerRepository.findAllShowIds().toSet()
+		showRepository.deleteAll(existing.values.filter { it.kopisId !in keptIds && it.endDate >= today && it.id !in organizerShowIds })
 		syncRepository.save(KopisSync(startedAt, toFetch.size))
 		return SyncResult(keptIds.size, toFetch.size, full)
 	}
