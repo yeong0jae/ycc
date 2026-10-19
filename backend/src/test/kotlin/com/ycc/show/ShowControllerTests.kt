@@ -6,10 +6,16 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Primary
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import java.time.Clock
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -18,6 +24,13 @@ class ShowControllerTests(
 	@Autowired private val showRepository: ShowRepository,
 	@Autowired private val facilityRepository: FacilityRepository,
 ) {
+
+	@TestConfiguration
+	class FixedClockConfig {
+		@Bean
+		@Primary
+		fun fixedClock(): Clock = Clock.fixed(Instant.parse("2026-10-18T03:00:00Z"), ZoneId.of("Asia/Seoul"))
+	}
 
 	private fun show(kopisId: String, name: String, start: String, end: String, facility: Facility? = null) = Show(
 		kopisId = kopisId,
@@ -50,14 +63,36 @@ class ShowControllerTests(
 	}
 
 	@Test
-	fun `지난 공연부터 앞으로의 공연까지 모두 시작일 순으로 준다`() {
+	fun `기본은 끝나지 않은 공연을 시작일 순으로 준다`() {
 		mockMvc.get("/api/shows").andExpect {
 			status { isOk() }
-			jsonPath("$.length()") { value(4) }
-			jsonPath("$[0].name") { value("3개월 넘게 지난 공연") }
-			jsonPath("$[1].name") { value("끝난 공연") }
-			jsonPath("$[2].name") { value("진행 중인 공연") }
-			jsonPath("$[3].name") { value("나중 공연") }
+			jsonPath("$.items.length()") { value(2) }
+			jsonPath("$.items[0].name") { value("진행 중인 공연") }
+			jsonPath("$.items[1].name") { value("나중 공연") }
+			jsonPath("$.hasNext") { value(false) }
+			jsonPath("$.total") { value(2) }
+		}
+	}
+
+	@Test
+	fun `지난 공연은 최근 것부터 준다`() {
+		mockMvc.get("/api/shows?period=PAST").andExpect {
+			jsonPath("$.items.length()") { value(2) }
+			jsonPath("$.items[0].name") { value("끝난 공연") }
+			jsonPath("$.items[1].name") { value("3개월 넘게 지난 공연") }
+		}
+	}
+
+	@Test
+	fun `나눠서 준다`() {
+		mockMvc.get("/api/shows?size=1").andExpect {
+			jsonPath("$.items[0].name") { value("진행 중인 공연") }
+			jsonPath("$.hasNext") { value(true) }
+			jsonPath("$.total") { value(2) }
+		}
+		mockMvc.get("/api/shows?size=1&page=1").andExpect {
+			jsonPath("$.items[0].name") { value("나중 공연") }
+			jsonPath("$.hasNext") { value(false) }
 		}
 	}
 
@@ -66,31 +101,38 @@ class ShowControllerTests(
 		showRepository.save(show("PX9", "콘서트 하나", "2026-11-01", "2026-11-01").apply { kind = ShowKind.CONCERT })
 
 		mockMvc.get("/api/shows?kind=CONCERT").andExpect {
-			jsonPath("$.length()") { value(1) }
-			jsonPath("$[0].name") { value("콘서트 하나") }
-			jsonPath("$[0].kind") { value("CONCERT") }
+			jsonPath("$.items.length()") { value(1) }
+			jsonPath("$.items[0].name") { value("콘서트 하나") }
+			jsonPath("$.items[0].kind") { value("CONCERT") }
 		}
 		mockMvc.get("/api/shows").andExpect {
-			jsonPath("$.length()") { value(4) }
+			jsonPath("$.items.length()") { value(2) }
 		}
 	}
 
 	@Test
-	fun `이름으로 검색한다`() {
-		mockMvc.get("/api/shows?q=3개월").andExpect {
-			jsonPath("$.length()") { value(1) }
-			jsonPath("$[0].name") { value("3개월 넘게 지난 공연") }
+	fun `이름으로 띄어쓰기 상관없이 검색한다`() {
+		mockMvc.get("/api/shows?q=3개월&period=PAST").andExpect {
+			jsonPath("$.items.length()") { value(1) }
+			jsonPath("$.items[0].name") { value("3개월 넘게 지난 공연") }
+		}
+		mockMvc.get("/api/shows?q=나중공연").andExpect {
+			jsonPath("$.items.length()") { value(1) }
+			jsonPath("$.items[0].name") { value("나중 공연") }
 		}
 	}
 
 	@Test
-	fun `출연진으로도 검색한다`() {
+	fun `출연진과 장소로도 검색한다`() {
 		showRepository.save(show("PX3", "어느 록 페스티벌", "2026-11-01", "2026-11-01").apply { castText = "하현상, 이기용" })
 
 		mockMvc.get("/api/shows?q=하현상").andExpect {
-			jsonPath("$.length()") { value(1) }
-			jsonPath("$[0].name") { value("어느 록 페스티벌") }
-			jsonPath("$[0].cast") { value("하현상, 이기용") }
+			jsonPath("$.items.length()") { value(1) }
+			jsonPath("$.items[0].name") { value("어느 록 페스티벌") }
+			jsonPath("$.items[0].cast") { value("하현상, 이기용") }
+		}
+		mockMvc.get("/api/shows?q=테스트홀").andExpect {
+			jsonPath("$.total") { value(3) }
 		}
 	}
 
@@ -100,7 +142,7 @@ class ShowControllerTests(
 		showRepository.save(show("PX2", "무시한 공연", "2026-11-01", "2026-11-01").apply { reviewStatus = ReviewStatus.HIDDEN })
 
 		mockMvc.get("/api/shows?q=공연").andExpect {
-			jsonPath("$.length()") { value(4) }
+			jsonPath("$.total") { value(2) }
 		}
 	}
 
