@@ -140,6 +140,16 @@ class KopisSyncServiceTests(
 	}
 
 	@Test
+	fun `띄움인 공연은 결과에 없어도 지우지 않는다`() {
+		val stale = KopisParser.parseDetail(fixture("detail-PF000004.xml"))!!
+		showRepository.save(stale.copy(kopisId = "PF999999").toShow().apply { reviewStatus = ReviewStatus.VISIBLE })
+
+		syncService.sync()
+
+		assertTrue(showRepository.findByKopisId("PF999999") != null)
+	}
+
+	@Test
 	fun `주최측 계정이 붙은 공연은 결과에 없어도 지우지 않는다`() {
 		val stale = KopisParser.parseDetail(fixture("detail-PF000004.xml"))!!
 		val show = showRepository.save(stale.copy(kopisId = "PF999999").toShow())

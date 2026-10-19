@@ -71,7 +71,11 @@ class KopisSyncService(
 
 		val keptIds = summaries.map { it.kopisId }.toSet()
 		val organizerShowIds = organizerRepository.findAllShowIds().toSet()
-		showRepository.deleteAll(existing.values.filter { it.kopisId !in keptIds && it.endDate >= today && it.id !in organizerShowIds })
+		showRepository.deleteAll(
+			existing.values.filter {
+				it.kopisId !in keptIds && it.endDate >= today && it.reviewStatus != ReviewStatus.VISIBLE && it.id !in organizerShowIds
+			},
+		)
 		syncRepository.save(KopisSync(startedAt, toFetch.size))
 		return SyncResult(keptIds.size, toFetch.size, full)
 	}
