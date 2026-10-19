@@ -1,6 +1,7 @@
 package com.ycc.kopis
 
 import com.ycc.facility.FacilityRepository
+import com.ycc.notice.NoticeRepository
 import com.ycc.organizer.Organizer
 import com.ycc.organizer.OrganizerRepository
 import com.ycc.show.ReviewStatus
@@ -25,6 +26,7 @@ class KopisSyncServiceTests(
 	@Autowired private val facilityRepository: FacilityRepository,
 	@Autowired private val syncRepository: KopisSyncRepository,
 	@Autowired private val organizerRepository: OrganizerRepository,
+	@Autowired private val noticeRepository: NoticeRepository,
 	@Autowired private val clock: Clock,
 ) {
 
@@ -58,11 +60,12 @@ class KopisSyncServiceTests(
 		}
 	}
 
-	private val syncService by lazy { KopisSyncService(fakeClient, showRepository, facilityRepository, syncRepository, organizerRepository, clock) }
+	private val syncService by lazy { KopisSyncService(fakeClient, showRepository, facilityRepository, syncRepository, organizerRepository, noticeRepository, clock) }
 
 	@BeforeEach
 	@AfterEach
 	fun clear() {
+		noticeRepository.deleteAll()
 		organizerRepository.deleteAll()
 		showRepository.deleteAll()
 		facilityRepository.deleteAll()
