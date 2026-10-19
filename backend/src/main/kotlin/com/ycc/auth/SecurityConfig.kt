@@ -27,7 +27,6 @@ class SecurityConfig(
 			.authorizeHttpRequests {
 				it.requestMatchers(
 					"/api/me/**",
-					"/api/admin/**",
 					"/api/logout",
 				).authenticated()
 				it.anyRequest().permitAll()
