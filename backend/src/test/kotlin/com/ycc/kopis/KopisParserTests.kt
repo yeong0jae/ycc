@@ -1,6 +1,7 @@
 package com.ycc.kopis
 
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -48,5 +49,22 @@ class KopisParserTests {
 		assertEquals("서울특별시 마포구 테스트로 1", facility.address)
 		assertEquals(37.5515788, facility.latitude)
 		assertEquals(126.9198284, facility.longitude)
+	}
+
+	@Test
+	fun `KOPIS가 오류 코드를 돌려주면 코드와 메시지로 실패한다`() {
+		val xml = """<dbs><db><returncode>02</returncode><errmsg>SERVICE KEY IS NOT REGISTERED ERROR</errmsg></db></dbs>"""
+
+		val error = assertThrows<KopisApiException> { KopisParser.parseList(xml) }
+
+		assertEquals("KOPIS 오류 02: SERVICE KEY IS NOT REGISTERED ERROR", error.message)
+	}
+
+	@Test
+	fun `자료가 없다는 코드는 빈 목록으로 본다`() {
+		val xml = """<dbs><db><returncode>04</returncode><errmsg>NODATA ERROR</errmsg></db></dbs>"""
+
+		assertEquals(emptyList(), KopisParser.parseList(xml))
+		assertNull(KopisParser.parseDetail(xml))
 	}
 }

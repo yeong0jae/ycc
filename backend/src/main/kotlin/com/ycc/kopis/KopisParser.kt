@@ -9,6 +9,8 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.xml.parsers.DocumentBuilderFactory
 
+class KopisApiException(message: String) : RuntimeException(message)
+
 data class KopisSummary(
 	val kopisId: String,
 	val name: String,
@@ -66,6 +68,7 @@ data class KopisFacility(
 object KopisParser {
 
 	private val DATE = DateTimeFormatter.ofPattern("yyyy.MM.dd")
+	private const val NO_DATA = "04"
 
 	fun parseList(xml: String): List<KopisSummary> =
 		rows(xml).map {
@@ -113,7 +116,10 @@ object KopisParser {
 		factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
 		val document = factory.newDocumentBuilder().parse(InputSource(StringReader(xml)))
 		val nodes = document.documentElement.getElementsByTagName("db")
-		return (0 until nodes.length).map { nodes.item(it) as Element }
+		val rows = (0 until nodes.length).map { nodes.item(it) as Element }
+		val code = rows.firstOrNull()?.text("returncode") ?: return rows
+		if (code == NO_DATA) return emptyList()
+		throw KopisApiException("KOPIS 오류 $code: ${rows.first().text("errmsg").orEmpty()}")
 	}
 
 	private fun Element.text(tag: String): String? =
