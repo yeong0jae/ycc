@@ -56,3 +56,20 @@ export function festivalBadge(startDate: string, endDate: string) {
   if (startDate <= today) return { label: startDate === endDate ? "오늘" : "진행 중", live: true };
   return { label: formatDday(startDate), live: false };
 }
+
+export function formatNoticeTime(createdAt: string, now = Date.now()) {
+  const date = createdAt.slice(0, 10);
+  const time = createdAt.slice(11, 16);
+  const today = todayInSeoul();
+  if (date === today) {
+    const minutes = Math.floor((now - Date.parse(`${createdAt.slice(0, 19)}+09:00`)) / 60_000);
+    if (minutes < 1) return `${time} · 방금`;
+    if (minutes < 60) return `${time} · ${minutes}분 전`;
+    return time;
+  }
+  const yesterday = new Date(`${today}T00:00:00Z`);
+  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+  if (date === yesterday.toISOString().slice(0, 10)) return `어제 ${time}`;
+  const [, m, d] = date.split("-").map(Number);
+  return `${m}.${d}`;
+}

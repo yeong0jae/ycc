@@ -1,4 +1,5 @@
 import { cacheLife } from "next/cache";
+import type { ShowNotices } from "./notice-types";
 import { type Facility, type Show, type ShowKind, type ShowPage, type ShowPeriod, showsQuery } from "./show-types";
 
 export type * from "./show-types";
@@ -31,5 +32,11 @@ export async function getShow(id: string): Promise<Show | null> {
 export async function getFacilities(kind: ShowKind): Promise<Facility[]> {
   const res = await fetch(`${API_URL}/api/facilities?kind=${kind}`);
   if (!res.ok) throw new Error(`공연장 목록 조회 실패: ${res.status}`);
+  return res.json();
+}
+
+export async function getShowNotices(id: number): Promise<ShowNotices> {
+  const res = await fetch(`${API_URL}/api/shows/${id}/notices`);
+  if (!res.ok) throw new Error(`공지 조회 실패: ${res.status}`);
   return res.json();
 }

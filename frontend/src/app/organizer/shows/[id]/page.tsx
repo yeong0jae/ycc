@@ -24,7 +24,7 @@ export default async function OrganizerShowPage({ params }: PageProps<"/organize
           <dt className="text-muted">장소</dt>
           <dd>{show.venue}</dd>
         </dl>
-        <p className="text-sm text-muted">공지·건의·현장 QR은 곧 이 화면에서 쓸 수 있어요.</p>
+        <p className="text-sm text-muted">건의·현장 QR은 곧 열려요.</p>
       </div>
     </section>
   );

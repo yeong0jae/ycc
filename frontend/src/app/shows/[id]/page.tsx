@@ -1,27 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { connection } from "next/server";
 import { Suspense, ViewTransition } from "react";
 import { AppFrame } from "@/components/app-frame";
 import { BackButton } from "@/components/back-button";
+import { DetailBadge } from "@/components/detail-badge";
 import { KopisSource } from "@/components/kopis-source";
-import { LiveBadge } from "@/components/live-badge";
-import { festivalBadge, formatLongPeriod, shortRegion } from "@/lib/format";
+import { formatLongPeriod, shortRegion } from "@/lib/format";
 import { getShow } from "@/lib/show";
-
-async function DetailBadge({ startDate, endDate }: { startDate: string; endDate: string }) {
-  await connection();
-  const badge = festivalBadge(startDate, endDate);
-  if (!badge) return null;
-  return (
-    <LiveBadge
-      label={badge.label}
-      live={badge.live}
-      idle="bg-pill"
-      className="h-6.5 animate-rise self-start px-2.5 text-[13px] motion-reduce:animate-none"
-    />
-  );
-}
+import { ParticipateButton } from "./participate-button";
+import { UrgentLine } from "./urgent-line";
 
 export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
   const { id } = await params;
@@ -39,7 +26,11 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
       <header className="flex flex-col gap-2.5 px-5 pt-3.5">
         <div className="flex h-6.5">
           <Suspense fallback={null}>
-            <DetailBadge startDate={show.startDate} endDate={show.endDate} />
+            <DetailBadge
+              startDate={show.startDate}
+              endDate={show.endDate}
+              className="h-6.5 animate-rise self-start px-2.5 text-[13px] motion-reduce:animate-none"
+            />
           </Suspense>
         </div>
         <h1 className="animate-rise font-display text-[26px] leading-snug [animation-delay:50ms] motion-reduce:animate-none">
@@ -54,6 +45,8 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
           </span>
         </p>
       </header>
+
+      <UrgentLine showId={show.id} />
 
       <a href={show.posterUrl} target="_blank" rel="noopener noreferrer" className="relative mx-3 mt-4 block">
         <ViewTransition name={`poster-${show.id}`} share="morph" default="none">
@@ -114,13 +107,7 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
               예매처 ↗
             </a>
           )}
-          <button
-            type="button"
-            disabled
-            className="h-14 flex-1 rounded-full bg-lime text-base font-bold disabled:opacity-50"
-          >
-            예매 인증 · 곧 열려요
-          </button>
+          <ParticipateButton showId={show.id} />
         </div>
       </div>
     </AppFrame>
