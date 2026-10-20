@@ -57,12 +57,14 @@ export function PostItem({
   post,
   href,
   full = false,
+  showChip = false,
   onLike,
   onMore,
 }: {
   post: Post;
   href?: string;
   full?: boolean;
+  showChip?: boolean;
   onLike: (post: Post) => void;
   onMore: (post: Post) => void;
 }) {
@@ -80,6 +82,17 @@ export function PostItem({
             <MoreButton onClick={() => onMore(post)} />
           </span>
         </div>
+        {showChip && (
+          <Link
+            href={`/shows/${post.showId}/community`}
+            className="mt-1.5 inline-flex h-6.5 max-w-full items-center gap-1 rounded-full bg-[#f7f7f8] pr-2 pl-2.5 text-xs font-bold text-[#444449]"
+          >
+            <span className="truncate">{post.showName}</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9a9aa2" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0">
+              <path d="M9 6l6 6-6 6" />
+            </svg>
+          </Link>
+        )}
         {href ? <Link href={href}>{body}</Link> : body}
         <Photos post={post} />
         <div className="mt-1 flex gap-3.5">

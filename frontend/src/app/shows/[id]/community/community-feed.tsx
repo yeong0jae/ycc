@@ -8,7 +8,8 @@ import { ShowHomeTabs } from "../show-home-tabs";
 import { TabSwipe } from "../tab-swipe";
 import { PostItem } from "./post-item";
 import { ComposeSheet } from "./sheets";
-import { useCommunity } from "./use-community";
+import { InfiniteSentinel } from "@/components/infinite-sentinel";
+import { postPath, useCommunity } from "./use-community";
 
 export function CommunityFeed({ showId, initial, me, loginUrl }: { showId: number; initial: PostPage; me: Me | null; loginUrl: string }) {
   const [kind, setKind] = useState<PostKind | null>(null);
@@ -16,7 +17,8 @@ export function CommunityFeed({ showId, initial, me, loginUrl }: { showId: numbe
   const [loading, setLoading] = useState(false);
   const [composing, setComposing] = useState<{ editing?: Post } | null>(null);
   const [fresh, setFresh] = useState<number | null>(null);
-  const { base, needLogin, like, openMore, setToast, sheets } = useCommunity({ showId, signedIn: me !== null, loginUrl });
+  const { needLogin, like, openMore, setToast, sheets } = useCommunity({ signedIn: me !== null, loginUrl });
+  const base = `/api/shows/${showId}/community`;
 
   const load = async (nextKind: PostKind | null, before?: number) => {
     setLoading(true);
@@ -48,7 +50,7 @@ export function CommunityFeed({ showId, initial, me, loginUrl }: { showId: numbe
   };
 
   const remove = async (post: Post) => {
-    const res = await fetch(`${base}/${post.id}`, { method: "DELETE" }).catch(() => null);
+    const res = await fetch(postPath(post), { method: "DELETE" }).catch(() => null);
     if (!res?.ok) return setToast("지우지 못했어요");
     setPage((current) => ({ ...current, items: current.items.filter((it) => it.id !== post.id) }));
     setToast("지웠어요");
@@ -107,7 +109,7 @@ export function CommunityFeed({ showId, initial, me, loginUrl }: { showId: numbe
                     mine: it.mine,
                     onEdit: () => setComposing({ editing: it }),
                     onDelete: () => remove(it),
-                    reportPath: `${base}/${it.id}/report`,
+                    reportPath: `${postPath(it)}/report`,
                   })
                 }
               />
@@ -117,16 +119,7 @@ export function CommunityFeed({ showId, initial, me, loginUrl }: { showId: numbe
         {page.items.length === 0 && !loading && (
           <p className="py-16 text-center text-sm text-muted">{kind ? "이 종류의 글이 아직 없어요." : "아직 올라온 글이 없어요. 첫 글을 남겨 보세요."}</p>
         )}
-        {page.hasMore && (
-          <button
-            type="button"
-            disabled={loading}
-            onClick={() => load(kind, page.items.at(-1)?.id)}
-            className="mx-5 mt-4 h-11 cursor-pointer rounded-full bg-pill text-sm font-bold disabled:opacity-50"
-          >
-            더 보기
-          </button>
-        )}
+        <InfiniteSentinel active={page.hasMore && !loading} onReach={() => load(kind, page.items.at(-1)?.id)} />
       </TabSwipe>
 
       {composing && me && (

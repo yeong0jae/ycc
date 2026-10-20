@@ -7,7 +7,11 @@ import { type MoreTarget, MoreSheet, ReportSheet } from "./sheets";
 
 const TOAST_MS = 2500;
 
-export function useCommunity({ showId, signedIn, loginUrl }: { showId: number; signedIn: boolean; loginUrl: string }) {
+export function postPath(post: Pick<Post, "id" | "showId">) {
+  return `/api/shows/${post.showId}/community/${post.id}`;
+}
+
+export function useCommunity({ signedIn, loginUrl }: { signedIn: boolean; loginUrl: string }) {
   const [login, setLogin] = useState<LoginReason | null>(null);
   const [more, setMore] = useState<MoreTarget | null>(null);
   const [reportPath, setReportPath] = useState<string | null>(null);
@@ -19,8 +23,6 @@ export function useCommunity({ showId, signedIn, loginUrl }: { showId: number; s
     return () => clearTimeout(timer);
   }, [toast]);
 
-  const base = `/api/shows/${showId}/community`;
-
   const needLogin = (reason: LoginReason) => {
     if (signedIn) return false;
     setLogin(reason);
@@ -31,7 +33,7 @@ export function useCommunity({ showId, signedIn, loginUrl }: { showId: number; s
     if (needLogin("like")) return;
     const liked = !post.liked;
     apply({ ...post, liked, likeCount: post.likeCount + (liked ? 1 : -1) });
-    const res = await fetch(`${base}/${post.id}/like`, {
+    const res = await fetch(`${postPath(post)}/like`, {
       method: "PUT",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ liked }),
@@ -87,5 +89,5 @@ export function useCommunity({ showId, signedIn, loginUrl }: { showId: number; s
     </>
   );
 
-  return { base, needLogin, like, openMore, setToast, sheets };
+  return { needLogin, like, openMore, setToast, sheets };
 }

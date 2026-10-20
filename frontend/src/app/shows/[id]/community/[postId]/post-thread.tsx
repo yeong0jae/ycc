@@ -7,7 +7,7 @@ import type { Me } from "@/lib/auth";
 import { COMMENT_MAX, type Comment, type PostDetail } from "@/lib/community-types";
 import { Ago, MoreButton, PostItem } from "../post-item";
 import { ComposeSheet } from "../sheets";
-import { useCommunity } from "../use-community";
+import { postPath as pathOf, useCommunity } from "../use-community";
 
 export function PostThread({ showId, initial, me, loginUrl }: { showId: number; initial: PostDetail; me: Me | null; loginUrl: string }) {
   const router = useRouter();
@@ -17,8 +17,8 @@ export function PostThread({ showId, initial, me, loginUrl }: { showId: number; 
   const [draft, setDraft] = useState("");
   const [editingComment, setEditingComment] = useState<Comment | null>(null);
   const [sending, setSending] = useState(false);
-  const { base, needLogin, like, openMore, setToast, sheets } = useCommunity({ showId, signedIn: me !== null, loginUrl });
-  const postPath = `${base}/${post.id}`;
+  const { needLogin, like, openMore, setToast, sheets } = useCommunity({ signedIn: me !== null, loginUrl });
+  const postPath = pathOf(post);
 
   const removePost = async () => {
     const res = await fetch(postPath, { method: "DELETE" }).catch(() => null);

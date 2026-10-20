@@ -22,6 +22,12 @@ const tabs = [
     ),
   },
   {
+    key: "community",
+    href: "/community",
+    label: "커뮤니티",
+    icon: <path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.2A8 8 0 1 1 20 12z" />,
+  },
+  {
     key: "me",
     href: "/me",
     label: "프로필",
@@ -38,6 +44,7 @@ const TAB_WIDTH_REM = 4.5;
 
 function currentTab(pathname: string) {
   if (pathname.startsWith("/find")) return "find";
+  if (pathname.startsWith("/community")) return "community";
   if (pathname.startsWith("/me")) return "me";
   return "home";
 }

@@ -14,6 +14,8 @@ export type CommunityImage = { id: number; url: string; width: number; height: n
 
 export type Post = {
   id: number;
+  showId: number;
+  showName: string;
   kind: PostKind;
   body: string;
   images: CommunityImage[];
