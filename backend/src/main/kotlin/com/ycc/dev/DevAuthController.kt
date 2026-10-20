@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.SessionAttribute
 import org.springframework.web.server.ResponseStatusException
+import java.time.Duration
 
 data class DevLoginRequest(val username: String, val password: String)
 
@@ -31,6 +32,7 @@ class DevAuthController(
 		httpRequest.getSession(true)
 		httpRequest.changeSessionId()
 		httpRequest.session.setAttribute(DEVELOPER_ID, developer.id)
+		httpRequest.session.maxInactiveInterval = SESSION_TTL.toSeconds().toInt()
 		return DevMeResponse(developer.username)
 	}
 
@@ -43,5 +45,6 @@ class DevAuthController(
 
 	companion object {
 		const val DEVELOPER_ID = "developerId"
+		private val SESSION_TTL = Duration.ofDays(7)
 	}
 }

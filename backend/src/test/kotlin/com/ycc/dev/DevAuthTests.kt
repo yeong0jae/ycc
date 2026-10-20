@@ -71,4 +71,11 @@ class DevAuthTests(
 		mockMvc.post("/api/dev/logout") { cookie(session) }.andExpect { status { isOk() } }
 		mockMvc.get("/api/dev/shows") { cookie(session) }.andExpect { status { isUnauthorized() } }
 	}
+
+	@Test
+	fun `로그인 쿠키는 브라우저를 닫아도 남도록 30일 만료가 붙는다`() {
+		val cookie = sessionCookie("correct-horse")
+
+		kotlin.test.assertEquals(30 * 24 * 60 * 60, cookie.maxAge)
+	}
 }

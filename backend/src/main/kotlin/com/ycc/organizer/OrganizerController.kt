@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.SessionAttribute
 import org.springframework.web.server.ResponseStatusException
+import java.time.Duration
 
 data class OrganizerLoginRequest(val username: String, val password: String)
 
@@ -32,6 +33,7 @@ class OrganizerController(
 				httpRequest.getSession(true)
 				httpRequest.changeSessionId()
 				httpRequest.session.setAttribute(ORGANIZER_ID, result.organizerId)
+				httpRequest.session.maxInactiveInterval = SESSION_TTL.toSeconds().toInt()
 			}
 			LoginResult.Invalid -> throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "아이디나 비밀번호가 맞지 않아요.")
 			LoginResult.Locked -> throw ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "비밀번호를 여러 번 틀려서 10분 동안 로그인할 수 없어요.")
@@ -59,5 +61,6 @@ class OrganizerController(
 
 	companion object {
 		const val ORGANIZER_ID = "organizerId"
+		private val SESSION_TTL = Duration.ofDays(14)
 	}
 }
