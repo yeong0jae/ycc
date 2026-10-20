@@ -24,7 +24,7 @@ const tabs = [
   {
     key: "me",
     href: "/me",
-    label: "나",
+    label: "프로필",
     icon: (
       <>
         <circle cx="12" cy="8.5" r="3.5" />
@@ -33,6 +33,8 @@ const tabs = [
     ),
   },
 ] as const;
+
+const TAB_WIDTH_REM = 4.5;
 
 function currentTab(pathname: string) {
   if (pathname.startsWith("/find")) return "find";
@@ -46,12 +48,13 @@ export function TabBar() {
   return (
     <nav
       aria-label="탭"
-      className="fixed bottom-6 left-1/2 z-30 flex h-15 -translate-x-1/2 items-center gap-2 rounded-full bg-pill px-1.5 shadow-[0_8px_24px_rgb(17_17_17/0.12)]"
+      className="fixed bottom-5.5 left-1/2 z-30 grid h-17 -translate-x-1/2 items-center rounded-full bg-pill px-1.5 shadow-[0_8px_24px_rgb(17_17_17/0.12)]"
+      style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))`, width: `min(calc(100% - 1.75rem), ${tabs.length * TAB_WIDTH_REM + 0.75}rem)` }}
     >
       <span
         aria-hidden="true"
-        className="absolute left-1.5 size-12 rounded-full bg-ink transition-transform duration-300 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none"
-        style={{ transform: `translateX(${index * 56}px)` }}
+        className="absolute inset-y-1.5 left-1.5 rounded-full bg-ink transition-transform duration-300 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none"
+        style={{ width: `calc((100% - 0.75rem) / ${tabs.length})`, transform: `translateX(${index * 100}%)` }}
       />
       {tabs.map((tab) => {
         const active = tab.key === current;
@@ -59,9 +62,8 @@ export function TabBar() {
           <Link
             key={tab.key}
             href={tab.href}
-            aria-label={tab.label}
             aria-current={active ? "page" : undefined}
-            className={`press relative flex size-12 items-center justify-center rounded-full transition-colors duration-300 ${
+            className={`press relative flex h-14 flex-col items-center justify-center gap-0.5 rounded-full text-[11px] font-bold transition-colors duration-300 ${
               active ? "text-stub" : "text-ink"
             }`}
           >
@@ -78,6 +80,7 @@ export function TabBar() {
             >
               {tab.icon}
             </svg>
+            {tab.label}
           </Link>
         );
       })}

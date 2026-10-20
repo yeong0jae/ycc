@@ -203,7 +203,7 @@ export function ProfileMember({ me }: { me: Me }) {
             </p>
           )}
           <button type="button" onClick={shuffle} className="press h-9 cursor-pointer self-start rounded-full bg-pill px-3.5 text-[13px] font-bold">
-            🎲 랜덤으로
+            랜덤으로
           </button>
           <button
             type="submit"
