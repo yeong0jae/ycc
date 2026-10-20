@@ -40,7 +40,7 @@ export function timetableRange(slots: TimetableSlot[]) {
 }
 
 export const STAGE_STYLES = [
-  { header: "bg-paper shadow-[inset_0_0_0_2px_var(--color-ink)]", block: "bg-paper shadow-[inset_0_0_0_2px_var(--color-ink)]" },
+  { header: "bg-paper shadow-[inset_0_0_0_1.5px_var(--color-ink)]", block: "bg-paper shadow-[inset_0_0_0_1.5px_var(--color-ink)]" },
   { header: "bg-[#dcdce1]", block: "bg-[#dcdce1]" },
-  { header: "bg-ink text-stub", block: "bg-ink text-stub" },
+  { header: "bg-cream", block: "bg-cream" },
 ];
