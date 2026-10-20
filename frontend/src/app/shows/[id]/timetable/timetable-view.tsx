@@ -5,6 +5,7 @@ import { ImageViewer } from "@/components/image-viewer";
 import { TimetableGrid } from "@/components/timetable-grid";
 import { toggleStar, useStarredSlots } from "@/lib/timetable-stars";
 import { formatDay, type Timetable, timetableRange } from "@/lib/timetable-types";
+import { TimetableSave } from "./timetable-save";
 
 type Mode = "schedule" | "image";
 
@@ -43,7 +44,7 @@ function storedMode(): Mode | null {
   }
 }
 
-export function TimetableView({ timetable }: { timetable: Timetable }) {
+export function TimetableView({ timetable, showName, venue }: { timetable: Timetable; showName: string; venue: string }) {
   const { days, stages, slots, images } = timetable;
   const hasSchedule = timetable.published && stages.length > 0 && slots.length > 0;
   const hasImages = images.length > 0;
@@ -135,6 +136,7 @@ export function TimetableView({ timetable }: { timetable: Timetable }) {
               onSlotClick={(slot) => toggleStar(slot.id)}
               stickyTop={STICKY_TOP}
             />
+            <TimetableSave showName={showName} venue={venue} day={day} stages={stages} slots={daySlots} range={range} starredIds={starredIds} />
           </div>
         ) : (
           <p className="py-16 text-center text-sm text-muted">이 날은 아직 순서가 없어요.</p>
