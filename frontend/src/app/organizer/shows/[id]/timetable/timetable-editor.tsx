@@ -196,7 +196,7 @@ export function TimetableEditor({ showId, initial }: { showId: number; initial: 
               stages={stages}
               slots={daySlots}
               range={range}
-              perHour={80}
+             
               selectedId={draft?.id ?? null}
               onSlotClick={openSlot}
               onEmptyClick={openNew}
