@@ -1,6 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState } from "react";
+import { ImageViewer } from "@/components/image-viewer";
 import { formatNoticeTime } from "@/lib/format";
 import { NOTICE_CHIPS, NOTICE_LABELS, type Notice } from "@/lib/notice-types";
 
@@ -14,11 +15,13 @@ function NoticeTime({ notice, className }: { notice: Notice; className: string }
 }
 
 function NoticeImages({ notice, dark = false }: { notice: Notice; dark?: boolean }) {
+  const [open, setOpen] = useState<number | null>(null);
   if (notice.images.length === 0) return null;
   return (
     <div className="flex flex-col gap-2">
-      {notice.images.map((image) => (
-        <a key={image.id} href={image.url} target="_blank" rel="noopener noreferrer" aria-label="이미지 크게 보기">
+      {open !== null && <ImageViewer images={notice.images} start={open} onClose={() => setOpen(null)} />}
+      {notice.images.map((image, index) => (
+        <button key={image.id} type="button" onClick={() => setOpen(index)} aria-label="이미지 크게 보기" className="cursor-zoom-in">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={image.url}
@@ -28,7 +31,7 @@ function NoticeImages({ notice, dark = false }: { notice: Notice; dark?: boolean
             loading="lazy"
             className={`h-auto w-full rounded-[14px] ${dark ? "bg-[#2a2a2e]" : "bg-cream"}`}
           />
-        </a>
+        </button>
       ))}
     </div>
   );
