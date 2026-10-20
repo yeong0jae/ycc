@@ -11,7 +11,7 @@ export function ParticipationToggle({ showId }: { showId: number }) {
       type="button"
       aria-pressed={joined}
       onClick={() => (joined ? leave(showId) : participate(showId))}
-      className={`press ml-auto flex h-10 cursor-pointer items-center gap-1.5 rounded-full px-3.5 text-sm font-bold ${joined ? "bg-pill" : "bg-lime"}`}
+      className={`press flex h-10 shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3.5 text-sm font-bold ${joined ? "bg-pill" : "bg-lime"}`}
     >
       <svg
         key={String(joined)}

@@ -10,6 +10,7 @@ import { getShow, getShowNotices } from "@/lib/show";
 import { NoticeFeed } from "./notice-feed";
 import { ParticipationToggle } from "./participation-toggle";
 import { ShowHomeTabs } from "./show-home-tabs";
+import { SHOW_HOME_HEADER_ID, TopBar } from "./top-bar";
 
 async function Notices({ showId }: { showId: number }) {
   return <NoticeFeed showId={showId} initial={await getShowNotices(showId)} />;
@@ -23,12 +24,14 @@ export default async function ShowNoticesPage({ params }: PageProps<"/shows/[id]
 
   return (
     <AppFrame className="pb-32">
-      <div className="flex items-center px-3 pt-2.5">
-        <BackButton />
-        <ParticipationToggle showId={show.id} />
-      </div>
+      <TopBar title={show.name} leading={<BackButton />} trailing={<ParticipationToggle showId={show.id} />} />
 
-      <Link href={`/shows/${show.id}`} aria-label={`${show.name} 공연 정보`} className="press mx-2 mt-1.5 flex gap-3.5 rounded-2xl px-3 py-2">
+      <Link
+        id={SHOW_HOME_HEADER_ID}
+        href={`/shows/${show.id}`}
+        aria-label={`${show.name} 공연 정보`}
+        className="press mx-2 flex gap-3.5 rounded-2xl px-3 py-2"
+      >
         <ViewTransition name={`poster-${show.id}`} share="morph" default="none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={show.posterUrl} alt="" data-poster={show.id} className="aspect-[3/4] w-18 shrink-0 rounded-xl bg-pill object-cover" />
