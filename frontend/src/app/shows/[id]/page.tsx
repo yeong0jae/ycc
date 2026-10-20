@@ -5,6 +5,7 @@ import { AppFrame } from "@/components/app-frame";
 import { BackButton } from "@/components/back-button";
 import { DetailBadge } from "@/components/detail-badge";
 import { KopisSource } from "@/components/kopis-source";
+import { ZoomableImage } from "@/components/zoomable-image";
 import { formatLongPeriod, shortRegion } from "@/lib/format";
 import { getShow } from "@/lib/show";
 import { ParticipateButton } from "./participate-button";
@@ -48,7 +49,7 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
 
       <UrgentLine showId={show.id} />
 
-      <a href={show.posterUrl} target="_blank" rel="noopener noreferrer" className="relative mx-3 mt-4 block">
+      <ZoomableImage src={show.posterUrl} label="포스터 크게 보기" className="relative mx-3 mt-4 block w-[calc(100%-1.5rem)] text-left">
         <ViewTransition name={`poster-${show.id}`} share="morph" default="none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={show.posterUrl} alt={`${show.name} 포스터`} data-poster={show.id} className="w-full rounded-[20px] bg-pill" />
@@ -56,7 +57,7 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
         <span className="absolute top-3 right-3 flex h-7.5 items-center rounded-full bg-ink/55 px-3 text-xs text-stub">
           눌러서 크게 보기
         </span>
-      </a>
+      </ZoomableImage>
 
       <dl className="mx-5 mt-2">
         {show.scheduleGuide && (

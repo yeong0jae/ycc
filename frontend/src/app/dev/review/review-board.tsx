@@ -9,6 +9,7 @@ import {
   type ReviewStatus,
   reviewPath,
 } from "@/lib/dev-types";
+import { ZoomableImage } from "@/components/zoomable-image";
 import { formatPeriod } from "@/lib/format";
 import type { ShowKind } from "@/lib/show-types";
 
@@ -234,12 +235,14 @@ export function ReviewBoard({ initial, today }: { initial: ReviewList; today: st
             <p className="py-20 text-center text-sm text-muted">{REVIEW_LABELS[status]} 상태인 {kind === "CONCERT" ? "콘서트가" : "페스티벌이"} 없어요.</p>
           ) : (
             <article className="flex flex-col gap-5 lg:flex-row lg:gap-6">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={current.show.posterUrl}
-                alt={`${current.show.name} 포스터`}
-                className="max-h-[55dvh] w-full rounded-2xl bg-line object-contain lg:max-h-none lg:w-75 lg:shrink-0 lg:self-start"
-              />
+              <ZoomableImage src={current.show.posterUrl} label="포스터 크게 보기" className="w-full lg:w-75 lg:shrink-0 lg:self-start">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={current.show.posterUrl}
+                  alt={`${current.show.name} 포스터`}
+                  className="max-h-[55dvh] w-full rounded-2xl bg-line object-contain lg:max-h-none"
+                />
+              </ZoomableImage>
               <div className="flex min-w-0 flex-1 flex-col gap-4">
                 <div className="flex flex-col gap-2">
                   <span className="flex gap-1.5">
