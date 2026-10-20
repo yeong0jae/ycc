@@ -5,6 +5,7 @@ import { TabBar } from "@/components/tab-bar";
 import { getShow, getTimetable } from "@/lib/show";
 import { ShowHomeTabs } from "../show-home-tabs";
 import { ShowHomeTop } from "../show-home-top";
+import { TabSwipe } from "../tab-swipe";
 import { TimetableView } from "./timetable-view";
 
 async function Timetable({ showId }: { showId: number }) {
@@ -20,11 +21,11 @@ export default async function ShowTimetablePage({ params }: PageProps<"/shows/[i
     <AppFrame className="pb-32">
       <ShowHomeTop show={show} />
       <ShowHomeTabs showId={show.id} active="timetable" />
-      <div className="tab-content">
+      <TabSwipe prev={`/shows/${show.id}/notices`} className="min-h-[60dvh]">
         <Suspense fallback={null}>
           <Timetable showId={show.id} />
         </Suspense>
-      </div>
+      </TabSwipe>
       <TabBar />
     </AppFrame>
   );
