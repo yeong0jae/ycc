@@ -29,6 +29,8 @@ interface ShowRepository : JpaRepository<Show, Long> {
 
 	fun findByKopisId(kopisId: String): Show?
 
+	fun findBySiteCode(siteCode: String): Show?
+
 	@Query("select s from Show s join fetch s.facility where s.reviewStatus = com.ycc.show.ReviewStatus.VISIBLE and s.kind = :kind and s.endDate >= :date order by s.startDate")
 	fun findUpcomingWithFacility(date: LocalDate, kind: ShowKind): List<Show>
 

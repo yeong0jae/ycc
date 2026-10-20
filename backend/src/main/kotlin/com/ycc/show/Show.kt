@@ -40,6 +40,7 @@ class Show(
 	@Enumerated(EnumType.STRING)
 	var kind: ShowKind = ShowKind.FESTIVAL,
 	var timetablePublished: Boolean = false,
+	var siteCode: String? = null,
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	val id: Long = 0,
