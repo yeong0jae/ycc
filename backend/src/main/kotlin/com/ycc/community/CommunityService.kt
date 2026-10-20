@@ -24,6 +24,8 @@ data class CommunityImageResponse(val id: Long, val url: String, val width: Int,
 
 data class PostResponse(
 	val id: Long,
+	val showId: Long,
+	val showName: String,
 	val kind: PostKind,
 	val body: String,
 	val images: List<CommunityImageResponse>,
@@ -80,6 +82,18 @@ class CommunityService(
 	fun posts(showId: Long, kind: PostKind?, before: Long?, kakaoId: Long?): PostPageResponse {
 		val viewer = kakaoId?.let(userRepository::findByKakaoId)
 		val page = postRepository.findVisible(showId, kind, before, PageRequest.of(0, PAGE_SIZE + 1))
+		return PostPageResponse(responses(page.take(PAGE_SIZE), viewer), page.size > PAGE_SIZE)
+	}
+
+	@Transactional(readOnly = true)
+	fun feed(showIds: List<Long>?, kind: PostKind?, before: Long?, kakaoId: Long?): PostPageResponse {
+		val viewer = kakaoId?.let(userRepository::findByKakaoId)
+		val pageable = PageRequest.of(0, PAGE_SIZE + 1)
+		val page = when {
+			showIds == null -> postRepository.findFeedAll(kind, before, pageable)
+			showIds.isEmpty() -> emptyList()
+			else -> postRepository.findFeed(showIds.distinct().take(MAX_FEED_SHOWS), kind, before, pageable)
+		}
 		return PostPageResponse(responses(page.take(PAGE_SIZE), viewer), page.size > PAGE_SIZE)
 	}
 
@@ -203,6 +217,8 @@ class CommunityService(
 		return posts.map {
 			PostResponse(
 				it.id,
+				it.show.id,
+				it.show.name,
 				it.kind,
 				it.body,
 				images[it.id].orEmpty().map(CommunityImageResponse::from),
@@ -271,6 +287,7 @@ class CommunityService(
 
 	companion object {
 		private const val PAGE_SIZE = 20
+		private const val MAX_FEED_SHOWS = 200
 		private const val MAX_POST = 1000
 		private const val MAX_COMMENT = 300
 		private const val MAX_IMAGES = 4

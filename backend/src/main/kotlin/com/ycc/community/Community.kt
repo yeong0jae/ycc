@@ -133,6 +133,18 @@ interface CommunityPostRepository : JpaRepository<CommunityPost, Long> {
 	)
 	fun findVisible(showId: Long, kind: PostKind?, before: Long?, pageable: Pageable): List<CommunityPost>
 
+	@Query(
+		"select p from CommunityPost p join fetch p.user join fetch p.show s where s.id in :showIds and s.reviewStatus = com.ycc.show.ReviewStatus.VISIBLE" +
+			" and p.deletedAt is null and p.hiddenAt is null and (:kind is null or p.kind = :kind) and (:before is null or p.id < :before) order by p.id desc",
+	)
+	fun findFeed(showIds: Collection<Long>, kind: PostKind?, before: Long?, pageable: Pageable): List<CommunityPost>
+
+	@Query(
+		"select p from CommunityPost p join fetch p.user join fetch p.show s where s.reviewStatus = com.ycc.show.ReviewStatus.VISIBLE" +
+			" and p.deletedAt is null and p.hiddenAt is null and (:kind is null or p.kind = :kind) and (:before is null or p.id < :before) order by p.id desc",
+	)
+	fun findFeedAll(kind: PostKind?, before: Long?, pageable: Pageable): List<CommunityPost>
+
 	fun countByShowIdAndUserIdAndCreatedAtAfter(showId: Long, userId: Long, after: LocalDateTime): Long
 }
 

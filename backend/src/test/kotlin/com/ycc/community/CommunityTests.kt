@@ -195,4 +195,29 @@ class CommunityTests(
 		mockMvc.post("$base/$id/comments") { member(2002); json("""{"body":"둘"}""") }.andExpect { status { isTooManyRequests() } }
 		mockMvc.post("$base/$id/comments") { member(3003); json("""{"body":"${"가".repeat(301)}"}""") }.andExpect { status { isBadRequest() } }
 	}
+
+	@Test
+	fun `전체 피드는 고른 공연들 또는 띄운 모든 공연의 글을 모은다`() {
+		val other = showRepository.save(
+			Show("PF2", "다른 공연", LocalDate.parse("2026-10-24"), LocalDate.parse("2026-10-25"), "잠실", "http://example.com/p.jpg", null, null, null, null, reviewStatus = ReviewStatus.VISIBLE),
+		)
+		val pending = showRepository.save(
+			Show("PF3", "검수 전", LocalDate.parse("2026-10-24"), LocalDate.parse("2026-10-25"), "잠실", "http://example.com/p.jpg", null, null, null, null),
+		)
+		postId(1001, "여기 글")
+		mockMvc.post("/api/shows/${other.id}/community") { member(2002); json("""{"kind":"TIP","body":"저기 글"}""") }.andExpect { status { isCreated() } }
+		postRepository.save(CommunityPost(pending, userRepository.findByKakaoId(3003)!!, PostKind.FREE, "숨은 공연 글", java.time.LocalDateTime.now()))
+
+		mockMvc.get("/api/community?showIds=${show.id}") { member(1001) }.andExpect {
+			jsonPath("$.items.length()") { value(1) }
+			jsonPath("$.items[0].showName") { value("공연") }
+			jsonPath("$.items[0].mine") { value(true) }
+		}
+		mockMvc.get("/api/community?showIds=${show.id},${other.id},${pending.id}").andExpect { jsonPath("$.items.length()") { value(2) } }
+		mockMvc.get("/api/community").andExpect {
+			jsonPath("$.items.length()") { value(2) }
+			jsonPath("$.items[0].showId") { value(other.id) }
+		}
+		mockMvc.get("/api/community?kind=TIP").andExpect { jsonPath("$.items.length()") { value(1) } }
+	}
 }
