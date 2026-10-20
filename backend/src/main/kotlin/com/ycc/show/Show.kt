@@ -39,6 +39,7 @@ class Show(
 	var reviewStatus: ReviewStatus = ReviewStatus.PENDING,
 	@Enumerated(EnumType.STRING)
 	var kind: ShowKind = ShowKind.FESTIVAL,
+	var timetablePublished: Boolean = false,
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	val id: Long = 0,

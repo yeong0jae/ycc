@@ -9,12 +9,10 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
-import java.io.ByteArrayInputStream
 import java.time.Clock
 import java.time.Duration
 import java.time.LocalDateTime
 import java.util.UUID
-import javax.imageio.ImageIO
 
 data class NoticeImageResponse(val id: Long, val url: String, val width: Int, val height: Int) {
 	companion object {
@@ -124,15 +122,9 @@ class NoticeService(
 
 	fun uploadImage(organizerId: Long, showId: Long, bytes: ByteArray, contentType: String?): NoticeImageResponse {
 		val organizer = ownedOrganizer(organizerId, showId)
-		if (bytes.size > MAX_IMAGE_BYTES) {
-			throw ResponseStatusException(HttpStatus.BAD_REQUEST, "이미지는 10MB까지 올릴 수 있어요.")
-		}
-		val extension = IMAGE_TYPES[contentType]
-			?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "jpg·png·webp 이미지만 올릴 수 있어요.")
-		val image = runCatching { ImageIO.read(ByteArrayInputStream(bytes)) }.getOrNull()
-			?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "이미지를 읽지 못했어요.")
-		val key = "notices/$showId/${UUID.randomUUID()}.$extension"
-		val url = storage.put(key, bytes, contentType!!)
+		val image = UploadedImage.read(bytes, contentType)
+		val key = "notices/$showId/${UUID.randomUUID()}.${image.extension}"
+		val url = storage.put(key, image.bytes, image.contentType)
 		val saved = noticeImageRepository.save(
 			NoticeImage(organizer.show, organizer, key, url, image.width, image.height, LocalDateTime.now(clock)),
 		)
@@ -196,9 +188,7 @@ class NoticeService(
 		private const val MAX_TITLE = 60
 		private const val MAX_BODY = 3000
 		private const val MAX_IMAGES = 4
-		private const val MAX_IMAGE_BYTES = 10 * 1024 * 1024
 		private const val MAX_PARTICIPATED = 50
 		private val UNATTACHED_TTL = Duration.ofDays(1)
-		private val IMAGE_TYPES = mapOf("image/jpeg" to "jpg", "image/png" to "png")
 	}
 }
