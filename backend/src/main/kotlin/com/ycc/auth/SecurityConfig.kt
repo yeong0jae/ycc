@@ -1,21 +1,22 @@
 package com.ycc.auth
 
-import com.ycc.user.UserService
+import jakarta.servlet.http.Cookie
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseCookie
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.HttpStatusEntryPoint
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher
+import java.net.URLDecoder
 
 @Configuration
 class SecurityConfig(
 	@Value("\${app.frontend-url}") private val frontendUrl: String,
-	private val userService: UserService,
 	private val kakaoOAuth2UserService: KakaoOAuth2UserService,
 ) {
 
@@ -39,16 +40,25 @@ class SecurityConfig(
 			}
 			.oauth2Login {
 				it.userInfoEndpoint { endpoint -> endpoint.userService(kakaoOAuth2UserService) }
-				it.successHandler { _, response, authentication ->
-					val user = userService.get((authentication.principal as OAuth2User).name.toLong())
-					response.sendRedirect(frontendUrl + if (user.onboarded) "/" else "/onboarding")
+				it.successHandler { request, response, _ ->
+					response.addHeader(HttpHeaders.SET_COOKIE, ResponseCookie.from(NEXT_COOKIE, "").path("/").maxAge(0).build().toString())
+					response.sendRedirect(frontendUrl + nextPath(request.cookies))
 				}
-				it.failureHandler { _, response, _ -> response.sendRedirect("$frontendUrl/login?error") }
+				it.failureHandler { _, response, _ -> response.sendRedirect("$frontendUrl/me?error") }
 			}
 			.logout {
 				it.logoutUrl("/api/logout")
 				it.logoutSuccessHandler(HttpStatusReturningLogoutSuccessHandler())
 			}
 		return http.build()
+	}
+
+	private fun nextPath(cookies: Array<Cookie>?): String {
+		val next = cookies?.firstOrNull { it.name == NEXT_COOKIE }?.value?.let { URLDecoder.decode(it, Charsets.UTF_8) }
+		return next?.takeIf { it.startsWith("/") && !it.startsWith("//") && !it.contains('\\') } ?: "/me"
+	}
+
+	companion object {
+		const val NEXT_COOKIE = "ycc_next"
 	}
 }

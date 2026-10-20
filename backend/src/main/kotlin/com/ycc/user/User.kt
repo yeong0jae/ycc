@@ -20,6 +20,4 @@ class User(
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	val id: Long = 0,
-) {
-	val onboarded: Boolean get() = nickname != null && gender != null
-}
+)
