@@ -37,7 +37,7 @@ export function NoticeFeed({ showId, initial }: { showId: number; initial: ShowN
           <UrgentNoticeCard key={notices.urgent.id} notice={notices.urgent} />
         </div>
       )}
-      <ShowHomeTabs showId={showId} active="notices" noticeCount={notices.total} />
+      <ShowHomeTabs showId={showId} active="notices" count={notices.total} />
       <TabSwipe next={`/shows/${showId}/timetable`} className="flex min-h-[60dvh] flex-col px-5">
         {notices.items.map((notice) => (
           <div key={`${notice.id}:${notice.updatedAt ?? ""}`} className={isNew(notice.id) ? "animate-rise motion-reduce:animate-none" : ""}>

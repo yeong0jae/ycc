@@ -6,6 +6,7 @@ import { getShow, getShowNotices } from "@/lib/show";
 import { ShowHomeTabs } from "../show-home-tabs";
 import { ShowHomeTop } from "../show-home-top";
 import { NoticeFeed } from "./notice-feed";
+import { QrJoined } from "./qr-joined";
 
 async function Notices({ showId }: { showId: number }) {
   return <NoticeFeed showId={showId} initial={await getShowNotices(showId)} />;
@@ -21,6 +22,9 @@ export default async function ShowNoticesPage({ params }: PageProps<"/shows/[id]
       <ShowHomeTop show={show} />
       <Suspense fallback={<ShowHomeTabs showId={show.id} active="notices" />}>
         <Notices showId={show.id} />
+      </Suspense>
+      <Suspense fallback={null}>
+        <QrJoined showId={show.id} />
       </Suspense>
       <TabBar />
     </AppFrame>

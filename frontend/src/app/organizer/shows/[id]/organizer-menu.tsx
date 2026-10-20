@@ -8,6 +8,8 @@ export function OrganizerMenu({ showId }: { showId: number }) {
   const links = [
     { href: `/organizer/shows/${showId}/notices`, label: "공지" },
     { href: `/organizer/shows/${showId}/timetable`, label: "타임테이블" },
+    { href: `/organizer/shows/${showId}/suggestions`, label: "건의" },
+    { href: `/organizer/shows/${showId}/qr`, label: "현장 QR" },
   ];
   return (
     <nav
@@ -29,16 +31,6 @@ export function OrganizerMenu({ showId }: { showId: number }) {
           </Link>
         );
       })}
-      {["건의", "현장 QR"].map((label) => (
-        <span
-          key={label}
-          aria-disabled="true"
-          className="flex h-10 shrink-0 items-center gap-2 rounded-full px-3.5 text-[15px] text-muted lg:h-11 lg:rounded-xl"
-        >
-          {label}
-          <span className="rounded-full bg-pill px-2 py-0.5 text-[11px]">곧 열려요</span>
-        </span>
-      ))}
     </nav>
   );
 }
