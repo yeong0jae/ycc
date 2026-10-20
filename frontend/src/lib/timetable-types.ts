@@ -39,9 +39,11 @@ export function timetableRange(slots: TimetableSlot[]) {
   };
 }
 
-export const STAGE_STYLES = [
-  { dark: "bg-[#1e7fcb] text-white", light: "bg-[#8cc8f0]" },
-  { dark: "bg-[#e0702a] text-white", light: "bg-[#f7be85]" },
-  { dark: "bg-[#2e8b57] text-white", light: "bg-[#86cfa0]" },
-  { dark: "bg-[#d9529a] text-white", light: "bg-[#f5a8cc]" },
+export const STAGE_COLORS = [
+  { dark: "#1e7fcb", light: "#8cc8f0" },
+  { dark: "#e0702a", light: "#f7be85" },
+  { dark: "#2e8b57", light: "#86cfa0" },
+  { dark: "#d9529a", light: "#f5a8cc" },
 ];
+
+export const STAR_COLOR = "#e8283c";

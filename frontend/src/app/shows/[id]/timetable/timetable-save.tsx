@@ -1,16 +1,11 @@
 "use client";
 
-import { toBlob } from "html-to-image";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { TimetableGrid } from "@/components/timetable-grid";
-import { formatDay, type TimetableSlot, type TimetableStage } from "@/lib/timetable-types";
+import { useEffect, useState } from "react";
+import type { TimetableSlot, TimetableStage } from "@/lib/timetable-types";
+import { drawTimetable } from "./draw-timetable";
 
 const TOAST_MS = 2500;
-const PIXEL_RATIO = 3;
-const BASE_WIDTH = 390;
-const STAGE_WIDTH = 86;
-
-const noSubscribe = () => () => {};
+const FOOTER = "공연 모아보기";
 
 function download(file: File) {
   const url = URL.createObjectURL(file);
@@ -38,11 +33,8 @@ export function TimetableSave({
   range: { start: number; end: number };
   starredIds: ReadonlySet<number> | null;
 }) {
-  const sheet = useRef<HTMLDivElement>(null);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(false);
-  const host = useSyncExternalStore(noSubscribe, () => location.host, () => "");
-  const starCount = slots.filter((slot) => starredIds?.has(slot.id)).length;
 
   useEffect(() => {
     if (!toast) return;
@@ -51,10 +43,10 @@ export function TimetableSave({
   }, [toast]);
 
   const save = async () => {
-    if (!sheet.current || saving) return;
+    if (saving) return;
     setSaving(true);
     try {
-      const blob = await toBlob(sheet.current, { pixelRatio: PIXEL_RATIO, backgroundColor: "#ffffff" });
+      const blob = await drawTimetable({ showName, venue, day, stages, slots, range, starredIds: starredIds ?? new Set(), footer: FOOTER, host: location.host });
       if (!blob) return;
       const file = new File([blob], `timetable-${day}.png`, { type: "image/png" });
       if (matchMedia("(pointer: coarse)").matches && navigator.canShare?.({ files: [file] })) {
@@ -86,29 +78,6 @@ export function TimetableSave({
         </svg>
         내 타임테이블 저장
       </button>
-
-      <div aria-hidden="true" inert className="pointer-events-none fixed top-0 -left-[10000px]">
-        <div ref={sheet} className="bg-paper pb-5 text-ink" style={{ width: Math.max(BASE_WIDTH, 40 + stages.length * STAGE_WIDTH) }}>
-          <div className="px-5 pt-7 pb-1">
-            <p className="font-num text-[13px] font-black text-muted">
-              {formatDay(day)} · {venue}
-            </p>
-            <p className="mt-1 text-2xl font-black tracking-tight">{showName}</p>
-            {starCount > 0 && (
-              <p className="mt-1.5 text-xs text-muted">
-                <span className="font-black text-[#e8283c]">★</span> 내가 볼 순서 {starCount}개
-              </p>
-            )}
-          </div>
-          <div className="pt-3.5">
-            <TimetableGrid stages={stages} slots={slots} range={range} starredIds={starredIds} />
-          </div>
-          <div className="mx-5 mt-4.5 flex items-center justify-between pt-3.5 shadow-[inset_0_1px_0_var(--color-line)]">
-            <span className="rounded-md bg-pill px-2.5 py-1.5 text-[11px] font-bold">공연 모아보기</span>
-            <span className="text-[11px] text-muted">{host}</span>
-          </div>
-        </div>
-      </div>
 
       <p
         role="status"

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { formatMinute, STAGE_STYLES, type TimetableSlot, type TimetableStage } from "@/lib/timetable-types";
+import { formatMinute, STAGE_COLORS, STAR_COLOR, type TimetableSlot, type TimetableStage } from "@/lib/timetable-types";
 
 const SNAP_MINUTES = 10;
 const HEADER_HEIGHT = 36;
@@ -53,11 +53,11 @@ export function TimetableGrid({
           </div>
         </div>
         {stages.map((stage, index) => {
-          const style = STAGE_STYLES[index % STAGE_STYLES.length];
+          const colors = STAGE_COLORS[index % STAGE_COLORS.length];
           return (
             <div key={stage.id} className="flex min-w-20 flex-1 flex-col">
               <div className={`z-30 bg-paper pb-1.5 ${stickyTop !== undefined && !scrolls ? "sticky" : ""}`} style={{ top: stickyTop }}>
-                <span className={`flex h-7.5 items-center justify-center truncate rounded-md px-1 font-num text-[11px] font-black ${style.dark}`}>
+                <span className="flex h-7.5 items-center justify-center truncate rounded-md px-1 font-num text-[11px] font-black text-white" style={{ background: colors.dark }}>
                   {stage.name}
                 </span>
               </div>
@@ -104,14 +104,16 @@ export function TimetableGrid({
                           <span
                             key={`${slot.id}:${starred}`}
                             className={`flex h-3.5 items-center gap-0.5 rounded-[3px] px-1 font-num text-[10px] leading-none font-black ${
-                              starred ? "bg-[#e8283c] text-white" : live || selected ? "bg-lime" : "bg-paper"
+                              starred ? "text-white" : live || selected ? "bg-lime" : "bg-paper"
                             } ${poppedId === slot.id ? "origin-left animate-pop motion-reduce:animate-none" : ""}`}
+                            style={starred ? { background: STAR_COLOR } : undefined}
                           >
                             {formatMinute(slot.start)}~{starred && <span aria-label="볼 것">★</span>}
                           </span>
                         </span>
                         <span
-                          className={`flex-1 overflow-hidden px-1.25 py-1 text-xs leading-tight font-bold break-keep ${order % 2 === 0 ? style.light : style.dark} ${
+                          style={{ background: order % 2 === 0 ? colors.light : colors.dark }}
+                          className={`flex-1 overflow-hidden px-1.25 py-1 text-xs leading-tight font-bold break-keep ${order % 2 === 0 ? "" : "text-white"} ${
                             live || selected ? "shadow-[inset_0_0_0_3px_var(--color-lime)]" : ""
                           }`}
                         >
