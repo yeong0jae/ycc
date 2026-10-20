@@ -8,7 +8,6 @@ export function OrganizerMenu({ showId }: { showId: number }) {
   const links = [
     { href: `/organizer/shows/${showId}/notices`, label: "공지" },
     { href: `/organizer/shows/${showId}/timetable`, label: "타임테이블" },
-    { href: `/organizer/shows/${showId}`, label: "공연 정보" },
   ];
   return (
     <nav
