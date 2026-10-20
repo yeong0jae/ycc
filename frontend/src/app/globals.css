@@ -110,6 +110,39 @@ body {
   animation: 200ms ease-in 100ms both view-fade;
 }
 
+::view-transition-group(.tab-indicator) {
+  animation-duration: 320ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+:root[data-tab-dir="forward"] .tab-content {
+  animation: 280ms cubic-bezier(0.2, 0, 0, 1) both tab-from-right;
+}
+
+:root[data-tab-dir="back"] .tab-content {
+  animation: 280ms cubic-bezier(0.2, 0, 0, 1) both tab-from-left;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-content {
+    animation: none !important;
+  }
+}
+
+@keyframes tab-from-right {
+  from {
+    opacity: 0;
+    translate: 28px 0;
+  }
+}
+
+@keyframes tab-from-left {
+  from {
+    opacity: 0;
+    translate: -28px 0;
+  }
+}
+
 @keyframes view-fade {
   from {
     opacity: 0;

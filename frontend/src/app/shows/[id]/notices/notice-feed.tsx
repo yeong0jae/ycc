@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { NoticeItem, UrgentNoticeCard } from "@/components/notice-card";
 import type { ShowNotices } from "@/lib/notice-types";
-import { ShowHomeTabs } from "./show-home-tabs";
+import { ShowHomeTabs } from "../show-home-tabs";
 
 function noticeIds(notices: ShowNotices) {
   return [notices.urgent, ...notices.items].flatMap((it) => (it ? [it.id] : []));
@@ -36,8 +36,8 @@ export function NoticeFeed({ showId, initial }: { showId: number; initial: ShowN
           <UrgentNoticeCard key={notices.urgent.id} notice={notices.urgent} />
         </div>
       )}
-      <ShowHomeTabs noticeCount={notices.total} />
-      <div className="flex flex-col px-5">
+      <ShowHomeTabs showId={showId} active="notices" noticeCount={notices.total} />
+      <div className="tab-content flex flex-col px-5">
         {notices.items.map((notice) => (
           <div key={`${notice.id}:${notice.updatedAt ?? ""}`} className={isNew(notice.id) ? "animate-rise motion-reduce:animate-none" : ""}>
             <NoticeItem notice={notice} />

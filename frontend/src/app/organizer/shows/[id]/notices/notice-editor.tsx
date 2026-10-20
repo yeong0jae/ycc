@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { NoticeItem, UrgentNoticeCard } from "@/components/notice-card";
 import { formatNoticeTime } from "@/lib/format";
 import { NOTICE_CHIPS, NOTICE_KINDS, NOTICE_LABELS, type Notice, type NoticeImage, type NoticeKind } from "@/lib/notice-types";
-import { resizeImage } from "./resize-image";
+import { resizeImage } from "@/lib/resize-image";
 
 const MAX_TITLE = 60;
 const MAX_BODY = 3000;

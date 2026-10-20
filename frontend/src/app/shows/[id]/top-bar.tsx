@@ -19,7 +19,7 @@ export function TopBar({ title, leading, trailing }: { title: string; leading: R
   }, []);
 
   return (
-    <div className="sticky top-0 z-20 flex h-17 items-center gap-2 bg-paper px-3">
+    <div className="sticky top-0 z-50 flex h-17 items-center gap-2 bg-paper px-3">
       {leading}
       <p
         aria-hidden={!compact}
