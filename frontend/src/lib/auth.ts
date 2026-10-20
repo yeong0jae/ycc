@@ -4,14 +4,7 @@ const API_URL = process.env.API_URL ?? "http://localhost:8080";
 
 export const KAKAO_LOGIN_URL = `${process.env.BACKEND_PUBLIC_URL ?? "http://localhost:8080"}/oauth2/authorization/kakao`;
 
-export type Gender = "FEMALE" | "MALE" | "UNDISCLOSED";
-
-export type Me = {
-  id: number;
-  nickname: string | null;
-  gender: Gender | null;
-  onboarded: boolean;
-};
+export type Me = { id: number; nickname: string };
 
 export async function backendFetch(path: string, init: RequestInit = {}) {
   const cookieHeader = (await cookies()).toString();

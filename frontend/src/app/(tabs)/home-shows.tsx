@@ -6,7 +6,7 @@ import { LiveBadge } from "@/components/live-badge";
 import { JUST_ADDED_KEY } from "@/lib/back-transition";
 import { festivalBadge, formatNoticeTime, formatPeriod, shortRegion, todayInSeoul } from "@/lib/format";
 import { NOTICE_CHIPS, NOTICE_LABELS, type ParticipatedShow } from "@/lib/notice-types";
-import { useParticipated } from "@/lib/participation";
+import { useParticipated, useSignedIn } from "@/lib/participation";
 
 function Poster({ id, src, className }: { id: number; src: string; className: string }) {
   return (
@@ -114,6 +114,7 @@ function takeJustAdded() {
 
 export function HomeShows() {
   const ids = useParticipated();
+  const signedIn = useSignedIn();
   const key = ids?.join(",") ?? "";
   const [loaded, setLoaded] = useState<{ key: string; items: ParticipatedShow[]; justAdded: number | null } | null>(null);
 
@@ -166,7 +167,7 @@ export function HomeShows() {
       {upcoming.map((item, i) => wrap(item.show.id, "rounded-[20px]", <ShowRow item={item} order={ongoing.length + i} />))}
       {past.length > 0 && <p className="mx-1.5 mt-2.5 text-[13px] font-bold text-muted">지난</p>}
       {past.map((item, i) => wrap(item.show.id, "rounded-[20px]", <ShowRow item={item} order={ongoing.length + upcoming.length + i} past />))}
-      <p className="mx-1.5 mt-2.5 text-xs leading-relaxed text-muted">참여한 공연은 이 기기에만 저장돼요.</p>
+      {signedIn === false && <p className="mx-1.5 mt-2.5 text-xs leading-relaxed text-muted">참여한 공연은 이 기기에만 저장돼요.</p>}
     </div>
   );
 }

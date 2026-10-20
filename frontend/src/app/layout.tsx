@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Noto_Sans_KR, Nunito } from "next/font/google";
+import { AccountSync } from "@/components/account-sync";
 import "./globals.css";
 
 const notoSansKr = Noto_Sans_KR({
@@ -25,7 +26,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="ko"
       className={`${notoSansKr.variable} ${nunito.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="min-h-full flex flex-col font-sans">
+        {children}
+        <AccountSync />
+      </body>
     </html>
   );
 }

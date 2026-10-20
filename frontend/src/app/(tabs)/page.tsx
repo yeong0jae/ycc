@@ -1,13 +1,8 @@
-import { redirect } from "next/navigation";
 import { AppFrame } from "@/components/app-frame";
 import { AppHeader } from "@/components/app-header";
-import { getMe } from "@/lib/auth";
 import { HomeShows } from "./home-shows";
 
-export default async function HomePage() {
-  const me = await getMe();
-  if (me && !me.onboarded) redirect("/onboarding");
-
+export default function HomePage() {
   return (
     <AppFrame className="pb-32">
       <AppHeader title="홈 화면" />

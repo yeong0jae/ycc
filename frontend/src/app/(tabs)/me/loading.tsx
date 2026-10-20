@@ -4,7 +4,7 @@ import { AppHeader } from "@/components/app-header";
 export default function Loading() {
   return (
     <AppFrame className="pb-32">
-      <AppHeader title="나" />
+      <AppHeader title="프로필" />
       <p className="sr-only">불러오는 중</p>
     </AppFrame>
   );
