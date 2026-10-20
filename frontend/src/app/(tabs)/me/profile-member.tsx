@@ -2,10 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { logout } from "@/lib/actions";
+import { BottomSheet } from "@/components/bottom-sheet";
+import { CommunityAvatar } from "@/components/community-avatar";
 import type { Me } from "@/lib/auth";
-import { forgetAccount } from "@/lib/participation";
-import { ParticipatedRow, SectionLabel, ServiceRows } from "./profile-rows";
+import { squareImage } from "@/lib/resize-image";
+import { ParticipatedRow, SectionLabel } from "./profile-rows";
 
 const NICKNAME_MAX = 12;
 const sheetClass = "sheet inset-x-0 top-auto bottom-0 mx-auto mb-0 max-h-[90dvh] w-full max-w-2xl rounded-t-3xl bg-paper p-0 text-ink";
@@ -13,11 +14,40 @@ const sheetClass = "sheet inset-x-0 top-auto bottom-0 mx-auto mb-0 max-h-[90dvh]
 export function ProfileMember({ me }: { me: Me }) {
   const router = useRouter();
   const nicknameSheet = useRef<HTMLDialogElement>(null);
-  const withdrawSheet = useRef<HTMLDialogElement>(null);
-  const logoutSheet = useRef<HTMLDialogElement>(null);
   const [nickname, setNickname] = useState(me.nickname);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [avatarOpen, setAvatarOpen] = useState(false);
+  const [avatarBusy, setAvatarBusy] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  const avatarInput = useRef<HTMLInputElement>(null);
+
+  const changeAvatar = async (file: File | undefined) => {
+    if (!file) return;
+    setAvatarBusy(true);
+    setAvatarError(null);
+    try {
+      const form = new FormData();
+      form.set("file", await squareImage(file), "avatar.jpg");
+      const res = await fetch("/api/me/avatar", { method: "PUT", body: form });
+      if (!res.ok) throw new Error();
+      setAvatarOpen(false);
+      router.refresh();
+    } catch {
+      setAvatarError("사진을 올리지 못했어요. 다시 시도해 주세요.");
+    } finally {
+      setAvatarBusy(false);
+    }
+  };
+
+  const removeAvatar = async () => {
+    setAvatarBusy(true);
+    const res = await fetch("/api/me/avatar", { method: "DELETE" }).catch(() => null);
+    setAvatarBusy(false);
+    if (!res?.ok) return setAvatarError("지우지 못했어요. 다시 시도해 주세요.");
+    setAvatarOpen(false);
+    router.refresh();
+  };
 
   const openNickname = () => {
     setNickname(me.nickname);
@@ -52,20 +82,28 @@ export function ProfileMember({ me }: { me: Me }) {
     setError(problem?.message || "저장하지 못했어요. 다시 시도해 주세요.");
   };
 
-  const withdraw = async () => {
-    const res = await fetch("/api/me", { method: "DELETE" }).catch(() => null);
-    if (!res?.ok) return;
-    forgetAccount();
-    withdrawSheet.current?.close();
-    router.refresh();
-  };
-
   const unchanged = nickname.trim() === me.nickname;
 
   return (
     <>
       <section className="mx-4 mt-1 flex items-center gap-3.5 rounded-3xl bg-[#f7f7f8] p-5">
-        <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-ink text-[22px] font-bold text-stub">{me.nickname.slice(0, 1)}</span>
+        <button
+          type="button"
+          onClick={() => {
+            setAvatarError(null);
+            setAvatarOpen(true);
+          }}
+          aria-label="프로필 사진 바꾸기"
+          className="press relative shrink-0 cursor-pointer rounded-full"
+        >
+          <CommunityAvatar name={me.nickname} url={me.avatarUrl} size={56} />
+          <span className="absolute -right-0.5 -bottom-0.5 flex size-5.5 items-center justify-center rounded-full bg-paper shadow-[0_1px_3px_rgb(17_17_17/0.2)]">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" aria-hidden="true">
+              <path d="M4 8h3l2-3h6l2 3h3v11H4z" />
+              <circle cx="12" cy="13" r="3.5" />
+            </svg>
+          </span>
+        </button>
         <span className="flex min-w-0 flex-1 flex-col gap-1">
           <b className="truncate text-lg">{me.nickname}</b>
           <span className="flex items-center gap-1.5 text-[13px] text-muted">
@@ -84,16 +122,46 @@ export function ProfileMember({ me }: { me: Me }) {
 
       <SectionLabel>내 공연</SectionLabel>
       <ParticipatedRow />
-      <ServiceRows />
 
-      <div className="mt-4.5 flex gap-4 px-5 text-[13px] text-muted">
-        <button type="button" onClick={() => logoutSheet.current?.showModal()} className="h-10 cursor-pointer">
-          로그아웃
-        </button>
-        <button type="button" onClick={() => withdrawSheet.current?.showModal()} className="h-10 cursor-pointer">
-          회원 탈퇴
-        </button>
-      </div>
+      <input
+        ref={avatarInput}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        hidden
+        onChange={(event) => {
+          changeAvatar(event.target.files?.[0]);
+          event.target.value = "";
+        }}
+      />
+      {avatarOpen && (
+        <BottomSheet label="프로필 사진" onClose={() => setAvatarOpen(false)}>
+          <div className="flex flex-col items-center gap-3.5 px-5 pt-6 pb-8">
+            <h2 className="self-start font-display text-xl">프로필 사진</h2>
+            <CommunityAvatar name={me.nickname} url={me.avatarUrl} size={96} />
+            {avatarError && (
+              <p role="alert" className="text-[13px] text-[#c0392b]">
+                {avatarError}
+              </p>
+            )}
+            <button
+              type="button"
+              disabled={avatarBusy}
+              onClick={() => avatarInput.current?.click()}
+              className="press h-14 w-full cursor-pointer rounded-full bg-ink text-base font-bold text-stub disabled:opacity-50"
+            >
+              {avatarBusy ? "올리는 중" : "사진 고르기"}
+            </button>
+            {me.avatarUrl && (
+              <button type="button" disabled={avatarBusy} onClick={removeAvatar} className="h-11 cursor-pointer text-sm text-[#c0392b] disabled:opacity-50">
+                사진 지우기
+              </button>
+            )}
+            <button type="button" onClick={() => setAvatarOpen(false)} className="h-11 cursor-pointer text-sm text-muted">
+              닫기
+            </button>
+          </div>
+        </BottomSheet>
+      )}
 
       <dialog
         ref={nicknameSheet}
@@ -145,48 +213,6 @@ export function ProfileMember({ me }: { me: Me }) {
             저장하기
           </button>
         </form>
-      </dialog>
-
-      <dialog
-        ref={logoutSheet}
-        aria-labelledby="logout-title"
-        onClick={(event) => event.target === logoutSheet.current && logoutSheet.current.close()}
-        className={sheetClass}
-      >
-        <form action={logout} onSubmit={forgetAccount} className="flex flex-col gap-3.5 px-5 pt-6 pb-8">
-          <h2 id="logout-title" className="font-display text-xl">
-            로그아웃할까요?
-          </h2>
-          <p className="-mt-1.5 text-sm leading-relaxed text-[#444449]">이 기기에 저장된 참여한 공연은 그대로 남아요.</p>
-          <button type="submit" className="press h-14 cursor-pointer rounded-full bg-ink text-base font-bold text-stub">
-            로그아웃
-          </button>
-          <button type="button" onClick={() => logoutSheet.current?.close()} className="h-11 cursor-pointer text-sm text-muted">
-            그만두기
-          </button>
-        </form>
-      </dialog>
-
-      <dialog
-        ref={withdrawSheet}
-        aria-labelledby="withdraw-title"
-        onClick={(event) => event.target === withdrawSheet.current && withdrawSheet.current.close()}
-        className={sheetClass}
-      >
-        <div className="flex flex-col gap-3.5 px-5 pt-6 pb-8">
-          <h2 id="withdraw-title" className="font-display text-xl">
-            탈퇴할까요?
-          </h2>
-          <p className="-mt-1.5 text-sm leading-relaxed text-[#444449]">
-            계정과 계정에 저장된 참여한 공연이 지워지고 되돌릴 수 없어요. 이 기기에 저장된 참여는 그대로 남아요.
-          </p>
-          <button type="button" onClick={withdraw} className="press h-14 cursor-pointer rounded-full bg-[#c0392b] text-base font-bold text-stub">
-            탈퇴하기
-          </button>
-          <button type="button" onClick={() => withdrawSheet.current?.close()} className="h-11 cursor-pointer text-sm text-muted">
-            그만두기
-          </button>
-        </div>
       </dialog>
     </>
   );

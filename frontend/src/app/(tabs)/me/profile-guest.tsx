@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { KakaoLoginButton } from "@/components/kakao-login-button";
-import { ParticipatedRow, SectionLabel, ServiceRows } from "./profile-rows";
+import { ParticipatedRow, SectionLabel } from "./profile-rows";
 
 function Benefit({ icon, title, body }: { icon: ReactNode; title: string; body: string }) {
   return (
@@ -60,7 +60,7 @@ export function ProfileGuest({ loginUrl, failed }: { loginUrl: string; failed: b
               </>
             }
             title="커뮤니티 글쓰기"
-            body="공연마다 후기·OOTD·질문을 남겨요"
+            body="공연마다 질문·후기를 남겨요"
           />
           <Benefit
             icon={
@@ -76,7 +76,6 @@ export function ProfileGuest({ loginUrl, failed }: { loginUrl: string; failed: b
       </section>
       <SectionLabel>이 기기</SectionLabel>
       <ParticipatedRow />
-      <ServiceRows />
     </>
   );
 }

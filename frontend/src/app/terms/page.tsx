@@ -4,7 +4,7 @@ export const metadata = { title: "이용약관 · 공연 모아보기" };
 
 export default function TermsPage() {
   return (
-    <LegalPage title="이용약관" updated="2026년 10월 21일">
+    <LegalPage title="이용약관" updated="2026년 10월 22일">
       <section>
         <h2>1. 서비스</h2>
         <p>공연 모아보기(이하 서비스)는 콘서트·페스티벌의 공연 정보, 주최측 공지·타임테이블, 관객 건의를 한곳에서 볼 수 있게 해요. 공연 정보는 공연예술통합전산망(KOPIS) 등 공개된 자료와 주최측이 올린 내용을 바탕으로 해요.</p>
@@ -20,7 +20,7 @@ export default function TermsPage() {
       <section>
         <h2>3. 올리는 글</h2>
         <ul>
-          <li>건의 등 이용자가 올린 글은 누구나 볼 수 있어요.</li>
+          <li>건의·커뮤니티 글·댓글 등 이용자가 올린 글은 누구나 볼 수 있어요.</li>
           <li>욕설·광고·남을 해치는 내용, 다른 사람의 개인정보는 올리면 안 돼요. 이런 글은 주최측이나 서비스가 숨길 수 있어요.</li>
           <li>올린 글의 책임은 올린 사람에게 있어요.</li>
         </ul>
@@ -31,7 +31,7 @@ export default function TermsPage() {
       </section>
       <section>
         <h2>5. 탈퇴</h2>
-        <p>프로필에서 언제든 탈퇴할 수 있어요. 탈퇴하면 계정과 계정에 저장된 참여 기록이 지워져요.</p>
+        <p>프로필 → 설정에서 언제든 탈퇴할 수 있어요. 탈퇴하면 계정, 참여 기록, 프로필 사진, 커뮤니티에 쓴 글·댓글이 지워져요.</p>
       </section>
       <section>
         <h2>6. 바뀔 때</h2>

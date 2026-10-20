@@ -73,3 +73,13 @@ export function formatNoticeTime(createdAt: string, now = Date.now()) {
   const [, m, d] = date.split("-").map(Number);
   return `${m}.${d}`;
 }
+
+export function formatAgo(createdAt: string, now = Date.now()) {
+  const minutes = Math.floor((now - Date.parse(`${createdAt.slice(0, 19)}+09:00`)) / 60_000);
+  if (minutes < 1) return "방금";
+  if (minutes < 60) return `${minutes}분`;
+  if (minutes < 60 * 24) return `${Math.floor(minutes / 60)}시간`;
+  if (minutes < 60 * 24 * 7) return `${Math.floor(minutes / (60 * 24))}일`;
+  const [, m, d] = createdAt.slice(0, 10).split("-").map(Number);
+  return `${m}.${d}`;
+}

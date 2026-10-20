@@ -1,12 +1,11 @@
 import { ViewTransition } from "react";
 import { TabLink } from "./tab-link";
 
-const SOON = ["커뮤니티"];
-
 const TABS = [
   { key: "notices", path: "notices", label: "공지" },
   { key: "timetable", path: "timetable", label: "타임테이블" },
   { key: "suggestions", path: "suggestions", label: "건의" },
+  { key: "community", path: "community", label: "커뮤니티" },
 ] as const;
 
 export type ShowHomeTab = (typeof TABS)[number]["key"];
@@ -32,11 +31,6 @@ export function ShowHomeTabs({ showId, active, count }: { showId: number; active
           </TabLink>
         ),
       )}
-      {SOON.map((label) => (
-        <span key={label} aria-disabled="true" title="곧 열려요" className={`${tabClass} text-[#b9b9c0]`}>
-          {label}
-        </span>
-      ))}
     </nav>
   );
 }
