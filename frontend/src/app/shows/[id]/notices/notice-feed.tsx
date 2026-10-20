@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { NoticeItem, UrgentNoticeCard } from "@/components/notice-card";
-import { NOTICE_POLL_MS, type ShowNotices } from "@/lib/notice-types";
+import type { ShowNotices } from "@/lib/notice-types";
 import { ShowHomeTabs } from "./show-home-tabs";
 
 function noticeIds(notices: ShowNotices) {
@@ -25,12 +25,8 @@ export function NoticeFeed({ showId, initial }: { showId: number; initial: ShowN
       noticeIds(next).forEach((id) => seen.current.add(id));
       setNotices(next);
     };
-    const timer = setInterval(refresh, NOTICE_POLL_MS);
     document.addEventListener("visibilitychange", refresh);
-    return () => {
-      clearInterval(timer);
-      document.removeEventListener("visibilitychange", refresh);
-    };
+    return () => document.removeEventListener("visibilitychange", refresh);
   }, [showId]);
 
   return (

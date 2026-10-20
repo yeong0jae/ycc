@@ -12,8 +12,6 @@ export const NOTICE_LABELS: Record<NoticeKind, string> = { URGENT: "긴급", SCH
 
 export const NOTICE_CHIPS: Record<NoticeKind, string> = { URGENT: "bg-lime", SCHEDULE: "bg-cream", INFO: "bg-pill" };
 
-export const NOTICE_POLL_MS = 30_000;
-
 export type NoticeImage = { id: number; url: string; width: number; height: number };
 
 export type Notice = {
