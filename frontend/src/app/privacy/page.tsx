@@ -29,7 +29,7 @@ export default function PrivacyPage() {
           <li>회원 정보·참여 기록: 탈퇴할 때까지. 탈퇴하면 바로 지워요.</li>
           <li>로그인 유지 정보: 마지막으로 쓴 뒤 30일</li>
           <li>기기 ID 쿠키: 1년</li>
-          <li>건의: 공연 홈에 계속 보여요. 지워야 할 내용이 있으면 문의해 주세요.</li>
+          <li>건의: 공연 홈에 계속 보여요. 지워야 할 내용이 있으면 아래 이메일로 알려 주세요.</li>
         </ul>
       </section>
       <section>
@@ -39,6 +39,17 @@ export default function PrivacyPage() {
       <section>
         <h2>5. 내 정보 지우기</h2>
         <p>프로필에서 탈퇴하면 계정 정보가 지워져요. 브라우저의 사이트 데이터를 지우면 이 기기에 저장된 참여와 기기 ID도 지워져요.</p>
+      </section>
+      <section>
+        <h2>6. 문의</h2>
+        <p>
+          개인정보 보호책임자: 공연 모아보기 운영자
+          <br />
+          이메일:{" "}
+          <a href="mailto:festivalwith@gmail.com" className="font-bold text-ink underline underline-offset-2">
+            festivalwith@gmail.com
+          </a>
+        </p>
       </section>
     </LegalPage>
   );

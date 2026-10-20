@@ -37,6 +37,14 @@ export default function TermsPage() {
         <h2>6. 바뀔 때</h2>
         <p>약관이 바뀌면 시행 전에 이 화면에서 알려 드려요.</p>
       </section>
+      <section>
+        <h2>7. 문의</h2>
+        <p>
+          <a href="mailto:festivalwith@gmail.com" className="font-bold text-ink underline underline-offset-2">
+            festivalwith@gmail.com
+          </a>
+        </p>
+      </section>
     </LegalPage>
   );
 }
