@@ -11,11 +11,13 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.multipart.MultipartFile
 
-data class MeResponse(val id: Long, val nickname: String) {
+data class MeResponse(val id: Long, val nickname: String, val avatarUrl: String?) {
 	companion object {
-		fun from(user: User) = MeResponse(user.id, user.nickname.orEmpty())
+		fun from(user: User) = MeResponse(user.id, user.nickname.orEmpty(), user.avatarUrl)
 	}
 }
 
@@ -38,6 +40,14 @@ class MeController(private val userService: UserService) {
 	@PutMapping
 	fun update(@AuthenticationPrincipal principal: OAuth2User, @RequestBody request: UpdateMeRequest): MeResponse =
 		MeResponse.from(userService.updateNickname(principal.name.toLong(), request.nickname))
+
+	@PutMapping("/avatar")
+	fun updateAvatar(@AuthenticationPrincipal principal: OAuth2User, @RequestPart file: MultipartFile): MeResponse =
+		MeResponse.from(userService.updateAvatar(principal.name.toLong(), file.bytes, file.contentType))
+
+	@DeleteMapping("/avatar")
+	fun deleteAvatar(@AuthenticationPrincipal principal: OAuth2User): MeResponse =
+		MeResponse.from(userService.deleteAvatar(principal.name.toLong()))
 
 	@GetMapping("/random-nickname")
 	fun randomNickname() = NicknameResponse(userService.randomNickname())

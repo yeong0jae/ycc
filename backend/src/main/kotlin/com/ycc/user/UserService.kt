@@ -1,5 +1,7 @@
 package com.ycc.user
 
+import com.ycc.notice.NoticeImageStorage
+import com.ycc.notice.UploadedImage
 import com.ycc.show.ShowRepository
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -7,12 +9,14 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
 import java.time.Clock
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Service
 class UserService(
 	private val userRepository: UserRepository,
 	private val participationRepository: ParticipationRepository,
 	private val showRepository: ShowRepository,
+	private val storage: NoticeImageStorage,
 	private val clock: Clock,
 ) {
 
@@ -67,8 +71,31 @@ class UserService(
 	}
 
 	@Transactional
+	fun updateAvatar(kakaoId: Long, bytes: ByteArray, contentType: String?): User {
+		val user = get(kakaoId)
+		val image = UploadedImage.read(bytes, contentType)
+		val key = "avatars/${user.id}/${UUID.randomUUID()}.${image.extension}"
+		val url = storage.put(key, image.bytes, image.contentType)
+		user.avatarKey?.let(storage::delete)
+		user.avatarKey = key
+		user.avatarUrl = url
+		return user
+	}
+
+	@Transactional
+	fun deleteAvatar(kakaoId: Long): User {
+		val user = get(kakaoId)
+		user.avatarKey?.let(storage::delete)
+		user.avatarKey = null
+		user.avatarUrl = null
+		return user
+	}
+
+	@Transactional
 	fun withdraw(kakaoId: Long) {
-		userRepository.delete(get(kakaoId))
+		val user = get(kakaoId)
+		user.avatarKey?.let(storage::delete)
+		userRepository.delete(user)
 	}
 
 	companion object {

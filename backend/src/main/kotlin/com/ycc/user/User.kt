@@ -16,6 +16,8 @@ class User(
 	var nickname: String? = null,
 	@Enumerated(EnumType.STRING)
 	var gender: Gender? = null,
+	var avatarKey: String? = null,
+	var avatarUrl: String? = null,
 	val createdAt: LocalDateTime = LocalDateTime.now(),
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

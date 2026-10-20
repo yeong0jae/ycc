@@ -1,0 +1,2 @@
+ALTER TABLE users ADD COLUMN avatar_key VARCHAR(200);
+ALTER TABLE users ADD COLUMN avatar_url VARCHAR(500);

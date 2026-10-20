@@ -9,21 +9,27 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
+import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
+import org.springframework.mock.web.MockMultipartFile
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.multipart
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
+import java.awt.image.BufferedImage
+import java.io.ByteArrayOutputStream
 import java.time.LocalDate
+import javax.imageio.ImageIO
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-@SpringBootTest
+@SpringBootTest(properties = ["app.notice-images.dir=build/test-notice-images"])
 @AutoConfigureMockMvc
 class MeControllerTests(
 	@Autowired private val mockMvc: MockMvc,
@@ -116,5 +122,16 @@ class MeControllerTests(
 	@Test
 	fun `랜덤 닉네임을 다시 뽑을 수 있다`() {
 		mockMvc.get("/api/me/random-nickname") { with(loginAs(1001)) }.andExpect { jsonPath("$.nickname") { exists() } }
+	}
+
+	@Test
+	fun `프로필 사진을 올리고 지운다`() {
+		val png = ByteArrayOutputStream().also { ImageIO.write(BufferedImage(20, 20, BufferedImage.TYPE_INT_RGB), "png", it) }.toByteArray()
+		mockMvc.multipart(HttpMethod.PUT, "/api/me/avatar") {
+			file(MockMultipartFile("file", "a.png", "image/png", png))
+			with(loginAs(1001))
+		}.andExpect { jsonPath("$.avatarUrl") { exists() } }
+		mockMvc.get("/api/me") { with(loginAs(1001)) }.andExpect { jsonPath("$.avatarUrl") { isNotEmpty() } }
+		mockMvc.delete("/api/me/avatar") { with(loginAs(1001)) }.andExpect { jsonPath("$.avatarUrl") { doesNotExist() } }
 	}
 }
