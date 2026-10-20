@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import { ImageViewer } from "@/components/image-viewer";
 import { TimetableGrid } from "@/components/timetable-grid";
+import { toggleStar, useStarredSlots } from "@/lib/timetable-stars";
 import { formatDay, type Timetable, timetableRange } from "@/lib/timetable-types";
 
 type Mode = "schedule" | "image";
@@ -49,6 +50,7 @@ export function TimetableView({ timetable }: { timetable: Timetable }) {
   const [live, setLive] = useState(() => liveDayAndMinute(days));
   const [day, setDay] = useState(() => (days.includes(live.day) ? live.day : days[0]));
   const stored = useSyncExternalStore(noSubscribe, storedMode, () => null);
+  const starredIds = useStarredSlots();
   const [picked, setPicked] = useState<Mode | null>(null);
   const preferred = picked ?? stored;
   const mode: Mode =
@@ -124,7 +126,15 @@ export function TimetableView({ timetable }: { timetable: Timetable }) {
       {mode === "schedule" ? (
         daySlots.length > 0 ? (
           <div className="pt-3.5">
-            <TimetableGrid stages={stages} slots={daySlots} range={range} nowMinute={nowMinute} stickyTop={STICKY_TOP} />
+            <TimetableGrid
+              stages={stages}
+              slots={daySlots}
+              range={range}
+              nowMinute={nowMinute}
+              starredIds={starredIds}
+              onSlotClick={(slot) => toggleStar(slot.id)}
+              stickyTop={STICKY_TOP}
+            />
           </div>
         ) : (
           <p className="py-16 text-center text-sm text-muted">이 날은 아직 순서가 없어요.</p>

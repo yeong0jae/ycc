@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { formatMinute, STAGE_STYLES, type TimetableSlot, type TimetableStage } from "@/lib/timetable-types";
 
 const SNAP_MINUTES = 10;
@@ -14,6 +15,7 @@ export function TimetableGrid({
   perHour = 80,
   nowMinute = null,
   selectedId = null,
+  starredIds,
   onSlotClick,
   onEmptyClick,
   stickyTop,
@@ -24,6 +26,7 @@ export function TimetableGrid({
   perHour?: number;
   nowMinute?: number | null;
   selectedId?: number | null;
+  starredIds?: ReadonlySet<number> | null;
   onSlotClick?: (slot: TimetableSlot) => void;
   onEmptyClick?: (stageId: number, minute: number) => void;
   stickyTop?: number;
@@ -34,6 +37,7 @@ export function TimetableGrid({
   for (let minute = range.start; minute <= range.end; minute += 60) hours.push(minute);
   const showNow = nowMinute !== null && nowMinute >= range.start && nowMinute <= range.end;
   const scrolls = stages.length > MAX_FIT_STAGES;
+  const [poppedId, setPoppedId] = useState<number | null>(null);
 
   return (
     <div className={`pb-2 ${scrolls ? "overflow-x-auto [scrollbar-width:none]" : ""}`}>
@@ -78,17 +82,32 @@ export function TimetableGrid({
                     const live = nowMinute !== null && slot.start <= nowMinute && nowMinute < slot.end;
                     const past = nowMinute !== null && slot.end <= nowMinute;
                     const selected = slot.id === selectedId;
+                    const starred = starredIds?.has(slot.id) ?? false;
                     const Tag = onSlotClick ? "button" : "div";
                     return (
                       <Tag
                         key={slot.id}
-                        {...(onSlotClick ? { type: "button" as const, onClick: () => onSlotClick(slot) } : {})}
+                        {...(onSlotClick
+                          ? {
+                              type: "button" as const,
+                              "aria-pressed": starredIds ? starred : undefined,
+                              onClick: () => {
+                                setPoppedId(slot.id);
+                                onSlotClick(slot);
+                              },
+                            }
+                          : {})}
                         className={`absolute inset-x-0 flex flex-col text-left ${past && !selected ? "opacity-40" : ""} ${onSlotClick ? "press cursor-pointer" : ""}`}
                         style={{ top: toPx(slot.start) - LABEL_HEIGHT, height: LABEL_HEIGHT + Math.max(toPx(slot.end) - toPx(slot.start), 14) }}
                       >
                         <span className="flex h-4 items-center">
-                          <span className={`flex h-3.5 items-center rounded-[3px] px-1 font-num text-[10px] leading-none font-black ${live || selected ? "bg-lime" : "bg-paper"}`}>
-                            {formatMinute(slot.start)}~
+                          <span
+                            key={`${slot.id}:${starred}`}
+                            className={`flex h-3.5 items-center gap-0.5 rounded-[3px] px-1 font-num text-[10px] leading-none font-black ${
+                              starred ? "bg-[#e8283c] text-white" : live || selected ? "bg-lime" : "bg-paper"
+                            } ${poppedId === slot.id ? "origin-left animate-pop motion-reduce:animate-none" : ""}`}
+                          >
+                            {formatMinute(slot.start)}~{starred && <span aria-label="볼 것">★</span>}
                           </span>
                         </span>
                         <span
