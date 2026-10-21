@@ -1,13 +1,13 @@
 import { LegalPage } from "@/components/legal-page";
 
-export const metadata = { title: "이용약관 · 공연 모아보기" };
+export const metadata = { title: "이용약관 · 슬램" };
 
 export default function TermsPage() {
   return (
     <LegalPage title="이용약관" updated="2026년 10월 22일">
       <section>
         <h2>1. 서비스</h2>
-        <p>공연 모아보기(이하 서비스)는 콘서트·페스티벌의 공연 정보, 주최측 공지·타임테이블, 관객 문의를 한곳에서 볼 수 있게 해요. 공연 정보는 공연예술통합전산망(KOPIS) 등 공개된 자료와 주최측이 올린 내용을 바탕으로 해요.</p>
+        <p>슬램(이하 서비스)은 콘서트·페스티벌의 공연 정보, 주최측 공지·타임테이블, 관객 문의를 한곳에서 볼 수 있게 해요. 공연 정보는 공연예술통합전산망(KOPIS) 등 공개된 자료와 주최측이 올린 내용을 바탕으로 해요.</p>
       </section>
       <section>
         <h2>2. 이용</h2>

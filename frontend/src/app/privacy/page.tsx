@@ -1,6 +1,6 @@
 import { LegalPage } from "@/components/legal-page";
 
-export const metadata = { title: "개인정보 처리방침 · 공연 모아보기" };
+export const metadata = { title: "개인정보 처리방침 · 슬램" };
 
 export default function PrivacyPage() {
   return (
@@ -50,7 +50,7 @@ export default function PrivacyPage() {
       <section>
         <h2>6. 문의</h2>
         <p>
-          개인정보 보호책임자: 공연 모아보기 운영자
+          개인정보 보호책임자: 슬램 운영자
           <br />
           이메일:{" "}
           <a href="mailto:festivalwith@gmail.com" className="font-bold text-ink underline underline-offset-2">

@@ -5,7 +5,7 @@ import type { TimetableSlot, TimetableStage } from "@/lib/timetable-types";
 import { drawTimetable } from "./draw-timetable";
 
 const TOAST_MS = 2500;
-const FOOTER = "공연 모아보기";
+const FOOTER = "슬램";
 
 function download(file: File) {
   const url = URL.createObjectURL(file);

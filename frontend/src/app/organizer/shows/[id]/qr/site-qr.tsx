@@ -81,7 +81,7 @@ async function drawPoster(url: string, showName: string, period: string, venue: 
 
   ctx.font = `700 26px ${sans}`;
   ctx.fillStyle = "#b9b9c0";
-  ctx.fillText("공연 모아보기", center, A4.height - 110);
+  ctx.fillText("슬램", center, A4.height - 110);
   return canvas.toDataURL("image/png");
 }
 
