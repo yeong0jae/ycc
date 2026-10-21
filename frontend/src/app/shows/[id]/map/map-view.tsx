@@ -105,7 +105,7 @@ export function MapView({ showId, map, timetable }: { showId: number; map: ShowM
         })}
       </div>
       <div className="px-4">
-        <MapBoard image={image} crop={image.crop ?? FULL_CROP} pins={shown} selectedId={selectedId} focusId={focusId} pinColor={stageColor} onPinClick={(pin) => setSelectedId(pin.id)}>
+        <MapBoard image={image} crop={image.crop ?? FULL_CROP} pins={shown} selectedId={selectedId} focusId={focusId} cover pinColor={stageColor} onPinClick={(pin) => setSelectedId(pin.id)}>
           <button
             type="button"
             onClick={() => setListing(true)}

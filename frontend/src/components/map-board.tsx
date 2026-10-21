@@ -6,6 +6,7 @@ import { type Crop, FULL_CROP, type MapImage, type MapPin, PIN_KIND } from "@/li
 import { PinIcon } from "./pin-icon";
 
 const FOCUS_SCALE = 2.5;
+const COVER_SCALE = 1.5;
 
 export function MapBoard({
   image,
@@ -13,6 +14,7 @@ export function MapBoard({
   crop = FULL_CROP,
   selectedId,
   focusId,
+  cover = false,
   showLabels = false,
   pinColor,
   onPinClick,
@@ -26,6 +28,7 @@ export function MapBoard({
   crop?: Crop;
   selectedId?: number | null;
   focusId?: number | null;
+  cover?: boolean;
   showLabels?: boolean;
   pinColor?: (pin: MapPin) => string;
   onPinClick?: (pin: MapPin) => void;
@@ -35,7 +38,9 @@ export function MapBoard({
   children?: ReactNode;
 }) {
   const zoomer = useRef<ReactZoomPanPinchRef>(null);
+  const root = useRef<HTMLDivElement>(null);
   const board = useRef<HTMLDivElement>(null);
+  const [frame, setFrame] = useState<{ width: number; height: number } | null>(null);
   const panned = useRef(false);
   const panStart = useRef({ x: 0, y: 0 });
   const [zoomed, setZoomed] = useState(false);
@@ -50,6 +55,23 @@ export function MapBoard({
     api.zoomToElement(node, Math.max(api.instance.transformState.scale, FOCUS_SCALE), reduce ? 0 : 300);
   }, [focusId]);
 
+  useEffect(() => {
+    if (!cover || !root.current) return;
+    const observer = new ResizeObserver(([entry]) => setFrame({ width: entry.contentRect.width, height: entry.contentRect.height }));
+    observer.observe(root.current);
+    return () => observer.disconnect();
+  }, [cover]);
+
+  useEffect(() => {
+    if (frame) zoomer.current?.centerView(COVER_SCALE, 0);
+  }, [frame]);
+
+  const base = cover ? COVER_SCALE : 1;
+
+  const ratio = (image.width * crop.w) / (image.height * crop.h);
+  const coverWidth = frame ? Math.max(frame.width, frame.height * ratio) : null;
+  const movable = cover || zoomed;
+
   const toImage = (clientX: number, clientY: number) => {
     const rect = board.current!.getBoundingClientRect();
     const vx = Math.min(Math.max((clientX - rect.left) / rect.width, 0), 1);
@@ -60,14 +82,14 @@ export function MapBoard({
   const visible = pins.filter((pin) => pin.x >= crop.x && pin.x <= crop.x + crop.w && pin.y >= crop.y && pin.y <= crop.y + crop.h);
 
   return (
-    <div data-no-swipe="" className="relative overflow-hidden rounded-[18px] bg-pill">
+    <div ref={root} data-no-swipe="" className={`relative overflow-hidden rounded-[18px] bg-pill ${cover ? "h-[min(44dvh,420px)]" : ""}`}>
       <TransformWrapper
         ref={zoomer}
         minScale={1}
         maxScale={5}
         limitToBounds
         centerZoomedOut
-        panning={{ disabled: !zoomed, excluded: ["map-fixed"] }}
+        panning={{ disabled: !movable, excluded: ["map-fixed"] }}
         doubleClick={{ mode: "toggle", excluded: ["map-pin"] }}
         pinch={{ step: 5 }}
         wheel={{ step: 0.15 }}
@@ -80,15 +102,16 @@ export function MapBoard({
         }}
         onTransformed={(ref, state) => {
           ref.instance.contentComponent?.style.setProperty("--pin-scale", String(1 / state.scale));
-          setZoomed(state.scale > 1.01);
+          setZoomed(Math.abs(state.scale - base) > 0.01);
         }}
       >
-        <TransformComponent wrapperStyle={{ width: "100%", touchAction: zoomed ? "none" : "pan-y" }} contentStyle={{ width: "100%" }}>
+        <TransformComponent wrapperStyle={{ width: "100%", height: cover ? "100%" : undefined, touchAction: movable ? "none" : "pan-y" }}
+          contentStyle={{ width: coverWidth ?? "100%" }}>
           <div
             ref={board}
             data-board=""
             style={{ aspectRatio: `${image.width * crop.w} / ${image.height * crop.h}` }}
-            className={`relative w-full overflow-hidden ${onBoardClick ? "cursor-crosshair" : zoomed ? "cursor-grab" : ""}`}
+            className={`relative w-full overflow-hidden ${onBoardClick ? "cursor-crosshair" : movable ? "cursor-grab" : ""}`}
             onClick={(event) => {
               if (panned.current) {
                 panned.current = false;
@@ -171,7 +194,7 @@ export function MapBoard({
       {zoomed && (
         <button
           type="button"
-          onClick={() => zoomer.current?.resetTransform()}
+          onClick={() => zoomer.current?.centerView(base)}
           className="press absolute bottom-2.5 left-2.5 z-20 flex h-9.5 cursor-pointer items-center rounded-full bg-paper px-3 text-[12px] font-bold shadow-[0_2px_8px_rgb(17_17_17/0.15)]"
         >
           원래대로
