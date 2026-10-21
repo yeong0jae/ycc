@@ -40,7 +40,7 @@ const tabs = [
   },
 ] as const;
 
-const TAB_WIDTH_REM = 4.5;
+const TAB_WIDTH_REM = 3.5;
 
 function currentTab(pathname: string) {
   if (pathname.startsWith("/find")) return "find";
@@ -55,7 +55,7 @@ export function TabBar() {
   return (
     <nav
       aria-label="탭"
-      className="fixed bottom-5.5 left-1/2 z-30 grid h-17 -translate-x-1/2 items-center rounded-full bg-pill px-1.5 shadow-[0_8px_24px_rgb(17_17_17/0.12)]"
+      className="fixed bottom-5.5 left-1/2 z-30 grid h-15 -translate-x-1/2 items-center rounded-full bg-pill px-1.5 shadow-[0_8px_24px_rgb(17_17_17/0.12)]"
       style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))`, width: `min(calc(100% - 1.75rem), ${tabs.length * TAB_WIDTH_REM + 0.75}rem)` }}
     >
       <span
@@ -69,8 +69,9 @@ export function TabBar() {
           <Link
             key={tab.key}
             href={tab.href}
+            aria-label={tab.label}
             aria-current={active ? "page" : undefined}
-            className={`press relative flex h-14 flex-col items-center justify-center gap-0.5 rounded-full text-[11px] font-bold transition-colors duration-300 ${
+            className={`press relative flex h-12 items-center justify-center rounded-full transition-colors duration-300 ${
               active ? "text-stub" : "text-ink"
             }`}
           >
@@ -87,7 +88,6 @@ export function TabBar() {
             >
               {tab.icon}
             </svg>
-            {tab.label}
           </Link>
         );
       })}

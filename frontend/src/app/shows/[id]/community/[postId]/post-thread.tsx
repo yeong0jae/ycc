@@ -9,7 +9,7 @@ import { Ago, MoreButton, PostItem } from "../post-item";
 import { ComposeSheet } from "../sheets";
 import { postPath as pathOf, useCommunity } from "../use-community";
 
-export function PostThread({ showId, initial, me, loginUrl }: { showId: number; initial: PostDetail; me: Me | null; loginUrl: string }) {
+export function PostThread({ showId, initial, me, loginUrl }: { showId: number | null; initial: PostDetail; me: Me | null; loginUrl: string }) {
   const router = useRouter();
   const [post, setPost] = useState(initial.post);
   const [comments, setComments] = useState(initial.comments);
@@ -23,7 +23,7 @@ export function PostThread({ showId, initial, me, loginUrl }: { showId: number; 
   const removePost = async () => {
     const res = await fetch(postPath, { method: "DELETE" }).catch(() => null);
     if (!res?.ok) return setToast("지우지 못했어요");
-    router.replace(`/shows/${showId}/community`);
+    router.replace(showId ? `/shows/${showId}/community` : "/community");
   };
 
   const removeComment = async (comment: Comment) => {

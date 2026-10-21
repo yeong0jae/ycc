@@ -14,8 +14,8 @@ export type CommunityImage = { id: number; url: string; width: number; height: n
 
 export type Post = {
   id: number;
-  showId: number;
-  showName: string;
+  showId: number | null;
+  showName: string | null;
   kind: PostKind;
   body: string;
   images: CommunityImage[];
@@ -69,8 +69,8 @@ export const POST_IMAGES_MAX = 4;
 export type Reported = {
   type: "POST" | "COMMENT";
   id: number;
-  showId: number;
-  showName: string;
+  showId: number | null;
+  showName: string | null;
   postId: number;
   body: string;
   author: string;

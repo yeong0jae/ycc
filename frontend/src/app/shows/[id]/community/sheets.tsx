@@ -20,7 +20,7 @@ export function ComposeSheet({
   onClose,
   onSaved,
 }: {
-  showId: number;
+  showId: number | null;
   nickname: string;
   avatarUrl: string | null;
   editing?: Post;
@@ -44,7 +44,7 @@ export function ComposeSheet({
         try {
           const form = new FormData();
           form.set("file", await resizeImage(file), "photo.jpg");
-          const res = await fetch(`/api/shows/${showId}/community/images`, { method: "POST", body: form });
+          const res = await fetch("/api/community/images", { method: "POST", body: form });
           if (!res.ok) return setError(await problem(res, "사진을 올리지 못했어요."));
           const image: CommunityImage = await res.json();
           setImages((current) => [...current, image]);
@@ -61,10 +61,10 @@ export function ComposeSheet({
     if (!kind || !body.trim() || saving || uploading > 0) return;
     setSaving(true);
     setError(null);
-    const res = await fetch(`/api/shows/${showId}/community${editing ? `/${editing.id}` : ""}`, {
+    const res = await fetch(editing ? `/api/community/posts/${editing.id}` : "/api/community/posts", {
       method: editing ? "PUT" : "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ kind, body, imageIds: images.map((image) => image.id) }),
+      body: JSON.stringify({ showId, kind, body, imageIds: images.map((image) => image.id) }),
     }).catch(() => null);
     setSaving(false);
     if (!res?.ok) return setError(await problem(res, "올리지 못했어요. 다시 시도해 주세요."));

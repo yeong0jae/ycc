@@ -7,8 +7,12 @@ import { type MoreTarget, MoreSheet, ReportSheet } from "./sheets";
 
 const TOAST_MS = 2500;
 
-export function postPath(post: Pick<Post, "id" | "showId">) {
-  return `/api/shows/${post.showId}/community/${post.id}`;
+export function postPath(post: Pick<Post, "id">) {
+  return `/api/community/posts/${post.id}`;
+}
+
+export function postHref(post: Pick<Post, "id" | "showId">) {
+  return post.showId ? `/shows/${post.showId}/community/${post.id}` : `/community/${post.id}`;
 }
 
 export function useCommunity({ signedIn, loginUrl }: { signedIn: boolean; loginUrl: string }) {

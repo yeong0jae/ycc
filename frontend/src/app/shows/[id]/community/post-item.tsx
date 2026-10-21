@@ -82,7 +82,7 @@ export function PostItem({
             <MoreButton onClick={() => onMore(post)} />
           </span>
         </div>
-        {showChip && (
+        {showChip && post.showId && (
           <Link
             href={`/shows/${post.showId}/community`}
             className="mt-1.5 inline-flex h-6.5 max-w-full items-center gap-1 rounded-full bg-[#f7f7f8] pr-2 pl-2.5 text-xs font-bold text-[#444449]"

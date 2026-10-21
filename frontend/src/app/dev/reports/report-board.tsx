@@ -40,8 +40,13 @@ export function ReportBoard({ initial }: { initial: Reported[] }) {
             <span className="flex flex-wrap items-center gap-2 text-[13px] text-muted">
               <b className="text-ink">{item.type === "POST" ? "글" : "댓글"}</b>
               {item.hidden && <span className="rounded-full bg-ink px-2 py-0.5 text-[11px] font-bold text-stub">숨김</span>}
-              <a href={`/shows/${item.showId}/community/${item.postId}`} target="_blank" rel="noreferrer" className="underline">
-                {item.showName}
+              <a
+                href={item.showId ? `/shows/${item.showId}/community/${item.postId}` : `/community/${item.postId}`}
+                target="_blank"
+                rel="noreferrer"
+                className="underline"
+              >
+                {item.showName ?? "공연 없음"}
               </a>
               <span>
                 {item.author} · {formatAt(item.createdAt)}
