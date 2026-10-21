@@ -3,7 +3,6 @@ package com.ycc.verification
 import com.ycc.dev.DeveloperRepository
 import com.ycc.notice.UploadedImage
 import com.ycc.show.ReviewStatus
-import com.ycc.show.Show
 import com.ycc.show.ShowRepository
 import com.ycc.user.User
 import com.ycc.user.UserRepository
@@ -24,7 +23,6 @@ data class VerificationResponse(
 	val endDate: LocalDate,
 	val status: VerificationStatus,
 	val rejectReason: RejectReason?,
-	val writableUntil: LocalDateTime,
 ) {
 	companion object {
 		fun from(verification: TicketVerification) = VerificationResponse(
@@ -34,7 +32,6 @@ data class VerificationResponse(
 			verification.show.endDate,
 			verification.status,
 			verification.rejectReason,
-			TicketVerificationService.writableUntil(verification.show),
 		)
 	}
 }
@@ -84,7 +81,6 @@ class TicketVerificationService(
 		val user = member(kakaoId)
 		val show = showRepository.findById(showId).orElse(null)?.takeIf { it.reviewStatus == ReviewStatus.VISIBLE }
 			?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
-		if (LocalDateTime.now(clock) >= writableUntil(show)) throw ResponseStatusException(HttpStatus.FORBIDDEN, "끝난 공연은 예매 인증을 할 수 없어요.")
 		val existing = verificationRepository.findByUserIdAndShowId(user.id, show.id)
 		when (existing?.status) {
 			VerificationStatus.APPROVED -> throw ResponseStatusException(HttpStatus.CONFLICT, "이미 예매 인증됐어요.")
@@ -174,10 +170,4 @@ class TicketVerificationService(
 	}
 
 	private fun member(kakaoId: Long): User = userRepository.findByKakaoId(kakaoId) ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
-
-	companion object {
-		private const val WRITABLE_DAYS_AFTER = 7L
-
-		fun writableUntil(show: Show): LocalDateTime = show.endDate.plusDays(WRITABLE_DAYS_AFTER + 1).atStartOfDay()
-	}
 }

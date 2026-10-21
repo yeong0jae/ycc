@@ -105,7 +105,7 @@ class SuggestionTests(
 		ByteArrayOutputStream().also { ImageIO.write(BufferedImage(40, 30, BufferedImage.TYPE_INT_RGB), "png", it) }.toByteArray()
 
 	@Test
-	fun `현장 QR을 찍은 기기는 공연 기간에 건의를 쓰고, 누구나 본다`() {
+	fun `현장 QR을 찍은 기기는 건의를 쓰고, 누구나 본다`() {
 		val device = scan(siteCode())
 		mockMvc.get("/api/shows/${show.id}/suggestions") { cookie(device) }.andExpect { jsonPath("$.write") { value("OPEN") } }
 
@@ -139,15 +139,13 @@ class SuggestionTests(
 	}
 
 	@Test
-	fun `공연 기간 밖에는 쓸 수 없다`() {
+	fun `공연 전이든 끝난 뒤든 쓸 수 있다`() {
 		val device = scan(siteCode())
-		clock.now = Instant.parse("2026-10-23T14:59:00Z")
-		write(device).andExpect { status { isForbidden() } }
-		mockMvc.get("/api/shows/${show.id}/suggestions") { cookie(device) }.andExpect { jsonPath("$.write") { value("CLOSED") } }
-		clock.now = Instant.parse("2026-10-26T02:59:00Z")
+		clock.now = Instant.parse("2026-10-20T00:00:00Z")
 		write(device).andExpect { status { isCreated() } }
-		clock.now = Instant.parse("2026-10-26T03:00:00Z")
-		write(device).andExpect { status { isForbidden() } }
+		clock.now = Instant.parse("2026-12-26T03:00:00Z")
+		mockMvc.get("/api/shows/${show.id}/suggestions") { cookie(device) }.andExpect { jsonPath("$.write") { value("OPEN") } }
+		write(device).andExpect { status { isCreated() } }
 	}
 
 	@Test

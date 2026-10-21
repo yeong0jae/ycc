@@ -151,7 +151,6 @@ class TicketVerificationTests(
 		submit(1001).andExpect {
 			status { isCreated() }
 			jsonPath("$.status") { value("PENDING") }
-			jsonPath("$.writableUntil") { value("2026-11-02T00:00:00") }
 		}
 		submit(1001).andExpect { status { isConflict() } }
 		mockMvc.get("/api/shows/${show.id}/suggestions") { member(1001) }.andExpect {
@@ -203,14 +202,11 @@ class TicketVerificationTests(
 	}
 
 	@Test
-	fun `공연 끝나고 7일이 지나면 못 쓴다`() {
-		submit(1001)
+	fun `공연이 끝나도 인증하고 쓸 수 있다`() {
+		clock.now = Instant.parse("2026-12-01T03:00:00Z")
+		submit(1001).andExpect { status { isCreated() } }
 		decide("""{"decision":"APPROVE"}""")
-		clock.now = Instant.parse("2026-11-01T14:59:00Z")
 		write(1001).andExpect { status { isCreated() } }
-		clock.now = Instant.parse("2026-11-01T15:00:00Z")
-		write(1001).andExpect { status { isForbidden() } }
-		submit(2002).andExpect { status { isForbidden() } }
 	}
 
 	@Test
