@@ -16,6 +16,7 @@ services:
       KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
       FRONTEND_URL: https://${SITE_ADDRESS}
       NOTICE_IMAGE_BUCKET: ${NOTICE_IMAGE_BUCKET}
+      VERIFICATION_IMAGE_BUCKET: ${VERIFICATION_IMAGE_BUCKET}
       MAP_AI_ENABLED: "true"
     depends_on:
       - cloudsql-proxy

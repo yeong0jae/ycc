@@ -24,8 +24,10 @@ services:
       KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
       FRONTEND_URL: http://localhost:3000
       NOTICE_IMAGE_DIR: /data/notice-images
+      VERIFICATION_IMAGE_DIR: /data/verification-images
     volumes:
       - notice-images:/data/notice-images
+      - verification-images:/data/verification-images
     ports:
       - "8080:8080"
     depends_on:
@@ -45,3 +47,4 @@ services:
 volumes:
   mysql-data:
   notice-images:
+  verification-images:

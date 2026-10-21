@@ -185,15 +185,16 @@ resource "google_compute_instance" "ycc" {
   }
 
   metadata = {
-    startup-script = file("${path.module}/vm/startup.sh")
-    compose        = file("${path.module}/vm/compose.prod.yaml")
-    caddyfile      = file("${path.module}/vm/Caddyfile")
-    deploy         = file("${path.module}/vm/deploy.sh")
-    registry       = local.registry
-    site-address   = local.site_address
-    sql-connection = google_sql_database_instance.ycc.connection_name
-    notice-images  = google_storage_bucket.notice_images.name
-    enable-oslogin = "TRUE"
+    startup-script      = file("${path.module}/vm/startup.sh")
+    compose             = file("${path.module}/vm/compose.prod.yaml")
+    caddyfile           = file("${path.module}/vm/Caddyfile")
+    deploy              = file("${path.module}/vm/deploy.sh")
+    registry            = local.registry
+    site-address        = local.site_address
+    sql-connection      = google_sql_database_instance.ycc.connection_name
+    notice-images       = google_storage_bucket.notice_images.name
+    verification-images = google_storage_bucket.verification_images.name
+    enable-oslogin      = "TRUE"
   }
 
   depends_on = [google_project_iam_member.vm, google_secret_manager_secret.secrets, google_sql_user.ycc, google_sql_database.ycc]
@@ -256,6 +257,29 @@ resource "google_storage_bucket_iam_member" "notice_images_public" {
   bucket = google_storage_bucket.notice_images.name
   role   = "roles/storage.objectViewer"
   member = "allUsers"
+}
+
+resource "google_storage_bucket" "verification_images" {
+  name                        = "${var.project_id}-verification-images"
+  location                    = var.region
+  uniform_bucket_level_access = true
+  public_access_prevention    = "enforced"
+  depends_on                  = [google_project_service.services]
+
+  lifecycle_rule {
+    condition {
+      age = 30
+    }
+    action {
+      type = "Delete"
+    }
+  }
+}
+
+resource "google_storage_bucket_iam_member" "verification_images_vm" {
+  bucket = google_storage_bucket.verification_images.name
+  role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${google_service_account.vm.email}"
 }
 
 resource "google_storage_bucket_iam_member" "notice_images_vm" {

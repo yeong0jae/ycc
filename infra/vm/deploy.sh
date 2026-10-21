@@ -9,6 +9,7 @@ REGISTRY=$(metadata "instance/attributes/registry")
 SITE_ADDRESS=$(metadata "instance/attributes/site-address")
 SQL_CONNECTION_NAME=$(metadata "instance/attributes/sql-connection")
 NOTICE_IMAGE_BUCKET=$(metadata "instance/attributes/notice-images")
+VERIFICATION_IMAGE_BUCKET=$(metadata "instance/attributes/verification-images")
 metadata "instance/attributes/compose" > compose.prod.yaml
 metadata "instance/attributes/caddyfile" > Caddyfile
 
@@ -28,6 +29,7 @@ TAG=$TAG
 SITE_ADDRESS=$SITE_ADDRESS
 SQL_CONNECTION_NAME=$SQL_CONNECTION_NAME
 NOTICE_IMAGE_BUCKET=$NOTICE_IMAGE_BUCKET
+VERIFICATION_IMAGE_BUCKET=$VERIFICATION_IMAGE_BUCKET
 DB_PASSWORD=$(secret db-password)
 KOPIS_API_KEY=$(secret kopis-api-key)
 KAKAO_REST_API_KEY=$(secret kakao-rest-api-key)
