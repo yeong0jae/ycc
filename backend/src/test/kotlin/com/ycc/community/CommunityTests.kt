@@ -220,4 +220,31 @@ class CommunityTests(
 		}
 		mockMvc.get("/api/community?kind=TIP").andExpect { jsonPath("$.items.length()") { value(1) } }
 	}
+
+	@Test
+	fun `공연 없이 쓴 글은 전체 피드 양쪽에 보이고, 공연 커뮤니티에는 안 보인다`() {
+		val general = objectMapper.readTree(
+			mockMvc.post("/api/community/posts") { member(1001); json("""{"kind":"FREE","body":"공연 없이 쓰는 글"}""") }
+				.andExpect {
+					status { isCreated() }
+					jsonPath("$.showId") { doesNotExist() }
+				}.andReturn().response.contentAsString,
+		).get("id").asLong()
+		mockMvc.post("/api/community/posts") { member(1001); json("""{"kind":"FREE","body":"바로 또"}""") }.andExpect { status { isTooManyRequests() } }
+		postId(1001, "공연 글")
+
+		mockMvc.get("/api/community").andExpect { jsonPath("$.items.length()") { value(2) } }
+		mockMvc.get("/api/community?showIds=${show.id}").andExpect { jsonPath("$.items.length()") { value(2) } }
+		mockMvc.get(base).andExpect { jsonPath("$.items.length()") { value(1) } }
+
+		mockMvc.post("/api/community/posts/$general/comments") { member(2002); json("""{"body":"반가워요"}""") }.andExpect { status { isCreated() } }
+		mockMvc.put("/api/community/posts/$general/like") { member(2002); json("""{"liked":true}""") }.andExpect { jsonPath("$.likeCount") { value(1) } }
+		mockMvc.get("/api/community/posts/$general").andExpect {
+			jsonPath("$.post.commentCount") { value(1) }
+			jsonPath("$.comments[0].body") { value("반가워요") }
+		}
+		mockMvc.put("/api/community/posts/$general") { member(2002); json("""{"kind":"FREE","body":"남의 글"}""") }.andExpect { status { isForbidden() } }
+		mockMvc.delete("/api/community/posts/$general") { member(1001) }.andExpect { status { isOk() } }
+		mockMvc.get("/api/community/posts/$general").andExpect { status { isNotFound() } }
+	}
 }

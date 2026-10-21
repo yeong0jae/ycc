@@ -30,7 +30,7 @@ enum class ReportTarget { POST, COMMENT }
 class CommunityPost(
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "show_id")
-	val show: Show,
+	val show: Show?,
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	val user: User,
@@ -134,16 +134,24 @@ interface CommunityPostRepository : JpaRepository<CommunityPost, Long> {
 	fun findVisible(showId: Long, kind: PostKind?, before: Long?, pageable: Pageable): List<CommunityPost>
 
 	@Query(
-		"select p from CommunityPost p join fetch p.user join fetch p.show s where s.id in :showIds and s.reviewStatus = com.ycc.show.ReviewStatus.VISIBLE" +
+		"select p from CommunityPost p join fetch p.user left join fetch p.show s where (s is null or (s.id in :showIds and s.reviewStatus = com.ycc.show.ReviewStatus.VISIBLE))" +
 			" and p.deletedAt is null and p.hiddenAt is null and (:kind is null or p.kind = :kind) and (:before is null or p.id < :before) order by p.id desc",
 	)
 	fun findFeed(showIds: Collection<Long>, kind: PostKind?, before: Long?, pageable: Pageable): List<CommunityPost>
 
 	@Query(
-		"select p from CommunityPost p join fetch p.user join fetch p.show s where s.reviewStatus = com.ycc.show.ReviewStatus.VISIBLE" +
+		"select p from CommunityPost p join fetch p.user left join fetch p.show s where (s is null or s.reviewStatus = com.ycc.show.ReviewStatus.VISIBLE)" +
 			" and p.deletedAt is null and p.hiddenAt is null and (:kind is null or p.kind = :kind) and (:before is null or p.id < :before) order by p.id desc",
 	)
 	fun findFeedAll(kind: PostKind?, before: Long?, pageable: Pageable): List<CommunityPost>
+
+	@Query(
+		"select p from CommunityPost p join fetch p.user where p.show is null and p.deletedAt is null and p.hiddenAt is null" +
+			" and (:kind is null or p.kind = :kind) and (:before is null or p.id < :before) order by p.id desc",
+	)
+	fun findGeneral(kind: PostKind?, before: Long?, pageable: Pageable): List<CommunityPost>
+
+	fun countByShowIsNullAndUserIdAndCreatedAtAfter(userId: Long, after: LocalDateTime): Long
 
 	fun countByShowIdAndUserIdAndCreatedAtAfter(showId: Long, userId: Long, after: LocalDateTime): Long
 }

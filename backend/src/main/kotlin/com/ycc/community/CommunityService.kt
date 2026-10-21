@@ -24,8 +24,8 @@ data class CommunityImageResponse(val id: Long, val url: String, val width: Int,
 
 data class PostResponse(
 	val id: Long,
-	val showId: Long,
-	val showName: String,
+	val showId: Long?,
+	val showName: String?,
 	val kind: PostKind,
 	val body: String,
 	val images: List<CommunityImageResponse>,
@@ -91,14 +91,14 @@ class CommunityService(
 		val pageable = PageRequest.of(0, PAGE_SIZE + 1)
 		val page = when {
 			showIds == null -> postRepository.findFeedAll(kind, before, pageable)
-			showIds.isEmpty() -> emptyList()
+			showIds.isEmpty() -> postRepository.findGeneral(kind, before, pageable)
 			else -> postRepository.findFeed(showIds.distinct().take(MAX_FEED_SHOWS), kind, before, pageable)
 		}
 		return PostPageResponse(responses(page.take(PAGE_SIZE), viewer), page.size > PAGE_SIZE)
 	}
 
 	@Transactional(readOnly = true)
-	fun post(showId: Long, postId: Long, kakaoId: Long?): PostDetailResponse {
+	fun post(showId: Long?, postId: Long, kakaoId: Long?): PostDetailResponse {
 		val viewer = kakaoId?.let(userRepository::findByKakaoId)
 		val post = visiblePost(showId, postId)
 		val comments = commentRepository.findVisible(postId).map {
@@ -107,12 +107,19 @@ class CommunityService(
 		return PostDetailResponse(responses(listOf(post), viewer).single(), comments)
 	}
 
-	fun create(kakaoId: Long, showId: Long, request: PostRequest): PostResponse {
+	fun create(kakaoId: Long, showId: Long?, request: PostRequest): PostResponse {
 		val user = member(kakaoId)
-		val show = showRepository.findById(showId).orElse(null)?.takeIf { it.reviewStatus == ReviewStatus.VISIBLE }
-			?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+		val show = showId?.let {
+			showRepository.findById(it).orElse(null)?.takeIf { show -> show.reviewStatus == ReviewStatus.VISIBLE }
+				?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+		}
 		val now = LocalDateTime.now(clock)
-		if (postRepository.countByShowIdAndUserIdAndCreatedAtAfter(showId, user.id, now.minus(POST_INTERVAL)) > 0) {
+		val recent = if (showId == null) {
+			postRepository.countByShowIsNullAndUserIdAndCreatedAtAfter(user.id, now.minus(POST_INTERVAL))
+		} else {
+			postRepository.countByShowIdAndUserIdAndCreatedAtAfter(showId, user.id, now.minus(POST_INTERVAL))
+		}
+		if (recent > 0) {
 			throw ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "잠시 뒤에 다시 올려 주세요.")
 		}
 		val post = postRepository.save(CommunityPost(show, user, request.kind, postBody(request.body), now))
@@ -120,7 +127,7 @@ class CommunityService(
 		return responses(listOf(post), user).single()
 	}
 
-	fun update(kakaoId: Long, showId: Long, postId: Long, request: PostRequest): PostResponse {
+	fun update(kakaoId: Long, showId: Long?, postId: Long, request: PostRequest): PostResponse {
 		val user = member(kakaoId)
 		val post = ownPost(showId, postId, user)
 		post.kind = request.kind
@@ -130,22 +137,22 @@ class CommunityService(
 		return responses(listOf(post), user).single()
 	}
 
-	fun delete(kakaoId: Long, showId: Long, postId: Long) {
+	fun delete(kakaoId: Long, showId: Long?, postId: Long) {
 		val user = member(kakaoId)
 		ownPost(showId, postId, user).deletedAt = LocalDateTime.now(clock)
 	}
 
-	fun uploadImage(kakaoId: Long, showId: Long, bytes: ByteArray, contentType: String?): CommunityImageResponse {
+	fun uploadImage(kakaoId: Long, showId: Long?, bytes: ByteArray, contentType: String?): CommunityImageResponse {
 		val user = member(kakaoId)
 		val image = UploadedImage.read(bytes, contentType)
-		val key = "community/$showId/${UUID.randomUUID()}.${image.extension}"
+		val key = "community/${showId ?: "general"}/${UUID.randomUUID()}.${image.extension}"
 		val url = storage.put(key, image.bytes, image.contentType)
 		return CommunityImageResponse.from(
 			imageRepository.save(CommunityPostImage(user, key, url, image.width, image.height, LocalDateTime.now(clock))),
 		)
 	}
 
-	fun comment(kakaoId: Long, showId: Long, postId: Long, request: CommentRequest): CommentResponse {
+	fun comment(kakaoId: Long, showId: Long?, postId: Long, request: CommentRequest): CommentResponse {
 		val user = member(kakaoId)
 		val post = visiblePost(showId, postId)
 		val now = LocalDateTime.now(clock)
@@ -156,7 +163,7 @@ class CommunityService(
 		return CommentResponse(comment.id, comment.body, user.nickname.orEmpty(), user.avatarUrl, comment.createdAt, null, true, user.id == post.user.id)
 	}
 
-	fun updateComment(kakaoId: Long, showId: Long, postId: Long, commentId: Long, request: CommentRequest): CommentResponse {
+	fun updateComment(kakaoId: Long, showId: Long?, postId: Long, commentId: Long, request: CommentRequest): CommentResponse {
 		val user = member(kakaoId)
 		val comment = ownComment(showId, postId, commentId, user)
 		comment.body = commentBody(request.body)
@@ -164,12 +171,12 @@ class CommunityService(
 		return CommentResponse(comment.id, comment.body, user.nickname.orEmpty(), user.avatarUrl, comment.createdAt, comment.updatedAt, true, user.id == comment.post.user.id)
 	}
 
-	fun deleteComment(kakaoId: Long, showId: Long, postId: Long, commentId: Long) {
+	fun deleteComment(kakaoId: Long, showId: Long?, postId: Long, commentId: Long) {
 		val user = member(kakaoId)
 		ownComment(showId, postId, commentId, user).deletedAt = LocalDateTime.now(clock)
 	}
 
-	fun like(kakaoId: Long, showId: Long, postId: Long, request: LikeRequest): LikeResponse {
+	fun like(kakaoId: Long, showId: Long?, postId: Long, request: LikeRequest): LikeResponse {
 		val user = member(kakaoId)
 		val post = visiblePost(showId, postId)
 		val existing = likeRepository.findByPostIdAndUserId(postId, user.id)
@@ -179,13 +186,13 @@ class CommunityService(
 		return LikeResponse(request.liked, likeRepository.countByPostId(postId))
 	}
 
-	fun reportPost(kakaoId: Long, showId: Long, postId: Long, request: ReportRequest) {
+	fun reportPost(kakaoId: Long, showId: Long?, postId: Long, request: ReportRequest) {
 		val user = member(kakaoId)
 		val post = visiblePost(showId, postId)
 		if (report(ReportTarget.POST, postId, user, request.reason)) post.hiddenAt = LocalDateTime.now(clock)
 	}
 
-	fun reportComment(kakaoId: Long, showId: Long, postId: Long, commentId: Long, request: ReportRequest) {
+	fun reportComment(kakaoId: Long, showId: Long?, postId: Long, commentId: Long, request: ReportRequest) {
 		val user = member(kakaoId)
 		visiblePost(showId, postId)
 		val comment = commentRepository.findById(commentId).orElse(null)?.takeIf { it.post.id == postId && it.visible }
@@ -217,8 +224,8 @@ class CommunityService(
 		return posts.map {
 			PostResponse(
 				it.id,
-				it.show.id,
-				it.show.name,
+				it.show?.id,
+				it.show?.name,
 				it.kind,
 				it.body,
 				images[it.id].orEmpty().map(CommunityImageResponse::from),
@@ -267,17 +274,17 @@ class CommunityService(
 
 	private fun member(kakaoId: Long): User = userRepository.findByKakaoId(kakaoId) ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
 
-	private fun visiblePost(showId: Long, postId: Long) =
-		postRepository.findById(postId).orElse(null)?.takeIf { it.show.id == showId && it.visible }
+	private fun visiblePost(showId: Long?, postId: Long) =
+		postRepository.findById(postId).orElse(null)?.takeIf { (showId == null || it.show?.id == showId) && it.visible }
 			?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
 
-	private fun ownPost(showId: Long, postId: Long, user: User): CommunityPost {
+	private fun ownPost(showId: Long?, postId: Long, user: User): CommunityPost {
 		val post = visiblePost(showId, postId)
 		if (post.user.id != user.id) throw ResponseStatusException(HttpStatus.FORBIDDEN)
 		return post
 	}
 
-	private fun ownComment(showId: Long, postId: Long, commentId: Long, user: User): CommunityComment {
+	private fun ownComment(showId: Long?, postId: Long, commentId: Long, user: User): CommunityComment {
 		visiblePost(showId, postId)
 		val comment = commentRepository.findById(commentId).orElse(null)?.takeIf { it.post.id == postId && it.visible }
 			?: throw ResponseStatusException(HttpStatus.NOT_FOUND)

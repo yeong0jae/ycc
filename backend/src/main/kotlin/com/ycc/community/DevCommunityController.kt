@@ -16,8 +16,8 @@ import java.time.LocalDateTime
 data class ReportedResponse(
 	val type: ReportTarget,
 	val id: Long,
-	val showId: Long,
-	val showName: String,
+	val showId: Long?,
+	val showName: String?,
 	val postId: Long,
 	val body: String,
 	val author: String,
@@ -45,10 +45,10 @@ class DevCommunityService(
 			val last = reports.maxOf { it.createdAt }
 			when (target.first) {
 				ReportTarget.POST -> postRepository.findById(target.second).orElse(null)?.takeIf { it.deletedAt == null }?.let {
-					ReportedResponse(ReportTarget.POST, it.id, it.show.id, it.show.name, it.id, it.body, it.user.nickname.orEmpty(), it.createdAt, it.hiddenAt != null, reasons, last)
+					ReportedResponse(ReportTarget.POST, it.id, it.show?.id, it.show?.name, it.id, it.body, it.user.nickname.orEmpty(), it.createdAt, it.hiddenAt != null, reasons, last)
 				}
 				ReportTarget.COMMENT -> commentRepository.findById(target.second).orElse(null)?.takeIf { it.deletedAt == null }?.let {
-					ReportedResponse(ReportTarget.COMMENT, it.id, it.post.show.id, it.post.show.name, it.post.id, it.body, it.user.nickname.orEmpty(), it.createdAt, it.hiddenAt != null, reasons, last)
+					ReportedResponse(ReportTarget.COMMENT, it.id, it.post.show?.id, it.post.show?.name, it.post.id, it.body, it.user.nickname.orEmpty(), it.createdAt, it.hiddenAt != null, reasons, last)
 				}
 			}
 		}
