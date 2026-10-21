@@ -7,12 +7,13 @@ import { JUST_ADDED_KEY } from "@/lib/back-transition";
 import { festivalBadge, formatNoticeTime, formatPeriod, shortRegion, todayInSeoul } from "@/lib/format";
 import { NOTICE_CHIPS, NOTICE_LABELS, type ParticipatedShow } from "@/lib/notice-types";
 import { useParticipated, useSignedIn } from "@/lib/participation";
+import { posterProps } from "@/lib/poster";
 
-function Poster({ id, src, className }: { id: number; src: string; className: string }) {
+function Poster({ id, src, sizes, className }: { id: number; src: string; sizes: string; className: string }) {
   return (
     <ViewTransition name={`poster-${id}`} share="morph" default="none">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt="" data-poster={id} className={className} />
+      <img {...posterProps(src, sizes)} alt="" data-poster={id} className={className} />
     </ViewTransition>
   );
 }
@@ -28,7 +29,7 @@ function TodayCard({ item, order }: { item: ParticipatedShow; order: number }) {
       className="press flex animate-rise flex-col gap-3 rounded-3xl bg-ink p-3.5 text-stub motion-reduce:animate-none"
     >
       <span className="flex items-center gap-3">
-        <Poster id={show.id} src={show.posterUrl} className="aspect-[3/4] w-16 shrink-0 rounded-xl bg-[#2a2a2e] object-cover" />
+        <Poster id={show.id} src={show.posterUrl} sizes="64px" className="aspect-[3/4] w-16 shrink-0 rounded-xl bg-[#2a2a2e] object-cover" />
         <span className="flex min-w-0 flex-col gap-1.5">
           {badge && <LiveBadge label={badge.label} live={badge.live} className="h-5.5 self-start px-2 text-xs" />}
           <span className="truncate text-lg font-bold">{show.name}</span>
@@ -67,7 +68,7 @@ function ShowRow({ item, order, past = false }: { item: ParticipatedShow; order:
       style={{ animationDelay: `${order * 40}ms` }}
       className={`press flex animate-rise items-center gap-3 rounded-[20px] bg-pill p-2.5 motion-reduce:animate-none ${past ? "opacity-50" : ""}`}
     >
-      <Poster id={show.id} src={show.posterUrl} className="aspect-[3/4] w-12 shrink-0 rounded-[10px] bg-cream object-cover" />
+      <Poster id={show.id} src={show.posterUrl} sizes="48px" className="aspect-[3/4] w-12 shrink-0 rounded-[10px] bg-cream object-cover" />
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="truncate text-[15px] font-bold">{show.name}</span>
         <span className="truncate text-[13px] text-muted">

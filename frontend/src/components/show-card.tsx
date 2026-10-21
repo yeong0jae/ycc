@@ -3,6 +3,7 @@ import { ViewTransition } from "react";
 import { LiveBadge } from "@/components/live-badge";
 import { PosterImage } from "@/components/poster-image";
 import { festivalBadge, formatPeriod, shortRegion } from "@/lib/format";
+import { posterProps } from "@/lib/poster";
 import type { Show } from "@/lib/show-types";
 
 export function ShowCard({ show }: { show: Show }) {
@@ -13,7 +14,7 @@ export function ShowCard({ show }: { show: Show }) {
       <span className="relative block aspect-[3/4] overflow-hidden rounded-2xl bg-pill">
         <ViewTransition name={`poster-${show.id}`} share="morph" default="none">
           <PosterImage
-            src={show.posterUrl}
+            {...posterProps(show.posterUrl, "(min-width: 672px) 320px, 50vw")}
             alt={`${show.name} 포스터`}
             loading="lazy"
             data-poster={show.id}

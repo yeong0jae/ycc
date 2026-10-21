@@ -3,6 +3,7 @@ import { Suspense, ViewTransition } from "react";
 import { BackButton } from "@/components/back-button";
 import { DetailBadge } from "@/components/detail-badge";
 import { formatLongPeriod, shortRegion } from "@/lib/format";
+import { posterProps } from "@/lib/poster";
 import type { Show } from "@/lib/show-types";
 import { ParticipationToggle } from "./participation-toggle";
 import { SHOW_HOME_HEADER_ID, TopBar } from "./top-bar";
@@ -21,7 +22,7 @@ export function ShowHomeTop({ show }: { show: Show }) {
       >
         <ViewTransition name={`poster-${show.id}`} share="morph" default="none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={show.posterUrl} alt="" data-poster={show.id} className="aspect-[3/4] w-18 shrink-0 rounded-xl bg-pill object-cover" />
+          <img {...posterProps(show.posterUrl, "72px")} alt="" data-poster={show.id} className="aspect-[3/4] w-18 shrink-0 rounded-xl bg-pill object-cover" />
         </ViewTransition>
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <div className="flex h-6">

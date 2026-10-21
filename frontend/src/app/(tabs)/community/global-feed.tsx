@@ -10,6 +10,7 @@ import { POST_KINDS, type Post, type PostKind, type PostPage } from "@/lib/commu
 import { festivalBadge, formatPeriod, todayInSeoul } from "@/lib/format";
 import type { ParticipatedShow } from "@/lib/notice-types";
 import { useParticipated } from "@/lib/participation";
+import { posterProps } from "@/lib/poster";
 import type { Show } from "@/lib/show-types";
 import { PostItem } from "../../shows/[id]/community/post-item";
 import { PostSkeleton } from "../../shows/[id]/community/post-skeleton";
@@ -85,7 +86,7 @@ function PickShowSheet({ shows, onPick, onClose }: { shows: Show[] | null; onPic
                     className="flex h-17 w-full cursor-pointer items-center gap-3 px-5 text-left shadow-[inset_0_-1px_0_#eeeef1]"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={show.posterUrl} alt="" className="aspect-[3/4] w-10 shrink-0 rounded-lg bg-pill object-cover" />
+                    <img {...posterProps(show.posterUrl, "40px")} alt="" className="aspect-[3/4] w-10 shrink-0 rounded-lg bg-pill object-cover" />
                     <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                       <b className="truncate text-[15px]">{show.name}</b>
                       <span className="text-[13px] text-muted">

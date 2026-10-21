@@ -7,6 +7,7 @@ import { DetailBadge } from "@/components/detail-badge";
 import { KopisSource } from "@/components/kopis-source";
 import { ZoomableImage } from "@/components/zoomable-image";
 import { formatLongPeriod, shortRegion } from "@/lib/format";
+import { posterProps } from "@/lib/poster";
 import { getShow } from "@/lib/show";
 import { ParticipateButton } from "./participate-button";
 import { UrgentLine } from "./urgent-line";
@@ -52,7 +53,12 @@ export default async function ShowPage({ params }: PageProps<"/shows/[id]">) {
       <ZoomableImage src={show.posterUrl} label="포스터 크게 보기" className="relative mx-3 mt-4 block w-[calc(100%-1.5rem)] text-left">
         <ViewTransition name={`poster-${show.id}`} share="morph" default="none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={show.posterUrl} alt={`${show.name} 포스터`} data-poster={show.id} className="w-full rounded-[20px] bg-pill" />
+          <img
+            {...posterProps(show.posterUrl, "(min-width: 672px) 648px, calc(100vw - 24px)")}
+            alt={`${show.name} 포스터`}
+            data-poster={show.id}
+            className="w-full rounded-[20px] bg-pill"
+          />
         </ViewTransition>
         <span className="absolute top-3 right-3 flex h-7.5 items-center rounded-full bg-ink/55 px-3 text-xs text-stub">
           눌러서 크게 보기

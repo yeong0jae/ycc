@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Script from "next/script";
 import { useEffect, useRef, useState, ViewTransition } from "react";
+import { posterProps } from "@/lib/poster";
 import { formatDday, formatPeriod } from "@/lib/format";
 import type { Facility } from "@/lib/show-types";
 
@@ -228,8 +229,9 @@ export function ConcertMap({
                     <ViewTransition name={`poster-${show.id}`} share="morph" default="none">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={show.posterUrl}
+                        {...posterProps(show.posterUrl, "48px")}
                         alt=""
+                        data-poster={show.id}
                         className="h-16 w-12 shrink-0 rounded-lg object-cover"
                       />
                     </ViewTransition>
