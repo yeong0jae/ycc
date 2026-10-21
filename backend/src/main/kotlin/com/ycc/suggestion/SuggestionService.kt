@@ -7,6 +7,11 @@ import com.ycc.organizer.OrganizerRepository
 import com.ycc.show.ReviewStatus
 import com.ycc.show.Show
 import com.ycc.show.ShowRepository
+import com.ycc.user.User
+import com.ycc.user.UserRepository
+import com.ycc.verification.TicketVerificationService
+import com.ycc.verification.VerificationResponse
+import com.ycc.verification.VerificationStatus
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -49,8 +54,11 @@ data class ShowSuggestionsResponse(
 	val items: List<SuggestionResponse>,
 	val total: Int,
 	val write: WriteState,
+	val writeSource: SuggestionSource,
 	val writableFrom: LocalDateTime,
 	val writableUntil: LocalDateTime,
+	val verification: VerificationResponse?,
+	val verifiableUntil: LocalDateTime,
 )
 
 data class SiteEntryResponse(val showId: Long)
@@ -68,6 +76,8 @@ class SuggestionService(
 	private val sitePassRepository: SitePassRepository,
 	private val organizerRepository: OrganizerRepository,
 	private val showRepository: ShowRepository,
+	private val userRepository: UserRepository,
+	private val verificationService: TicketVerificationService,
 	private val storage: NoticeImageStorage,
 	private val clock: Clock,
 ) {
@@ -84,35 +94,55 @@ class SuggestionService(
 	}
 
 	@Transactional(readOnly = true)
-	fun showSuggestions(showId: Long, deviceId: String?): ShowSuggestionsResponse {
+	fun showSuggestions(showId: Long, deviceId: String?, kakaoId: Long?): ShowSuggestionsResponse {
 		val show = showRepository.findById(showId).orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
 		val items = suggestionRepository.findVisibleByShowId(showId).map(SuggestionResponse::from)
-		val (from, until) = window(show)
-		return ShowSuggestionsResponse(items, items.size, writeState(show, deviceId), from, until)
+		val user = kakaoId?.let(userRepository::findByKakaoId)
+		val access = access(show, deviceId, user)
+		val verification = user?.let { verificationService.find(it, showId) }?.let(VerificationResponse::from)
+		return ShowSuggestionsResponse(
+			items,
+			items.size,
+			access.state,
+			access.source,
+			access.from,
+			access.until,
+			verification,
+			TicketVerificationService.writableUntil(show),
+		)
 	}
 
-	fun create(showId: Long, deviceId: String?, body: String, bytes: ByteArray?, contentType: String?): SuggestionResponse {
+	fun create(showId: Long, deviceId: String?, kakaoId: Long?, body: String, bytes: ByteArray?, contentType: String?): SuggestionResponse {
 		val show = showRepository.findById(showId).orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
-		when (writeState(show, deviceId)) {
-			WriteState.NO_PASS -> throw ResponseStatusException(HttpStatus.FORBIDDEN, "현장 QR을 찍으면 건의를 쓸 수 있어요.")
-			WriteState.CLOSED -> throw ResponseStatusException(HttpStatus.FORBIDDEN, "건의는 공연 기간에만 쓸 수 있어요.")
+		val user = kakaoId?.let(userRepository::findByKakaoId)
+		val access = access(show, deviceId, user)
+		when (access.state) {
+			WriteState.NO_PASS -> throw ResponseStatusException(HttpStatus.FORBIDDEN, "현장 QR을 찍거나 예매 인증을 하면 건의를 쓸 수 있어요.")
+			WriteState.CLOSED -> throw ResponseStatusException(
+				HttpStatus.FORBIDDEN,
+				if (access.source == SuggestionSource.TICKET) "건의를 쓸 수 있는 기간이 지났어요." else "건의는 공연 기간에만 쓸 수 있어요.",
+			)
 			WriteState.OPEN -> {}
 		}
-		val device = deviceId!!
 		val text = body.trim()
 		if (text.isEmpty() || text.length > MAX_BODY) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "건의는 1~${MAX_BODY}자로 적어 주세요.")
 		val now = LocalDateTime.now(clock)
-		if (suggestionRepository.countByShowIdAndDeviceIdAndCreatedAtAfter(showId, device, now.minusMinutes(1)) > 0) {
+		val ticket = access.source == SuggestionSource.TICKET
+		val count = { after: LocalDateTime ->
+			if (ticket) suggestionRepository.countByShowIdAndUserIdAndCreatedAtAfter(showId, user!!.id, after)
+			else suggestionRepository.countByShowIdAndDeviceIdAndCreatedAtAfter(showId, deviceId!!, after)
+		}
+		if (count(now.minusMinutes(1)) > 0) {
 			throw ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "잠시 뒤에 다시 써 주세요.")
 		}
-		if (suggestionRepository.countByShowIdAndDeviceIdAndCreatedAtAfter(showId, device, now.toLocalDate().atStartOfDay()) >= MAX_PER_DAY) {
+		if (count(now.toLocalDate().atStartOfDay()) >= MAX_PER_DAY) {
 			throw ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "오늘은 건의를 ${MAX_PER_DAY}개까지 쓸 수 있어요.")
 		}
 		val image = bytes?.takeIf { it.isNotEmpty() }?.let { UploadedImage.read(it, contentType) }
 		val key = image?.let { "suggestions/$showId/${UUID.randomUUID()}.${it.extension}" }
 		val url = image?.let { storage.put(key!!, it.bytes, it.contentType) }
 		val saved = suggestionRepository.save(
-			Suggestion(show, SuggestionSource.SITE_QR, device, text, now, key, url, image?.width, image?.height),
+			Suggestion(show, access.source, deviceId, text, now, key, url, image?.width, image?.height, user = if (ticket) user else null),
 		)
 		return SuggestionResponse.from(saved)
 	}
@@ -157,11 +187,23 @@ class SuggestionService(
 
 	private fun window(show: Show) = show.startDate.atStartOfDay() to show.endDate.plusDays(1).atTime(CLOSES_AT)
 
-	private fun writeState(show: Show, deviceId: String?): WriteState {
-		if (deviceId == null || !sitePassRepository.existsByShowIdAndDeviceId(show.id, deviceId)) return WriteState.NO_PASS
-		val (from, until) = window(show)
+	private data class Access(val state: WriteState, val source: SuggestionSource, val from: LocalDateTime, val until: LocalDateTime)
+
+	private fun access(show: Show, deviceId: String?, user: User?): Access {
 		val now = LocalDateTime.now(clock)
-		return if (now >= from && now < until) WriteState.OPEN else WriteState.CLOSED
+		val verification = user?.let { verificationService.find(it, show.id) }
+		if (verification?.status == VerificationStatus.APPROVED) {
+			val until = TicketVerificationService.writableUntil(show)
+			val from = verification.decidedAt ?: verification.createdAt
+			return Access(if (now < until) WriteState.OPEN else WriteState.CLOSED, SuggestionSource.TICKET, from, until)
+		}
+		val (from, until) = window(show)
+		val state = when {
+			deviceId == null || !sitePassRepository.existsByShowIdAndDeviceId(show.id, deviceId) -> WriteState.NO_PASS
+			now >= from && now < until -> WriteState.OPEN
+			else -> WriteState.CLOSED
+		}
+		return Access(state, SuggestionSource.SITE_QR, from, until)
 	}
 
 	private fun ownedOrganizer(organizerId: Long, showId: Long): Organizer {

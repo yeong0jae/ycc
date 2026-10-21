@@ -6,6 +6,7 @@ import com.ycc.show.ReviewStatus
 import com.ycc.show.ShowRepository
 import com.ycc.user.User
 import com.ycc.user.UserRepository
+import com.ycc.verification.TicketVerificationService
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -31,6 +32,7 @@ data class PostResponse(
 	val images: List<CommunityImageResponse>,
 	val author: String,
 	val authorAvatar: String?,
+	val authorVerified: Boolean,
 	val createdAt: LocalDateTime,
 	val updatedAt: LocalDateTime?,
 	val likeCount: Long,
@@ -44,6 +46,7 @@ data class CommentResponse(
 	val body: String,
 	val author: String,
 	val authorAvatar: String?,
+	val authorVerified: Boolean,
 	val createdAt: LocalDateTime,
 	val updatedAt: LocalDateTime?,
 	val mine: Boolean,
@@ -74,6 +77,7 @@ class CommunityService(
 	private val reportRepository: CommunityReportRepository,
 	private val userRepository: UserRepository,
 	private val showRepository: ShowRepository,
+	private val verificationService: TicketVerificationService,
 	private val storage: NoticeImageStorage,
 	private val clock: Clock,
 ) {
@@ -101,8 +105,20 @@ class CommunityService(
 	fun post(showId: Long?, postId: Long, kakaoId: Long?): PostDetailResponse {
 		val viewer = kakaoId?.let(userRepository::findByKakaoId)
 		val post = visiblePost(showId, postId)
-		val comments = commentRepository.findVisible(postId).map {
-			CommentResponse(it.id, it.body, it.user.nickname.orEmpty(), it.user.avatarUrl, it.createdAt, it.updatedAt, it.user.id == viewer?.id, it.user.id == post.user.id)
+		val found = commentRepository.findVisible(postId)
+		val verified = verificationService.approvedPairs(found.map { it.user.id }, listOfNotNull(post.show?.id))
+		val comments = found.map {
+			CommentResponse(
+				it.id,
+				it.body,
+				it.user.nickname.orEmpty(),
+				it.user.avatarUrl,
+				post.show?.let { show -> (it.user.id to show.id) in verified } ?: false,
+				it.createdAt,
+				it.updatedAt,
+				it.user.id == viewer?.id,
+				it.user.id == post.user.id,
+			)
 		}
 		return PostDetailResponse(responses(listOf(post), viewer).single(), comments)
 	}
@@ -160,7 +176,7 @@ class CommunityService(
 			throw ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "잠시 뒤에 다시 남겨 주세요.")
 		}
 		val comment = commentRepository.save(CommunityComment(post, user, commentBody(request.body), now))
-		return CommentResponse(comment.id, comment.body, user.nickname.orEmpty(), user.avatarUrl, comment.createdAt, null, true, user.id == post.user.id)
+		return CommentResponse(comment.id, comment.body, user.nickname.orEmpty(), user.avatarUrl, verified(user, post), comment.createdAt, null, true, user.id == post.user.id)
 	}
 
 	fun updateComment(kakaoId: Long, showId: Long?, postId: Long, commentId: Long, request: CommentRequest): CommentResponse {
@@ -168,7 +184,17 @@ class CommunityService(
 		val comment = ownComment(showId, postId, commentId, user)
 		comment.body = commentBody(request.body)
 		comment.updatedAt = LocalDateTime.now(clock)
-		return CommentResponse(comment.id, comment.body, user.nickname.orEmpty(), user.avatarUrl, comment.createdAt, comment.updatedAt, true, user.id == comment.post.user.id)
+		return CommentResponse(
+			comment.id,
+			comment.body,
+			user.nickname.orEmpty(),
+			user.avatarUrl,
+			verified(user, comment.post),
+			comment.createdAt,
+			comment.updatedAt,
+			true,
+			user.id == comment.post.user.id,
+		)
 	}
 
 	fun deleteComment(kakaoId: Long, showId: Long?, postId: Long, commentId: Long) {
@@ -221,6 +247,7 @@ class CommunityService(
 		val likes = likeRepository.countByPosts(ids).associate { (it[0] as Long) to (it[1] as Long) }
 		val comments = commentRepository.countVisible(ids).associate { (it[0] as Long) to (it[1] as Long) }
 		val liked = viewer?.let { likeRepository.findLikedPostIds(it.id, ids).toSet() }.orEmpty()
+		val verified = verificationService.approvedPairs(posts.map { it.user.id }, posts.mapNotNull { it.show?.id })
 		return posts.map {
 			PostResponse(
 				it.id,
@@ -231,6 +258,7 @@ class CommunityService(
 				images[it.id].orEmpty().map(CommunityImageResponse::from),
 				it.user.nickname.orEmpty(),
 				it.user.avatarUrl,
+				it.show?.let { show -> (it.user.id to show.id) in verified } ?: false,
 				it.createdAt,
 				it.updatedAt,
 				likes[it.id] ?: 0,
@@ -271,6 +299,9 @@ class CommunityService(
 		if (text.isEmpty() || text.length > MAX_COMMENT) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "댓글은 1~${MAX_COMMENT}자로 적어 주세요.")
 		return text
 	}
+
+	private fun verified(user: User, post: CommunityPost) =
+		post.show?.let { (user.id to it.id) in verificationService.approvedPairs(listOf(user.id), listOf(it.id)) } ?: false
 
 	private fun member(kakaoId: Long): User = userRepository.findByKakaoId(kakaoId) ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
 

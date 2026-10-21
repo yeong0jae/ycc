@@ -3,6 +3,7 @@ package com.ycc.user
 import com.ycc.notice.NoticeImageStorage
 import com.ycc.notice.UploadedImage
 import com.ycc.show.ShowRepository
+import com.ycc.verification.TicketVerificationService
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -17,6 +18,7 @@ class UserService(
 	private val participationRepository: ParticipationRepository,
 	private val showRepository: ShowRepository,
 	private val storage: NoticeImageStorage,
+	private val verificationService: TicketVerificationService,
 	private val clock: Clock,
 ) {
 
@@ -95,6 +97,7 @@ class UserService(
 	fun withdraw(kakaoId: Long) {
 		val user = get(kakaoId)
 		user.avatarKey?.let(storage::delete)
+		verificationService.deleteFor(user)
 		userRepository.delete(user)
 	}
 

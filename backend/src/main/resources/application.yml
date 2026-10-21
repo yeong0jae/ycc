@@ -46,6 +46,9 @@ app:
   notice-images:
     bucket: ${NOTICE_IMAGE_BUCKET:}
     dir: ${NOTICE_IMAGE_DIR:data/notice-images}
+  verification-images:
+    bucket: ${VERIFICATION_IMAGE_BUCKET:}
+    dir: ${VERIFICATION_IMAGE_DIR:data/verification-images}
   map-ai:
     enabled: ${MAP_AI_ENABLED:false}
     location: ${MAP_AI_LOCATION:global}

@@ -1,15 +1,11 @@
 package com.ycc.map
 
+import com.ycc.ai.VertexGemini
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.MediaType
-import org.springframework.web.client.RestClient
-import org.springframework.web.client.body
 import tools.jackson.databind.ObjectMapper
-import java.time.Instant
-import java.util.Base64
 
 data class FoundPin(val kind: PinKind, val name: String, val x: Double, val y: Double)
 
@@ -30,70 +26,23 @@ class DisabledMapPinFinder : MapPinFinder {
 }
 
 class VertexMapPinFinder(
-	private val location: String,
-	private val model: String,
+	private val gemini: VertexGemini,
 	private val objectMapper: ObjectMapper,
 ) : MapPinFinder {
 
 	private val log = LoggerFactory.getLogger(javaClass)
-	private val restClient = RestClient.create()
-	private var token: String? = null
-	private var tokenExpiresAt: Instant = Instant.EPOCH
-	private val project by lazy { metadata("project/project-id") }
 
 	override val available = true
 
-	override fun find(bytes: ByteArray, contentType: String): FoundMap {
-		val host = if (location == "global") "aiplatform.googleapis.com" else "$location-aiplatform.googleapis.com"
-		val request = mapOf(
-			"contents" to listOf(
-				mapOf(
-					"role" to "user",
-					"parts" to listOf(
-						mapOf("inlineData" to mapOf("mimeType" to contentType, "data" to Base64.getEncoder().encodeToString(bytes))),
-						mapOf("text" to PROMPT),
-					),
-				),
-			),
-			"generationConfig" to mapOf(
-				"temperature" to 0,
-				"responseMimeType" to "application/json",
-				"responseSchema" to RESPONSE_SCHEMA,
-			),
-		)
-		val response = restClient.post()
-			.uri("https://$host/v1/projects/$project/locations/$location/publishers/google/models/$model:generateContent")
-			.header("Authorization", "Bearer ${accessToken()}")
-			.contentType(MediaType.APPLICATION_JSON)
-			.body(request)
-			.retrieve()
-			.body<String>()!!
-		return parse(objectMapper, response)
+	override fun find(bytes: ByteArray, contentType: String): FoundMap =
+		parse(objectMapper, gemini.generate(bytes, contentType, PROMPT, RESPONSE_SCHEMA))
 			.also { log.info("맵에서 장소 {}개를 찾았어요", it.pins.size) }
-	}
-
-	private fun metadata(path: String): String = restClient.get()
-		.uri("http://metadata.google.internal/computeMetadata/v1/$path")
-		.header("Metadata-Flavor", "Google")
-		.retrieve()
-		.body<String>()!!
-
-	@Synchronized
-	private fun accessToken(): String {
-		val current = token
-		if (current != null && Instant.now().isBefore(tokenExpiresAt)) return current
-		val node = objectMapper.readTree(metadata("instance/service-accounts/default/token"))
-		token = node.path("access_token").asText()
-		tokenExpiresAt = Instant.now().plusSeconds(node.path("expires_in").asLong() - 60)
-		return token!!
-	}
 
 	companion object {
 		private const val MAX_NAME = 60
 
 		fun parse(objectMapper: ObjectMapper, response: String): FoundMap {
-			val text = objectMapper.readTree(response).path("candidates").path(0).path("content").path("parts").path(0).path("text").asText()
-			val root = objectMapper.readTree(text)
+			val root = objectMapper.readTree(VertexGemini.text(objectMapper, response))
 			val pins = root.path("places").mapNotNull { node ->
 				val kind = runCatching { PinKind.valueOf(node.path("kind").asText()) }.getOrDefault(PinKind.ETC)
 				val name = node.path("name").asText().trim().take(MAX_NAME)
@@ -154,5 +103,5 @@ class MapPinFinderConfig {
 		@Value("\${app.map-ai.location:global}") location: String,
 		@Value("\${app.map-ai.model:gemini-2.5-flash}") model: String,
 		objectMapper: ObjectMapper,
-	): MapPinFinder = if (enabled) VertexMapPinFinder(location, model, objectMapper) else DisabledMapPinFinder()
+	): MapPinFinder = if (enabled) VertexMapPinFinder(VertexGemini(location, model, objectMapper), objectMapper) else DisabledMapPinFinder()
 }

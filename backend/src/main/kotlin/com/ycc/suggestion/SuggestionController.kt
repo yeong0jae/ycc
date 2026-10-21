@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseCookie
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -47,17 +49,21 @@ class SuggestionController(
 	}
 
 	@GetMapping("/api/shows/{showId}/suggestions")
-	fun showSuggestions(@PathVariable showId: Long, @CookieValue(DEVICE_COOKIE, required = false) deviceId: String?) =
-		suggestionService.showSuggestions(showId, deviceId?.takeIf(::isDeviceId))
+	fun showSuggestions(
+		@PathVariable showId: Long,
+		@CookieValue(DEVICE_COOKIE, required = false) deviceId: String?,
+		@AuthenticationPrincipal principal: OAuth2User?,
+	) = suggestionService.showSuggestions(showId, deviceId?.takeIf(::isDeviceId), principal?.name?.toLong())
 
 	@PostMapping("/api/shows/{showId}/suggestions")
 	@ResponseStatus(HttpStatus.CREATED)
 	fun create(
 		@PathVariable showId: Long,
 		@CookieValue(DEVICE_COOKIE, required = false) deviceId: String?,
+		@AuthenticationPrincipal principal: OAuth2User?,
 		@RequestParam body: String,
 		@RequestPart(required = false) file: MultipartFile?,
-	) = suggestionService.create(showId, deviceId?.takeIf(::isDeviceId), body, file?.bytes, file?.contentType)
+	) = suggestionService.create(showId, deviceId?.takeIf(::isDeviceId), principal?.name?.toLong(), body, file?.bytes, file?.contentType)
 
 	@GetMapping("/api/organizer/shows/{showId}/suggestions")
 	fun organizerSuggestions(@SessionAttribute(OrganizerController.ORGANIZER_ID) organizerId: Long, @PathVariable showId: Long) =

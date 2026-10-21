@@ -2,6 +2,7 @@ package com.ycc.suggestion
 
 import com.ycc.organizer.Organizer
 import com.ycc.show.Show
+import com.ycc.user.User
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
@@ -26,7 +27,7 @@ class Suggestion(
 	val show: Show,
 	@Enumerated(EnumType.STRING)
 	val source: SuggestionSource,
-	val deviceId: String,
+	val deviceId: String?,
 	val body: String,
 	val createdAt: LocalDateTime,
 	val imageKey: String? = null,
@@ -40,6 +41,9 @@ class Suggestion(
 	var replyOrganizer: Organizer? = null,
 	var repliedAt: LocalDateTime? = null,
 	var replyUpdatedAt: LocalDateTime? = null,
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id")
+	val user: User? = null,
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	val id: Long = 0,
@@ -65,6 +69,8 @@ interface SuggestionRepository : JpaRepository<Suggestion, Long> {
 	fun findByShowIdOrderByCreatedAtDescIdDesc(showId: Long): List<Suggestion>
 
 	fun countByShowIdAndDeviceIdAndCreatedAtAfter(showId: Long, deviceId: String, after: LocalDateTime): Long
+
+	fun countByShowIdAndUserIdAndCreatedAtAfter(showId: Long, userId: Long, after: LocalDateTime): Long
 }
 
 interface SitePassRepository : JpaRepository<SitePass, Long> {
