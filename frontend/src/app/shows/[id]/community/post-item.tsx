@@ -68,6 +68,7 @@ export function PostItem({
   onLike: (post: Post) => void;
   onMore: (post: Post) => void;
 }) {
+  const [pulse, setPulse] = useState<{ n: number; up: boolean }>({ n: 0, up: true });
   const body = <p className={`mt-0.5 text-[15px] leading-normal break-words whitespace-pre-wrap ${full ? "" : "line-clamp-3"}`}>{post.body}</p>;
   return (
     <article className="flex gap-3 px-5 pt-3.5 pb-3 shadow-[inset_0_-1px_0_#eeeef1]">
@@ -100,13 +101,46 @@ export function PostItem({
             type="button"
             aria-pressed={post.liked}
             aria-label="좋아요"
-            onClick={() => onLike(post)}
+            onClick={() => {
+              setPulse((current) => ({ n: current.n + 1, up: !post.liked }));
+              onLike(post);
+            }}
             className={`-ml-2 flex h-8 cursor-pointer items-center gap-1 rounded-full px-2 text-[13px] ${post.liked ? "text-[#e8283c]" : "text-[#444449]"}`}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill={post.liked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
-              <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />
-            </svg>
-            {post.likeCount > 0 && post.likeCount}
+            <span className="relative flex">
+              <svg
+                key={pulse.n}
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill={post.liked ? "currentColor" : "none"}
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinejoin="round"
+                aria-hidden="true"
+                className={pulse.n > 0 && post.liked ? "animate-heart motion-reduce:animate-none" : ""}
+              >
+                <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />
+              </svg>
+              {pulse.n > 0 && post.liked && (
+                <span key={pulse.n} aria-hidden="true" className="pointer-events-none absolute inset-0 motion-reduce:hidden">
+                  {[0, 60, 120, 180, 240, 300].map((angle) => (
+                    <span
+                      key={angle}
+                      style={{ "--angle": `${angle}deg` } as React.CSSProperties}
+                      className="absolute top-1/2 left-1/2 -mt-0.5 -ml-0.5 size-1 animate-burst rounded-full bg-[#e8283c]"
+                    />
+                  ))}
+                </span>
+              )}
+            </span>
+            {post.likeCount > 0 && (
+              <span className="overflow-hidden">
+                <span key={post.likeCount} className={`block ${pulse.n > 0 ? (pulse.up ? "animate-roll-up" : "animate-roll-down") : ""} motion-reduce:animate-none`}>
+                  {post.likeCount}
+                </span>
+              </span>
+            )}
           </button>
           {href ? (
             <Link href={href} aria-label="댓글" className="-ml-2 flex h-8 items-center gap-1 rounded-full px-2 text-[13px] text-[#444449]">

@@ -8,12 +8,14 @@ const tabs = [
     key: "home",
     href: "/",
     label: "홈",
+    fill: true,
     icon: <path d="M3.5 10.5 12 3.5l8.5 7V20a1 1 0 0 1-1 1H15v-6H9v6H4.5a1 1 0 0 1-1-1z" />,
   },
   {
     key: "find",
     href: "/find",
     label: "찾기",
+    fill: false,
     icon: (
       <>
         <circle cx="11" cy="11" r="6.5" />
@@ -25,12 +27,14 @@ const tabs = [
     key: "community",
     href: "/community",
     label: "커뮤니티",
+    fill: true,
     icon: <path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.2A8 8 0 1 1 20 12z" />,
   },
   {
     key: "me",
     href: "/me",
     label: "프로필",
+    fill: true,
     icon: (
       <>
         <circle cx="12" cy="8.5" r="3.5" />
@@ -76,15 +80,17 @@ export function TabBar() {
             }`}
           >
             <svg
+              key={active ? "on" : "off"}
               width="22"
               height="22"
               viewBox="0 0 24 24"
-              fill="none"
+              fill={active && tab.fill ? "currentColor" : "none"}
               stroke="currentColor"
               strokeWidth="2.2"
               strokeLinecap="round"
               strokeLinejoin="round"
               aria-hidden="true"
+              className={active ? "animate-hop motion-reduce:animate-none" : ""}
             >
               {tab.icon}
             </svg>

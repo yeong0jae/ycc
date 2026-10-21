@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CommunityAvatar } from "@/components/community-avatar";
 import type { Me } from "@/lib/auth";
 import { COMMENT_MAX, type Comment, type PostDetail } from "@/lib/community-types";
@@ -17,6 +17,13 @@ export function PostThread({ showId, initial, me, loginUrl }: { showId: number |
   const [draft, setDraft] = useState("");
   const [editingComment, setEditingComment] = useState<Comment | null>(null);
   const [sending, setSending] = useState(false);
+  const [freshComment, setFreshComment] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (freshComment === null) return;
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.getElementById(`comment-${freshComment}`)?.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+  }, [freshComment]);
   const { needLogin, like, openMore, setToast, sheets } = useCommunity({ signedIn: me !== null, loginUrl });
   const postPath = pathOf(post);
 
@@ -52,6 +59,7 @@ export function PostThread({ showId, initial, me, loginUrl }: { showId: number |
       setComments((current) => current.map((it) => (it.id === saved.id ? saved : it)));
     } else {
       setComments((current) => [...current, saved]);
+      setFreshComment(saved.id);
       setPost((current) => ({ ...current, commentCount: current.commentCount + 1 }));
     }
     setDraft("");
@@ -70,7 +78,8 @@ export function PostThread({ showId, initial, me, loginUrl }: { showId: number |
         <b className="text-sm">댓글 {comments.length}</b>
       </div>
       {comments.map((comment) => (
-        <div key={comment.id} className="flex gap-2.5 px-5 py-3 shadow-[inset_0_-1px_0_#eeeef1]">
+        <div key={comment.id} id={`comment-${comment.id}`} className={comment.id === freshComment ? "animate-rise motion-reduce:animate-none" : ""}>
+        <div className={`flex gap-2.5 px-5 py-3 shadow-[inset_0_-1px_0_#eeeef1] ${comment.id === freshComment ? "animate-glow motion-reduce:animate-none" : ""}`}>
           <CommunityAvatar name={comment.author} url={comment.authorAvatar} size={30} />
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
@@ -96,6 +105,7 @@ export function PostThread({ showId, initial, me, loginUrl }: { showId: number |
             </div>
             <p className="mt-0.5 text-sm leading-normal break-words whitespace-pre-wrap">{comment.body}</p>
           </div>
+        </div>
         </div>
       ))}
       {comments.length === 0 && <p className="py-12 text-center text-sm text-muted">아직 댓글이 없어요.</p>}

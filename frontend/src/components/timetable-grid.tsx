@@ -293,7 +293,12 @@ export function TimetableGrid({
                               } ${poppedId === slot.id ? "origin-left animate-pop motion-reduce:animate-none" : ""}`}
                               style={starred ? { background: STAR_COLOR } : undefined}
                             >
-                              {formatMinute(slot.start)}~{starred && <span aria-label="볼 것">★</span>}
+                              {formatMinute(slot.start)}~
+                              {starred && (
+                                <span aria-label="볼 것" className={poppedId === slot.id ? "inline-block animate-star motion-reduce:animate-none" : ""}>
+                                  ★
+                                </span>
+                              )}
                             </span>
                           </span>
                           <span

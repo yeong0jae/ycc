@@ -9,6 +9,20 @@ import { squareImage } from "@/lib/resize-image";
 import { ParticipatedRow, SectionLabel } from "./profile-rows";
 
 const NICKNAME_MAX = 12;
+const SHUFFLE_CHARS = "가나다라마바사아자차카타파하떼창응원봉앵콜0123456789";
+const SHUFFLE_STEPS = 10;
+const SHUFFLE_MS = 40;
+
+function upload(form: FormData, onProgress: (ratio: number) => void) {
+  return new Promise<boolean>((resolve) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("PUT", "/api/me/avatar");
+    xhr.upload.onprogress = (event) => event.lengthComputable && onProgress(event.loaded / event.total);
+    xhr.onload = () => resolve(xhr.status >= 200 && xhr.status < 300);
+    xhr.onerror = () => resolve(false);
+    xhr.send(form);
+  });
+}
 const sheetClass = "sheet inset-x-0 top-auto bottom-0 mx-auto mb-0 max-h-[90dvh] w-full max-w-2xl rounded-t-3xl bg-paper p-0 text-ink";
 
 export function ProfileMember({ me }: { me: Me }) {
@@ -19,6 +33,8 @@ export function ProfileMember({ me }: { me: Me }) {
   const [saving, setSaving] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [avatarBusy, setAvatarBusy] = useState(false);
+  const [progress, setProgress] = useState<number | null>(null);
+  const [shuffling, setShuffling] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const avatarInput = useRef<HTMLInputElement>(null);
 
@@ -29,14 +45,16 @@ export function ProfileMember({ me }: { me: Me }) {
     try {
       const form = new FormData();
       form.set("file", await squareImage(file), "avatar.jpg");
-      const res = await fetch("/api/me/avatar", { method: "PUT", body: form });
-      if (!res.ok) throw new Error();
+      setProgress(0);
+      if (!(await upload(form, setProgress))) throw new Error();
+      setProgress(1);
       setAvatarOpen(false);
       router.refresh();
     } catch {
       setAvatarError("사진을 올리지 못했어요. 다시 시도해 주세요.");
     } finally {
       setAvatarBusy(false);
+      setProgress(null);
     }
   };
 
@@ -56,11 +74,21 @@ export function ProfileMember({ me }: { me: Me }) {
   };
 
   const shuffle = async () => {
+    if (shuffling) return;
     const res = await fetch("/api/me/random-nickname").catch(() => null);
-    if (res?.ok) {
-      setNickname((await res.json()).nickname);
-      setError(null);
+    if (!res?.ok) return;
+    const target: string = (await res.json()).nickname;
+    setError(null);
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return setNickname(target);
+    setShuffling(true);
+    const chars = [...target];
+    for (let step = 1; step <= SHUFFLE_STEPS; step++) {
+      const settled = Math.floor((chars.length * step) / SHUFFLE_STEPS);
+      setNickname(chars.map((char, i) => (i < settled ? char : SHUFFLE_CHARS[Math.floor(Math.random() * SHUFFLE_CHARS.length)])).join(""));
+      await new Promise((resolve) => setTimeout(resolve, SHUFFLE_MS));
     }
+    setNickname(target);
+    setShuffling(false);
   };
 
   const saveNickname = async (event: React.FormEvent) => {
@@ -137,7 +165,27 @@ export function ProfileMember({ me }: { me: Me }) {
         <BottomSheet label="프로필 사진" onClose={() => setAvatarOpen(false)}>
           <div className="flex flex-col items-center gap-3.5 px-5 pt-6 pb-8">
             <h2 className="self-start font-display text-xl">프로필 사진</h2>
-            <CommunityAvatar name={me.nickname} url={me.avatarUrl} size={96} />
+            <span className="relative flex size-28 items-center justify-center">
+              <CommunityAvatar name={me.nickname} url={me.avatarUrl} size={96} />
+              {progress !== null && (
+                <svg viewBox="0 0 112 112" aria-hidden="true" className="absolute inset-0 -rotate-90">
+                  <circle cx="56" cy="56" r="53" fill="none" stroke="var(--color-line)" strokeWidth="4" />
+                  <circle
+                    cx="56"
+                    cy="56"
+                    r="53"
+                    fill="none"
+                    stroke="var(--color-ink)"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                    pathLength={1}
+                    strokeDasharray={1}
+                    strokeDashoffset={1 - Math.max(progress, 0.04)}
+                    className="transition-[stroke-dashoffset] duration-200 motion-reduce:transition-none"
+                  />
+                </svg>
+              )}
+            </span>
             {avatarError && (
               <p role="alert" className="text-[13px] text-[#c0392b]">
                 {avatarError}

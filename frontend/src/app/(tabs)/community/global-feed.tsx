@@ -12,6 +12,7 @@ import type { ParticipatedShow } from "@/lib/notice-types";
 import { useParticipated } from "@/lib/participation";
 import type { Show } from "@/lib/show-types";
 import { PostItem } from "../../shows/[id]/community/post-item";
+import { PostSkeleton } from "../../shows/[id]/community/post-skeleton";
 import { ComposeSheet } from "../../shows/[id]/community/sheets";
 import { postHref, postPath, useCommunity } from "../../shows/[id]/community/use-community";
 
@@ -286,7 +287,7 @@ export function GlobalFeed({ me, loginUrl }: { me: Me | null; loginUrl: string }
           </button>
 
           {items.map((post) => (
-            <div key={post.id} className={post.id === fresh ? "animate-rise motion-reduce:animate-none" : ""}>
+            <div key={post.id} className={post.id === fresh ? "animate-drop motion-reduce:animate-none" : ""}>
               <PostItem
                 post={post}
                 showChip
@@ -305,6 +306,12 @@ export function GlobalFeed({ me, loginUrl }: { me: Me | null; loginUrl: string }
           ))}
           {ready && items.length === 0 && (
             <p className="py-16 text-center text-sm text-muted">{kind ? "이 종류의 글이 아직 없어요." : "아직 올라온 글이 없어요. 첫 글을 남겨 보세요."}</p>
+          )}
+          {(!ready || loadingMore) && (
+            <>
+              <PostSkeleton />
+              <PostSkeleton />
+            </>
           )}
           <InfiniteSentinel active={ready && page.hasMore && !loadingMore} onReach={loadMore} />
         </>

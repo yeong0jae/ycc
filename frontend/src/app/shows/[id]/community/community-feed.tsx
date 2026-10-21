@@ -7,6 +7,7 @@ import { POST_KINDS, type Post, type PostKind, type PostPage } from "@/lib/commu
 import { ShowHomeTabs } from "../show-home-tabs";
 import { TabSwipe } from "../tab-swipe";
 import { PostItem } from "./post-item";
+import { PostSkeleton } from "./post-skeleton";
 import { ComposeSheet } from "./sheets";
 import { InfiniteSentinel } from "@/components/infinite-sentinel";
 import { postPath, useCommunity } from "./use-community";
@@ -99,7 +100,7 @@ export function CommunityFeed({ showId, initial, me, loginUrl }: { showId: numbe
 
         <div className={loading && page.items.length === 0 ? "opacity-50" : ""}>
           {page.items.map((post) => (
-            <div key={post.id} className={post.id === fresh ? "animate-rise motion-reduce:animate-none" : ""}>
+            <div key={post.id} className={post.id === fresh ? "animate-drop motion-reduce:animate-none" : ""}>
               <PostItem
                 post={post}
                 href={`/shows/${showId}/community/${post.id}`}
@@ -118,6 +119,12 @@ export function CommunityFeed({ showId, initial, me, loginUrl }: { showId: numbe
         </div>
         {page.items.length === 0 && !loading && (
           <p className="py-16 text-center text-sm text-muted">{kind ? "이 종류의 글이 아직 없어요." : "아직 올라온 글이 없어요. 첫 글을 남겨 보세요."}</p>
+        )}
+        {loading && page.items.length > 0 && (
+          <>
+            <PostSkeleton />
+            <PostSkeleton />
+          </>
         )}
         <InfiniteSentinel active={page.hasMore && !loading} onReach={() => load(kind, page.items.at(-1)?.id)} />
       </TabSwipe>
