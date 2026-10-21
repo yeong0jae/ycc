@@ -55,7 +55,7 @@ export function CropOverlay({ crop, editing, onChange }: { crop: Crop; editing: 
               }}
               onPointerMove={move}
               onPointerUp={() => setCorner(null)}
-              className={`absolute z-20 size-6 cursor-pointer touch-none rounded-full border-2 border-ink bg-paper shadow-[0_1px_4px_rgb(17_17_17/0.3)] ${
+              className={`map-fixed absolute z-20 size-6 cursor-pointer touch-none rounded-full border-2 border-ink bg-paper shadow-[0_1px_4px_rgb(17_17_17/0.3)] ${
                 it.includes("t") ? "top-2" : "bottom-2"
               } ${it.includes("l") ? "left-2" : "right-2"}`}
             />

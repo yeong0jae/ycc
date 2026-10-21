@@ -35,7 +35,7 @@ export function TabSwipe({ prev, next, className = "", children }: { prev?: stri
       const touch = event.touches[0];
       const target = event.target instanceof Element ? event.target : null;
       start =
-        event.touches.length === 1 && touch.clientX > EDGE_GUARD && touch.clientX < window.innerWidth - EDGE_GUARD && !target?.closest("dialog")
+        event.touches.length === 1 && touch.clientX > EDGE_GUARD && touch.clientX < window.innerWidth - EDGE_GUARD && !target?.closest("dialog, [data-no-swipe]")
           ? { x: touch.clientX, y: touch.clientY, target }
           : null;
     };

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { ImageViewer } from "@/components/image-viewer";
 import { MapBoard } from "@/components/map-board";
@@ -49,12 +49,7 @@ export function MapView({ showId, map, timetable }: { showId: number; map: ShowM
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [listing, setListing] = useState(false);
   const [viewing, setViewing] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (selectedId === null) return;
-    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    document.querySelector(`[data-pin="${selectedId}"]`)?.scrollIntoView({ block: "center", inline: "center", behavior: reduce ? "auto" : "smooth" });
-  }, [selectedId]);
+  const [focusId, setFocusId] = useState<number | null>(null);
 
   if (!image) return <p className="py-16 text-center text-sm text-muted">아직 맵이 없어요.</p>;
 
@@ -110,7 +105,7 @@ export function MapView({ showId, map, timetable }: { showId: number; map: ShowM
         })}
       </div>
       <div className="px-4">
-        <MapBoard image={image} crop={image.crop ?? FULL_CROP} pins={shown} selectedId={selectedId} pinColor={stageColor} onPinClick={(pin) => setSelectedId(pin.id)}>
+        <MapBoard image={image} crop={image.crop ?? FULL_CROP} pins={shown} selectedId={selectedId} focusId={focusId} pinColor={stageColor} onPinClick={(pin) => setSelectedId(pin.id)}>
           <button
             type="button"
             onClick={() => setListing(true)}
@@ -159,8 +154,10 @@ export function MapView({ showId, map, timetable }: { showId: number; map: ShowM
             <button
               type="button"
               onClick={() => {
+                const nextId = sameKind[(selectedIndex + 1) % sameKind.length].id;
                 setKind(selected.kind);
-                setSelectedId(sameKind[(selectedIndex + 1) % sameKind.length].id);
+                setSelectedId(nextId);
+                setFocusId(nextId);
               }}
               className="h-10 cursor-pointer self-start rounded-full bg-pill px-3.5 text-[13px] font-bold"
             >
@@ -183,6 +180,7 @@ export function MapView({ showId, map, timetable }: { showId: number; map: ShowM
                     setListing(false);
                     setKind(pin.kind);
                     setSelectedId(pin.id);
+                    setFocusId(pin.id);
                   }}
                   className="flex h-16 w-full cursor-pointer items-center gap-3 px-5 text-left shadow-[inset_0_-1px_0_#eeeef1]"
                 >
