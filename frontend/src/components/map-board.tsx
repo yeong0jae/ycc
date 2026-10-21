@@ -6,7 +6,6 @@ import { type Crop, FULL_CROP, type MapImage, type MapPin, PIN_KIND } from "@/li
 import { PinIcon } from "./pin-icon";
 
 const FOCUS_SCALE = 2.5;
-const COVER_SCALE = 1.5;
 
 export function MapBoard({
   image,
@@ -63,10 +62,8 @@ export function MapBoard({
   }, [cover]);
 
   useEffect(() => {
-    if (frame) zoomer.current?.centerView(COVER_SCALE, 0);
+    if (frame) zoomer.current?.centerView(1, 0);
   }, [frame]);
-
-  const base = cover ? COVER_SCALE : 1;
 
   const ratio = (image.width * crop.w) / (image.height * crop.h);
   const coverWidth = frame ? Math.max(frame.width, frame.height * ratio) : null;
@@ -102,7 +99,7 @@ export function MapBoard({
         }}
         onTransformed={(ref, state) => {
           ref.instance.contentComponent?.style.setProperty("--pin-scale", String(1 / state.scale));
-          setZoomed(Math.abs(state.scale - base) > 0.01);
+          setZoomed(state.scale > 1.01);
         }}
       >
         <TransformComponent wrapperStyle={{ width: "100%", height: cover ? "100%" : undefined, touchAction: movable ? "none" : "pan-y" }}
@@ -194,7 +191,7 @@ export function MapBoard({
       {zoomed && (
         <button
           type="button"
-          onClick={() => zoomer.current?.centerView(base)}
+          onClick={() => zoomer.current?.centerView(1)}
           className="press absolute bottom-2.5 left-2.5 z-20 flex h-9.5 cursor-pointer items-center rounded-full bg-paper px-3 text-[12px] font-bold shadow-[0_2px_8px_rgb(17_17_17/0.15)]"
         >
           원래대로
