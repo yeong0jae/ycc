@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.body
+import java.net.URI
 import java.net.URLEncoder
 import java.nio.file.Files
 import java.nio.file.Path
@@ -55,10 +56,12 @@ class GcsNoticeImageStorage(private val bucket: String) : NoticeImageStorage {
 	}
 
 	override fun delete(key: String) {
+		val name = URLEncoder.encode(key, Charsets.UTF_8).replace("+", "%20")
 		restClient.delete()
-			.uri("https://storage.googleapis.com/storage/v1/b/$bucket/o/${URLEncoder.encode(key, Charsets.UTF_8)}")
+			.uri(URI.create("https://storage.googleapis.com/storage/v1/b/$bucket/o/$name"))
 			.header("Authorization", "Bearer ${accessToken()}")
 			.retrieve()
+			.onStatus({ it.value() == 404 }) { _, _ -> }
 			.toBodilessEntity()
 	}
 
