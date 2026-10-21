@@ -16,6 +16,8 @@ interface NoticeImageStorage {
 	fun put(key: String, bytes: ByteArray, contentType: String): String
 
 	fun delete(key: String)
+
+	fun read(key: String): ByteArray
 }
 
 class LocalNoticeImageStorage(private val root: Path) : NoticeImageStorage {
@@ -30,6 +32,8 @@ class LocalNoticeImageStorage(private val root: Path) : NoticeImageStorage {
 	override fun delete(key: String) {
 		Files.deleteIfExists(resolve(key))
 	}
+
+	override fun read(key: String): ByteArray = Files.readAllBytes(resolve(key))
 
 	fun resolve(key: String): Path {
 		val file = root.resolve(key).normalize()
@@ -63,6 +67,15 @@ class GcsNoticeImageStorage(private val bucket: String) : NoticeImageStorage {
 			.retrieve()
 			.onStatus({ it.value() == 404 }) { _, _ -> }
 			.toBodilessEntity()
+	}
+
+	override fun read(key: String): ByteArray {
+		val name = URLEncoder.encode(key, Charsets.UTF_8).replace("+", "%20")
+		return restClient.get()
+			.uri(URI.create("https://storage.googleapis.com/storage/v1/b/$bucket/o/$name?alt=media"))
+			.header("Authorization", "Bearer ${accessToken()}")
+			.retrieve()
+			.body<ByteArray>()!!
 	}
 
 	@Synchronized

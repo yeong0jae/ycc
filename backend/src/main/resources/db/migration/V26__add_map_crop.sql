@@ -1,0 +1,4 @@
+ALTER TABLE map_images ADD COLUMN crop_x DOUBLE;
+ALTER TABLE map_images ADD COLUMN crop_y DOUBLE;
+ALTER TABLE map_images ADD COLUMN crop_w DOUBLE;
+ALTER TABLE map_images ADD COLUMN crop_h DOUBLE;

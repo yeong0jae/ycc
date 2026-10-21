@@ -46,6 +46,10 @@ app:
   notice-images:
     bucket: ${NOTICE_IMAGE_BUCKET:}
     dir: ${NOTICE_IMAGE_DIR:data/notice-images}
+  map-ai:
+    enabled: ${MAP_AI_ENABLED:false}
+    location: ${MAP_AI_LOCATION:global}
+    model: ${MAP_AI_MODEL:gemini-2.5-flash}
 
 kopis:
   api-key: ${KOPIS_API_KEY:}

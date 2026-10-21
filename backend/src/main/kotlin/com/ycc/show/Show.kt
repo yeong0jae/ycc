@@ -41,6 +41,7 @@ class Show(
 	var kind: ShowKind = ShowKind.FESTIVAL,
 	var timetablePublished: Boolean = false,
 	var siteCode: String? = null,
+	var mapPublished: Boolean = false,
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	val id: Long = 0,
