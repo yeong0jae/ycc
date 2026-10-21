@@ -6,7 +6,6 @@ import { BottomSheet } from "@/components/bottom-sheet";
 import { CommunityAvatar } from "@/components/community-avatar";
 import type { Me } from "@/lib/auth";
 import { squareImage } from "@/lib/resize-image";
-import type { Verification } from "@/lib/verification-types";
 import { ParticipatedRow, SectionLabel, VerificationRows } from "./profile-rows";
 
 const NICKNAME_MAX = 12;
@@ -26,7 +25,7 @@ function upload(form: FormData, onProgress: (ratio: number) => void) {
 }
 const sheetClass = "sheet inset-x-0 top-auto bottom-0 mx-auto mb-0 max-h-[90dvh] w-full max-w-2xl rounded-t-3xl bg-paper p-0 text-ink";
 
-export function ProfileMember({ me, verifications }: { me: Me; verifications: Verification[] }) {
+export function ProfileMember({ me }: { me: Me }) {
   const router = useRouter();
   const nicknameSheet = useRef<HTMLDialogElement>(null);
   const [nickname, setNickname] = useState(me.nickname);
@@ -149,12 +148,8 @@ export function ProfileMember({ me, verifications }: { me: Me; verifications: Ve
         </button>
       </section>
 
-      {verifications.length > 0 && (
-        <>
-          <SectionLabel>예매 인증한 공연</SectionLabel>
-          <VerificationRows verifications={verifications} />
-        </>
-      )}
+      <SectionLabel>예매 인증한 공연</SectionLabel>
+      <VerificationRows />
 
       <SectionLabel>내 공연</SectionLabel>
       <ParticipatedRow />

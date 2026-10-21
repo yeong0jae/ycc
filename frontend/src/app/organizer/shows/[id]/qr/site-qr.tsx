@@ -16,12 +16,6 @@ function download(href: string, name: string) {
   link.click();
 }
 
-function closeDate(endDate: string) {
-  const date = new Date(`${endDate}T00:00:00Z`);
-  date.setUTCDate(date.getUTCDate() + 1);
-  return `${date.getUTCMonth() + 1}.${date.getUTCDate()}`;
-}
-
 function wrap(ctx: CanvasRenderingContext2D, text: string, width: number) {
   const lines: string[] = [];
   let line = "";
@@ -39,7 +33,7 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, width: number) {
 async function drawPoster(url: string, showName: string, period: string, venue: string) {
   const sans = getComputedStyle(document.body).fontFamily;
   const num = getComputedStyle(document.body).getPropertyValue("--font-nunito") || sans;
-  await Promise.all([document.fonts.load(`900 72px ${sans}`, showName), document.fonts.load(`700 40px ${sans}`, "찍으면 공지 타임테이블 건의"), document.fonts.load(`900 36px ${num}`, period)]);
+  await Promise.all([document.fonts.load(`900 72px ${sans}`, showName), document.fonts.load(`700 40px ${sans}`, "찍으면 공지 타임테이블 문의"), document.fonts.load(`900 36px ${num}`, period)]);
   const canvas = document.createElement("canvas");
   canvas.width = A4.width;
   canvas.height = A4.height;
@@ -77,13 +71,13 @@ async function drawPoster(url: string, showName: string, period: string, venue: 
 
   ctx.fillStyle = INK;
   ctx.font = `700 46px ${sans}`;
-  ctx.fillText("찍으면 공지 · 타임테이블 · 건의를", center, y);
+  ctx.fillText("찍으면 공지 · 타임테이블 · 문의를", center, y);
   ctx.fillText("바로 볼 수 있어요", center, y + 66);
   y += 160;
 
   ctx.font = `400 30px ${sans}`;
   ctx.fillStyle = MUTED;
-  ctx.fillText("앱 설치·로그인 없이 · 불편한 점은 건의로 남겨 주세요", center, y);
+  ctx.fillText("앱 설치·로그인 없이 · 궁금하거나 불편한 점은 문의로 남겨 주세요", center, y);
 
   ctx.font = `700 26px ${sans}`;
   ctx.fillStyle = "#b9b9c0";
@@ -163,8 +157,7 @@ export function SiteQr({
       <div className="flex flex-col gap-1">
         <h1 className="hidden font-display text-[22px] lg:block">현장 QR</h1>
         <p className="text-sm leading-relaxed text-muted">
-          입구·부스·화장실에 붙여 주세요. 찍으면 공연 홈이 열리고 자동으로 참여돼요. 공연 기간({period.split(" — ")[0]} 0시 — {closeDate(endDate)} 정오)에는
-          로그인 없이 건의를 쓸 수 있어요.
+          입구·부스·화장실에 붙여 주세요. 찍으면 공연 홈이 열리고 자동으로 참여돼요. 찍은 기기에서는 로그인 없이 문의를 쓸 수 있어요.
         </p>
       </div>
 

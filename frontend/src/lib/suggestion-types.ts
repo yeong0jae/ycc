@@ -14,17 +14,14 @@ export type Suggestion = {
   hidden: boolean;
 };
 
-export type WriteState = "OPEN" | "NO_PASS" | "CLOSED";
+export type WriteState = "OPEN" | "NO_PASS";
 
 export type ShowSuggestions = {
   items: Suggestion[];
   total: number;
   write: WriteState;
   writeSource: SuggestionSource;
-  writableFrom: string;
-  writableUntil: string;
   verification: Verification | null;
-  verifiableUntil: string;
 };
 
 export const SUGGESTION_MAX = 500;

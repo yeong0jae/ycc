@@ -35,7 +35,7 @@ export function QrJoined({ showId }: { showId: number }) {
     >
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
         <b className="text-sm">참여했어요</b>
-        <span className="text-xs text-[#b9b9c0]">건의 탭에서 로그인 없이 건의를 남길 수 있어요</span>
+        <span className="text-xs text-[#b9b9c0]">문의 탭에서 로그인 없이 문의를 남길 수 있어요</span>
       </span>
       <Link href="/" className="flex h-9.5 shrink-0 items-center rounded-full bg-[#2a2a2e] px-3.5 text-[13px] font-bold">
         홈으로

@@ -1,14 +1,12 @@
 import Link from "next/link";
 import { AppFrame } from "@/components/app-frame";
 import { AppHeader } from "@/components/app-header";
-import { backendFetch, getMe, KAKAO_LOGIN_URL } from "@/lib/auth";
-import type { Verification } from "@/lib/verification-types";
+import { getMe, KAKAO_LOGIN_URL } from "@/lib/auth";
 import { ProfileGuest } from "./profile-guest";
 import { ProfileMember } from "./profile-member";
 
 export default async function MePage({ searchParams }: PageProps<"/me">) {
   const [me, { error }] = await Promise.all([getMe(), searchParams]);
-  const verifications: Verification[] = me ? await backendFetch("/api/me/verifications").then((res) => (res.ok ? res.json() : [])) : [];
 
   return (
     <AppFrame className="pb-32">
@@ -23,7 +21,7 @@ export default async function MePage({ searchParams }: PageProps<"/me">) {
           </Link>
         }
       />
-      {me ? <ProfileMember me={me} verifications={verifications} /> : <ProfileGuest loginUrl={KAKAO_LOGIN_URL} failed={error !== undefined} />}
+      {me ? <ProfileMember me={me} /> : <ProfileGuest loginUrl={KAKAO_LOGIN_URL} failed={error !== undefined} />}
     </AppFrame>
   );
 }

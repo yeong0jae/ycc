@@ -2,17 +2,25 @@ import Link from "next/link";
 import { Suspense, ViewTransition } from "react";
 import { BackButton } from "@/components/back-button";
 import { DetailBadge } from "@/components/detail-badge";
+import { KAKAO_LOGIN_URL } from "@/lib/auth";
 import { formatLongPeriod, shortRegion } from "@/lib/format";
 import { posterProps } from "@/lib/poster";
 import type { Show } from "@/lib/show-types";
 import { ParticipationToggle } from "./participation-toggle";
 import { SHOW_HOME_HEADER_ID, TopBar } from "./top-bar";
+import { VerificationButton } from "./verification-button";
 
 export function ShowHomeTop({ show }: { show: Show }) {
   const region = shortRegion(show.area);
   return (
     <>
-      <TopBar title={show.name} leading={<BackButton />} trailing={<ParticipationToggle showId={show.id} />} />
+      <TopBar title={show.name} leading={<BackButton />} trailing={
+          <>
+            <VerificationButton showId={show.id} showName={show.name} loginUrl={KAKAO_LOGIN_URL} />
+            <ParticipationToggle showId={show.id} />
+          </>
+        }
+      />
 
       <Link
         id={SHOW_HOME_HEADER_ID}

@@ -18,7 +18,6 @@ export type Verification = {
   endDate: string;
   status: VerificationStatus;
   rejectReason: RejectReason | null;
-  writableUntil: string;
 };
 
 export type DevVerification = {
@@ -38,8 +37,3 @@ export type DevVerification = {
 
 export type DevVerifications = { items: DevVerification[]; pending: number };
 
-export function lastDay(until: string) {
-  const date = new Date(`${until.slice(0, 10)}T00:00:00`);
-  date.setDate(date.getDate() - 1);
-  return `${date.getMonth() + 1}.${date.getDate()}`;
-}

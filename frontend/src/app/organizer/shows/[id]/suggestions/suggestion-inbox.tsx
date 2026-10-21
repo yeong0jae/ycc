@@ -113,7 +113,7 @@ export function SuggestionInbox({ showId, initial }: { showId: number; initial: 
       {selected.image && (
         <a href={selected.image.url} target="_blank" rel="noreferrer" className="self-start">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={selected.image.url} alt="건의 사진" className="max-h-60 rounded-xl bg-pill" />
+          <img src={selected.image.url} alt="문의 사진" className="max-h-60 rounded-xl bg-pill" />
         </a>
       )}
       <label className="mt-1 flex flex-col gap-2">
@@ -141,7 +141,7 @@ export function SuggestionInbox({ showId, initial }: { showId: number; initial: 
         {selected.reply ? "답변 고치기" : "답변 올리기"}
       </button>
       <p className="hidden rounded-[14px] bg-[#f7f7f8] px-4 py-3.5 text-[13px] leading-relaxed text-[#444449] lg:block">
-        <b className="text-ink">숨기기</b> · 욕설·광고처럼 관객에게 보이면 안 되는 건의를 내려요. 기록은 남고 &quot;전체&quot;에서 다시 보이게 할 수 있어요.
+        <b className="text-ink">숨기기</b> · 욕설·광고처럼 관객에게 보이면 안 되는 문의를 내려요. 기록은 남고 &quot;전체&quot;에서 다시 보이게 할 수 있어요.
       </p>
     </form>
   );
@@ -150,7 +150,7 @@ export function SuggestionInbox({ showId, initial }: { showId: number; initial: 
     <div className="lg:flex lg:h-full">
       <section className="flex flex-col lg:w-115 lg:shrink-0 lg:overflow-y-auto lg:shadow-[inset_-1px_0_0_var(--color-line)]">
         <div className="flex items-center gap-2.5 px-4 pt-4 pb-3 lg:px-4.5 lg:pt-5.5">
-          <h1 className="hidden font-display text-xl lg:block">건의</h1>
+          <h1 className="hidden font-display text-xl lg:block">문의</h1>
           <div role="group" aria-label="보기" className="flex gap-0.5 rounded-full bg-pill p-0.75 lg:ml-auto">
             {(
               [
@@ -195,12 +195,12 @@ export function SuggestionInbox({ showId, initial }: { showId: number; initial: 
           ))}
         </ul>
         {shown.length === 0 && (
-          <p className="py-16 text-center text-sm text-muted">{filter === "open" ? "답할 건의가 없어요." : "아직 올라온 건의가 없어요."}</p>
+          <p className="py-16 text-center text-sm text-muted">{filter === "open" ? "답할 문의가 없어요." : "아직 올라온 문의가 없어요."}</p>
         )}
       </section>
 
       <section className="hidden min-w-0 flex-1 px-8 py-6.5 lg:block">
-        <div className="max-w-160">{detail || <p className="pt-10 text-sm text-muted">왼쪽에서 건의를 고르면 답할 수 있어요.</p>}</div>
+        <div className="max-w-160">{detail || <p className="pt-10 text-sm text-muted">왼쪽에서 문의를 고르면 답할 수 있어요.</p>}</div>
       </section>
 
       {selected && (

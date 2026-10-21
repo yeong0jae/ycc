@@ -3,20 +3,23 @@
 import { useEffect, useRef, useState } from "react";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { resizeImage } from "@/lib/resize-image";
-import type { Verification } from "@/lib/verification-types";
+import { saveVerification } from "@/lib/verification";
+import { REJECT_LABELS, type Verification } from "@/lib/verification-types";
 
 const TIPS = ["공연 이름 · 날짜 · 예매 상태가 보이게", "예매번호 · 개인정보는 자동으로 가려서 저장해요", "확인이 끝나면 안전하게 삭제돼요"];
 
 export function VerificationSheet({
   showId,
   showName,
+  rejected,
   onClose,
   onDone,
 }: {
   showId: number;
-  showName: string;
+  showName?: string;
+  rejected?: Verification | null;
   onClose: () => void;
-  onDone: (verification: Verification) => void;
+  onDone?: (verification: Verification) => void;
 }) {
   const fileInput = useRef<HTMLInputElement>(null);
   const [shot, setShot] = useState<{ file: File; url: string } | null>(null);
@@ -40,7 +43,9 @@ export function VerificationSheet({
         setError(problem?.message || "보내지 못했어요. 다시 시도해 주세요.");
         return;
       }
-      onDone(await res.json());
+      const verification: Verification = await res.json();
+      saveVerification(verification);
+      onDone?.(verification);
     } catch {
       setError("보내지 못했어요. 다시 시도해 주세요.");
     } finally {
@@ -57,7 +62,14 @@ export function VerificationSheet({
             닫기
           </button>
         </div>
-        <p className="-mt-1.5 text-[13px] leading-normal text-muted">{showName} 예매 내역 캡처를 올려 주세요. 확인되면 이 공연에 건의를 남길 수 있어요.</p>
+        <p className="-mt-1.5 text-[13px] leading-normal text-muted">
+          {showName ? `${showName} ` : ""}예매 내역 캡처를 올려 주세요. 확인되면 이 공연을 예매한 관객으로 표시돼요.
+        </p>
+        {rejected?.status === "REJECTED" && (
+          <p role="status" className="rounded-[14px] bg-[#fde7ea] px-3.5 py-2.5 text-[13px] leading-normal font-bold text-[#c21f33]">
+            지난 캡처는 확인하지 못했어요 · {REJECT_LABELS[rejected.rejectReason ?? "OTHER"]}
+          </p>
+        )}
         {shot ? (
           <div className="relative w-28 self-start">
             {/* eslint-disable-next-line @next/next/no-img-element */}

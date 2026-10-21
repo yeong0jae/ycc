@@ -69,8 +69,8 @@ export function ProfileGuest({ loginUrl, failed }: { loginUrl: string; failed: b
                 <path d="M10 6v12" strokeDasharray="2 2" />
               </>
             }
-            title="예매 인증하고 건의"
-            body="현장에 없어도 공연 전·후에 건의를 남겨요"
+            title="예매 인증하고 문의"
+            body="현장에 없어도 주최측에 문의를 남겨요"
           />
         </div>
       </section>

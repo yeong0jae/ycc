@@ -4,8 +4,11 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { CommunityAvatar } from "@/components/community-avatar";
+import { VerificationSheet } from "@/components/verification-sheet";
+import { ShieldIcon } from "@/components/verified-mark";
 import { POST_IMAGES_MAX, POST_KINDS, POST_MAX, type CommunityImage, type Post, type PostKind, REPORT_REASONS, type ReportReason } from "@/lib/community-types";
 import { resizeImage } from "@/lib/resize-image";
+import { useVerification } from "@/lib/verification";
 
 async function problem(res: Response | null, fallback: string) {
   const body = await res?.json().catch(() => null);
@@ -34,6 +37,10 @@ export function ComposeSheet({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+  const verification = useVerification(showId ?? 0);
+  const [verifying, setVerifying] = useState(false);
+  const suggestVerify = kind === "COMPANION" && showId !== null && verification !== undefined && !verification;
+  const retryVerify = kind === "COMPANION" && showId !== null && verification?.status === "REJECTED";
 
   const addImages = async (files: File[]) => {
     const room = POST_IMAGES_MAX - images.length - uploading;
@@ -109,6 +116,22 @@ export function ComposeSheet({
                 </button>
               ))}
             </div>
+            {(suggestVerify || retryVerify) && (
+              <button
+                type="button"
+                onClick={() => setVerifying(true)}
+                className="mt-3 flex w-full cursor-pointer items-center gap-2.5 rounded-[14px] bg-[#eaf6ef] px-3.5 py-3 text-left"
+              >
+                <span className="shrink-0 text-verified">
+                  <ShieldIcon size={18} />
+                </span>
+                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <b className="text-[13px] text-[#11643a]">동행은 예매 인증하면 좋아요</b>
+                  <span className="text-xs text-[#3e7a57]">닉네임 옆에 예매 인증이 붙어요</span>
+                </span>
+                <span className="shrink-0 text-[13px] font-bold text-verified">{retryVerify ? "다시 인증 ›" : "인증하기 ›"}</span>
+              </button>
+            )}
             <textarea
               value={body}
               onChange={(event) => setBody(event.target.value)}
@@ -185,6 +208,9 @@ export function ComposeSheet({
           </button>
         </div>
       </div>
+      {verifying && showId !== null && (
+        <VerificationSheet showId={showId} rejected={verification} onClose={() => setVerifying(false)} onDone={() => setVerifying(false)} />
+      )}
     </BottomSheet>
   );
 }

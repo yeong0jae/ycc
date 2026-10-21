@@ -5,7 +5,7 @@ const TABS = [
   { key: "notices", path: "notices", label: "공지" },
   { key: "timetable", path: "timetable", label: "타임테이블" },
   { key: "map", path: "map", label: "맵" },
-  { key: "suggestions", path: "suggestions", label: "건의" },
+  { key: "suggestions", path: "suggestions", label: "문의" },
   { key: "community", path: "community", label: "커뮤니티" },
 ] as const;
 
