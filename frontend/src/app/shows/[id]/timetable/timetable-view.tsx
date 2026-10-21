@@ -26,7 +26,7 @@ function previousDay(day: string) {
   return date.toISOString().slice(0, 10);
 }
 
-function liveDayAndMinute(days: string[]) {
+export function liveDayAndMinute(days: string[]) {
   const now = seoulNow();
   const yesterday = previousDay(now.date);
   if (now.minute < AFTER_MIDNIGHT && days.includes(yesterday)) return { day: yesterday, minute: now.minute + DAY_MINUTES };

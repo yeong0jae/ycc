@@ -8,6 +8,7 @@ export function OrganizerMenu({ showId }: { showId: number }) {
   const links = [
     { href: `/organizer/shows/${showId}/notices`, label: "공지" },
     { href: `/organizer/shows/${showId}/timetable`, label: "타임테이블" },
+    { href: `/organizer/shows/${showId}/map`, label: "맵" },
     { href: `/organizer/shows/${showId}/suggestions`, label: "건의" },
     { href: `/organizer/shows/${showId}/qr`, label: "현장 QR" },
   ];
