@@ -12,6 +12,7 @@ locals {
     "cloudresourcemanager.googleapis.com",
     "iam.googleapis.com",
     "iamcredentials.googleapis.com",
+    "aiplatform.googleapis.com",
     "sts.googleapis.com",
     "oslogin.googleapis.com",
     "storage.googleapis.com",
@@ -140,7 +141,7 @@ resource "google_service_account" "vm" {
 }
 
 resource "google_project_iam_member" "vm" {
-  for_each = toset(["roles/artifactregistry.reader", "roles/secretmanager.secretAccessor", "roles/logging.logWriter", "roles/cloudsql.client"])
+  for_each = toset(["roles/artifactregistry.reader", "roles/secretmanager.secretAccessor", "roles/logging.logWriter", "roles/cloudsql.client", "roles/aiplatform.user"])
   project  = var.project_id
   role     = each.value
   member   = "serviceAccount:${google_service_account.vm.email}"
