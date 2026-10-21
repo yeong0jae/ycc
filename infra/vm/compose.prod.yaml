@@ -26,6 +26,8 @@ services:
       API_URL: http://backend:8080
       BACKEND_PUBLIC_URL: ""
       KAKAO_MAP_KEY: ${KAKAO_MAP_KEY}
+    volumes:
+      - next-cache:/app/.next/cache
     depends_on:
       - backend
 
@@ -46,3 +48,4 @@ services:
 
 volumes:
   caddy-data:
+  next-cache:
