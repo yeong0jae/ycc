@@ -1,9 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
+import { LoginSheet } from "@/components/login-sheet";
 import { SuggestionItem } from "@/components/suggestion-card";
+import { ShieldIcon } from "@/components/verified-mark";
 import { resizeImage } from "@/lib/resize-image";
 import { SUGGESTION_MAX, type ShowSuggestions } from "@/lib/suggestion-types";
+import { lastDay, REJECT_LABELS } from "@/lib/verification-types";
+import { VerificationSheet } from "./verification-sheet";
 import { ShowHomeTabs } from "../show-home-tabs";
 import { TabSwipe } from "../tab-swipe";
 
@@ -26,22 +30,58 @@ function QrIcon() {
   );
 }
 
-function Guide({ title, body }: { title: string; body: string }) {
+function ClockIcon() {
   return (
-    <div className="mx-5 mt-4 mb-1 flex items-center gap-3 rounded-2xl bg-[#f7f7f8] px-4 py-3.5">
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-[10px] bg-paper">
-        <QrIcon />
-      </span>
-      <span className="flex flex-col gap-0.5">
-        <b className="text-sm">{title}</b>
-        <span className="text-xs leading-normal text-muted">{body}</span>
-      </span>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" />
+    </svg>
+  );
+}
+
+function WarnIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e8283c" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7.5v5.5M12 16.5v.01" />
+    </svg>
+  );
+}
+
+function Guide({ title, body, icon = <QrIcon />, children }: { title: string; body: string; icon?: ReactNode; children?: ReactNode }) {
+  return (
+    <div className="mx-5 mt-4 mb-1 flex flex-col gap-3 rounded-2xl bg-[#f7f7f8] px-4 py-3.5">
+      <div className="flex items-center gap-3">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-[10px] bg-paper">{icon}</span>
+        <span className="flex flex-col gap-0.5">
+          <b className="text-sm">{title}</b>
+          <span className="text-xs leading-normal text-muted">{body}</span>
+        </span>
+      </div>
+      {children}
     </div>
   );
 }
 
-export function SuggestionFeed({ showId, initial }: { showId: number; initial: ShowSuggestions }) {
+const actionClass = "press flex h-11.5 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-ink text-[15px] font-bold text-stub";
+
+export function SuggestionFeed({
+  showId,
+  showName,
+  initial,
+  signedIn,
+  loginUrl,
+}: {
+  showId: number;
+  showName: string;
+  initial: ShowSuggestions;
+  signedIn: boolean;
+  loginUrl: string;
+}) {
   const [data, setData] = useState(initial);
+  const [verifying, setVerifying] = useState(false);
+  const [askLogin, setAskLogin] = useState(false);
+  const [toastText, setToastText] = useState("건의를 남겼어요");
   const [fresh, setFresh] = useState<number | null>(null);
   const dialog = useRef<HTMLDialogElement>(null);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -77,6 +117,12 @@ export function SuggestionFeed({ showId, initial }: { showId: number; initial: S
   };
   const close = () => dialog.current?.close();
 
+  const startVerify = () => (signedIn ? setVerifying(true) : setAskLogin(true));
+
+  const ticket = data.writeSource === "TICKET";
+  const verification = data.verification;
+  const canVerify = new Date() < new Date(data.verifiableUntil);
+
   const pick = (file: File | undefined) => {
     if (!file) return;
     setPhoto({ file, url: URL.createObjectURL(file) });
@@ -103,6 +149,7 @@ export function SuggestionFeed({ showId, initial }: { showId: number; initial: S
       setBody("");
       setPhoto(null);
       close();
+      setToastText("건의를 남겼어요");
       setToast(true);
     } catch {
       setError("올리지 못했어요. 다시 시도해 주세요.");
@@ -122,18 +169,80 @@ export function SuggestionFeed({ showId, initial }: { showId: number; initial: S
               onClick={open}
               className="press flex h-13 cursor-pointer items-center justify-center gap-2 rounded-full bg-lime text-base font-bold"
             >
-              건의 남기기 <span className="text-xs font-medium text-[#444449]">· 로그인 없이</span>
+              건의 남기기 {!ticket && <span className="text-xs font-medium text-[#444449]">· 로그인 없이</span>}
             </button>
-            <p className="text-center text-xs text-muted">현장 QR로 들어와서 쓸 수 있어요 · {formatUntil(data.writableUntil)}까지</p>
+            {ticket ? (
+              <p className="flex items-center justify-center gap-1 text-xs text-muted">
+                <ShieldIcon size={12} />
+                예매 인증됨 · {lastDay(data.writableUntil)}까지 쓸 수 있어요
+              </p>
+            ) : (
+              <>
+                <p className="text-center text-xs text-muted">현장 QR로 들어와서 쓸 수 있어요 · {formatUntil(data.writableUntil)}까지</p>
+                {verification?.status === "PENDING" && (
+                  <p className="flex items-center justify-center gap-1 py-1.5 text-xs font-bold text-muted">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+                      <circle cx="12" cy="12" r="9" />
+                      <path d="M12 7v5l3 2" />
+                    </svg>
+                    예매 인증 확인 중 · 보통 하루 안에 끝나요
+                  </p>
+                )}
+                {verification?.status === "REJECTED" && canVerify && (
+                  <button type="button" onClick={startVerify} className="flex cursor-pointer items-center justify-center gap-1 self-center px-2.5 py-1.5 text-xs font-bold text-[#c21f33]">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+                      <circle cx="12" cy="12" r="9" />
+                      <path d="M12 7.5v5.5M12 16.5v.01" />
+                    </svg>
+                    예매 인증 다시 하기 · {REJECT_LABELS[verification.rejectReason ?? "OTHER"]} <span className="font-medium">›</span>
+                  </button>
+                )}
+                {!verification && canVerify && (
+                  <button type="button" onClick={startVerify} className="flex cursor-pointer items-center justify-center gap-1 self-center px-2.5 py-1.5 text-xs font-bold text-verified">
+                    <ShieldIcon size={12} />
+                    예매했다면 예매 인증하기 <span className="font-medium">›</span>
+                  </button>
+                )}
+              </>
+            )}
           </div>
         )}
-        {data.write === "NO_PASS" && <Guide title="현장 QR을 찍으면 건의를 쓸 수 있어요" body="입구·부스·화장실에 붙어 있어요. 로그인은 필요 없어요." />}
-        {data.write === "CLOSED" && (
-          <Guide
-            title="건의는 공연 기간에만 쓸 수 있어요"
-            body={`${formatUntil(data.writableFrom).replace(" 00:00", " 0시")} — ${formatUntil(data.writableUntil)}`}
-          />
+        {data.write === "NO_PASS" && verification?.status === "PENDING" && (
+          <Guide icon={<ClockIcon />} title="예매 인증 확인 중이에요" body="보통 하루 안에 끝나요. 확인되면 여기서 바로 건의를 남길 수 있어요." />
         )}
+        {data.write === "NO_PASS" && verification?.status === "REJECTED" && (
+          <Guide
+            icon={<WarnIcon />}
+            title="예매 인증을 다시 해 주세요"
+            body={`사유 · ${REJECT_LABELS[verification.rejectReason ?? "OTHER"]}. 공연 이름 · 날짜 · 예매 상태가 보이게 찍어 주세요.`}
+          >
+            {canVerify && (
+              <button type="button" onClick={startVerify} className={actionClass}>
+                캡처 다시 올리기
+              </button>
+            )}
+          </Guide>
+        )}
+        {data.write === "NO_PASS" && !verification && canVerify && (
+          <Guide icon={<ShieldIcon size={22} />} title="예매했다면 지금 건의를 남길 수 있어요" body="예매 내역 캡처를 올리면 확인 뒤 열려요. 현장에선 QR을 찍어도 돼요.">
+            <button type="button" onClick={startVerify} className={actionClass}>
+              <ShieldIcon size={15} />
+              예매 인증하고 건의 남기기
+            </button>
+          </Guide>
+        )}
+        {data.write === "NO_PASS" && !verification && !canVerify && (
+          <Guide title="현장 QR을 찍으면 건의를 쓸 수 있어요" body="입구·부스·화장실에 붙어 있어요. 로그인은 필요 없어요." />
+        )}
+        {data.write === "CLOSED" &&
+          (ticket ? (
+            <Guide icon={<ShieldIcon size={22} />} title="건의를 쓸 수 있는 기간이 지났어요" body={`예매 인증 건의는 ${lastDay(data.writableUntil)}까지 쓸 수 있었어요`} />
+          ) : (
+            <Guide
+              title="건의는 공연 기간에만 쓸 수 있어요"
+              body={`${formatUntil(data.writableFrom).replace(" 00:00", " 0시")} — ${formatUntil(data.writableUntil)}`}
+            />
+          ))}
 
         <div className="flex flex-col px-5">
           {data.items.map((suggestion) => (
@@ -203,7 +312,7 @@ export function SuggestionFeed({ showId, initial }: { showId: number; initial: S
                 사진 1장
               </button>
             )}
-            <span className="text-xs leading-normal text-muted">이름 없이 &quot;현장 관객&quot;으로 올라가요</span>
+            <span className="text-xs leading-normal text-muted">이름 없이 &quot;{ticket ? "예매 인증 관객" : "현장 QR 관객"}&quot;으로 올라가요</span>
             <input
               ref={fileInput}
               type="file"
@@ -237,8 +346,23 @@ export function SuggestionFeed({ showId, initial }: { showId: number; initial: S
         }`}
       >
         <span className="flex size-4.5 items-center justify-center rounded-full bg-lime text-[11px] text-ink">✓</span>
-        건의를 남겼어요
+        {toastText}
       </p>
+
+      {verifying && (
+        <VerificationSheet
+          showId={showId}
+          showName={showName}
+          onClose={() => setVerifying(false)}
+          onDone={(next) => {
+            setData((current) => ({ ...current, verification: next }));
+            setVerifying(false);
+            setToastText("예매 인증을 보냈어요");
+            setToast(true);
+          }}
+        />
+      )}
+      {askLogin && <LoginSheet reason="verify" loginUrl={loginUrl} onClose={() => setAskLogin(false)} />}
     </>
   );
 }

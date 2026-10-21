@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CommunityAvatar } from "@/components/community-avatar";
+import { VerifiedMark } from "@/components/verified-mark";
 import type { Me } from "@/lib/auth";
 import { COMMENT_MAX, type Comment, type PostDetail } from "@/lib/community-types";
 import { Ago, MoreButton, PostItem } from "../post-item";
@@ -84,6 +85,7 @@ export function PostThread({ showId, initial, me, loginUrl }: { showId: number |
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
               <b className="truncate text-sm">{comment.author}</b>
+              {comment.authorVerified && <VerifiedMark />}
               <Ago at={comment.createdAt} className="text-[13px]" />
               {comment.byPostAuthor && <span className="flex h-4.5 shrink-0 items-center rounded-md bg-lime px-1.5 text-[10px] font-bold">글쓴이</span>}
               {comment.updatedAt && <span className="shrink-0 text-xs text-[#9a9aa2]">수정됨</span>}

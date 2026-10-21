@@ -3,7 +3,9 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { RequestButton } from "@/components/request-button";
+import { ShieldIcon } from "@/components/verified-mark";
 import { useParticipated } from "@/lib/participation";
+import { lastDay, REJECT_LABELS, type Verification } from "@/lib/verification-types";
 
 const rowClass = "flex h-14 w-full cursor-pointer items-center px-5 text-left text-[15px] shadow-[inset_0_-1px_0_#eeeef1]";
 
@@ -32,6 +34,39 @@ export function SectionLabel({ children }: { children: ReactNode }) {
 export function ParticipatedRow() {
   const ids = useParticipated();
   return <Row href="/" label="참여한 공연" value={ids === null ? "" : `${ids.length}개`} />;
+}
+
+function VerificationState({ verification }: { verification: Verification }) {
+  if (verification.status === "APPROVED") {
+    return (
+      <span className="flex h-6.5 shrink-0 items-center gap-1 rounded-full bg-verified-chip px-2.5 text-xs font-bold text-stub">
+        <ShieldIcon size={11} />
+        인증됨
+      </span>
+    );
+  }
+  if (verification.status === "PENDING") {
+    return <span className="flex h-6.5 shrink-0 items-center rounded-full bg-pill px-2.5 text-xs font-bold">확인 중</span>;
+  }
+  return <span className="flex h-6.5 shrink-0 items-center rounded-full bg-[#fde7ea] px-2.5 text-xs font-bold text-[#c21f33]">다시 올려 주세요</span>;
+}
+
+function verificationNote(verification: Verification) {
+  if (verification.status === "APPROVED") return `${lastDay(verification.writableUntil)}까지 건의 가능`;
+  if (verification.status === "PENDING") return "보통 하루 안에 끝나요";
+  return `사유 · ${REJECT_LABELS[verification.rejectReason ?? "OTHER"]}`;
+}
+
+export function VerificationRows({ verifications }: { verifications: Verification[] }) {
+  return verifications.map((verification) => (
+    <Link key={verification.showId} href={`/shows/${verification.showId}/suggestions`} className={`${rowClass} h-16 gap-3`}>
+      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="truncate">{verification.showName}</span>
+        <span className="truncate text-xs text-muted">{verificationNote(verification)}</span>
+      </span>
+      <VerificationState verification={verification} />
+    </Link>
+  ));
 }
 
 export function ServiceRows() {

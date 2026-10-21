@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { CommunityAvatar } from "@/components/community-avatar";
 import { ImageViewer } from "@/components/image-viewer";
+import { VerifiedMark } from "@/components/verified-mark";
 import { POST_LABELS, type Post } from "@/lib/community-types";
 import { formatAgo } from "@/lib/format";
 
@@ -76,6 +77,7 @@ export function PostItem({
       <div className="min-w-0 flex-1">
         <div className="flex h-5 items-center gap-1.5">
           <b className="truncate text-[15px]">{post.author}</b>
+          {post.authorVerified && <VerifiedMark />}
           <Ago at={post.createdAt} />
           <span className="flex h-5 shrink-0 items-center rounded-md bg-pill px-1.5 text-[11px] font-bold text-[#444449]">{POST_LABELS[post.kind]}</span>
           {post.updatedAt && <span className="shrink-0 text-xs text-[#9a9aa2]">수정됨</span>}

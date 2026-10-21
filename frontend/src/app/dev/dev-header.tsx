@@ -2,17 +2,27 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const tools = [
   { href: "/dev/review", label: "검수" },
   { href: "/dev/requests", label: "추가 요청" },
   { href: "/dev/organizers", label: "주최측" },
   { href: "/dev/reports", label: "신고" },
+  { href: "/dev/verifications", label: "예매 인증" },
 ];
 
 export function DevHeader() {
   const pathname = usePathname();
   const router = useRouter();
+  const [pending, setPending] = useState(0);
+
+  useEffect(() => {
+    fetch("/api/dev/verifications?status=PENDING")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((body) => body && setPending(body.pending))
+      .catch(() => {});
+  }, [pathname]);
 
   const logout = async () => {
     const res = await fetch("/api/dev/logout", { method: "POST" });
@@ -33,6 +43,9 @@ export function DevHeader() {
               className={`flex h-9 items-center rounded-full px-3.5 ${active ? "bg-stub text-ink" : "text-[#C9CCD3]"}`}
             >
               {tool.label}
+              {tool.href === "/dev/verifications" && pending > 0 && (
+                <span className="ml-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-verified-chip px-1.5 font-num text-[11px] font-extrabold text-stub">{pending}</span>
+              )}
             </Link>
           );
         })}

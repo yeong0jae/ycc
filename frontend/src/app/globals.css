@@ -9,6 +9,8 @@
   --color-lime: #c6f432;
   --color-muted: #6b6b72;
   --color-line: #e4e4e8;
+  --color-verified: #1a8f4f;
+  --color-verified-chip: #1fa45b;
   --font-sans: var(--font-noto-sans-kr);
   --font-mono: var(--font-nunito);
   --animate-marker-pop: marker-pop 260ms ease-out;

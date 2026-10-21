@@ -21,6 +21,7 @@ export type Post = {
   images: CommunityImage[];
   author: string;
   authorAvatar: string | null;
+  authorVerified: boolean;
   createdAt: string;
   updatedAt: string | null;
   likeCount: number;
@@ -34,6 +35,7 @@ export type Comment = {
   body: string;
   author: string;
   authorAvatar: string | null;
+  authorVerified: boolean;
   createdAt: string;
   updatedAt: string | null;
   mine: boolean;
@@ -53,13 +55,14 @@ export const REPORT_REASONS: { key: ReportReason; label: string }[] = [
   { key: "OTHER", label: "기타" },
 ];
 
-export type LoginReason = "write" | "like" | "comment" | "report";
+export type LoginReason = "write" | "like" | "comment" | "report" | "verify";
 
 export const LOGIN_TITLES: Record<LoginReason, string> = {
   write: "글을 쓰려면 로그인이 필요해요",
   like: "좋아요를 누르려면 로그인이 필요해요",
   comment: "댓글을 남기려면 로그인이 필요해요",
   report: "신고하려면 로그인이 필요해요",
+  verify: "예매 인증하려면 로그인이 필요해요",
 };
 
 export const POST_MAX = 1000;
