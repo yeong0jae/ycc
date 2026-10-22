@@ -34,7 +34,7 @@ export function SlamLogo() {
         </g>
       </svg>
       <span aria-hidden="true" className="-ml-px inline-block origin-left -rotate-4 scale-x-75 font-logo text-[27px] leading-none tracking-[-0.5px]">
-        SLAM!
+        SLAM
       </span>
       <span className="sr-only">슬램</span>
     </span>
