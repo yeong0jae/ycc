@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { SourceChip, SuggestionTime } from "@/components/suggestion-card";
 import type { Suggestion } from "@/lib/suggestion-types";
+import { setSuggestionsEnabled } from "./actions";
 
 type Filter = "open" | "all";
 
@@ -84,13 +85,8 @@ export function SuggestionInbox({ showId, initial, initialEnabled }: { showId: n
   };
 
   const toggleEnabled = async () => {
-    const res = await fetch(`${base}/enabled`, {
-      method: "PUT",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ enabled: !enabled }),
-    }).catch(() => null);
-    if (!res?.ok) return setToast("바꾸지 못했어요");
-    const next: boolean = (await res.json()).enabled;
+    const next = await setSuggestionsEnabled(showId, !enabled).catch(() => null);
+    if (next === null) return setToast("바꾸지 못했어요");
     setEnabled(next);
     setToast(next ? "문의를 켰어요" : "문의를 껐어요");
   };

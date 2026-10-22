@@ -1,4 +1,4 @@
-import { cacheLife } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import type { ShowNotices } from "./notice-types";
 import type { Timetable } from "./timetable-types";
 import { type Facility, type Show, type ShowKind, type ShowPage, type ShowPeriod, showsQuery } from "./show-types";
@@ -24,6 +24,7 @@ export async function getShows({
 export async function getShow(id: string): Promise<Show | null> {
   "use cache";
   cacheLife("minutes");
+  cacheTag(`show-${id}`);
   const res = await fetch(`${API_URL}/api/shows/${encodeURIComponent(id)}`);
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(`공연 조회 실패: ${res.status}`);
