@@ -42,6 +42,7 @@ class Show(
 	var timetablePublished: Boolean = false,
 	var siteCode: String? = null,
 	var mapPublished: Boolean = false,
+	var suggestionsEnabled: Boolean = false,
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	val id: Long = 0,

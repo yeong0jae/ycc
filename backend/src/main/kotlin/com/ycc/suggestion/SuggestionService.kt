@@ -65,6 +65,10 @@ data class ReplyRequest(val body: String)
 
 data class HiddenRequest(val hidden: Boolean)
 
+data class EnabledRequest(val enabled: Boolean)
+
+data class EnabledResponse(val enabled: Boolean)
+
 @Service
 @Transactional
 class SuggestionService(
@@ -81,7 +85,7 @@ class SuggestionService(
 	private val random = SecureRandom()
 
 	fun enter(code: String, deviceId: String): SiteEntryResponse {
-		val show = showRepository.findBySiteCode(code)?.takeIf { it.reviewStatus == ReviewStatus.VISIBLE }
+		val show = showRepository.findBySiteCode(code)?.takeIf { it.reviewStatus == ReviewStatus.VISIBLE && it.suggestionsEnabled }
 			?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
 		if (!sitePassRepository.existsByShowIdAndDeviceId(show.id, deviceId)) {
 			sitePassRepository.save(SitePass(show, deviceId, LocalDateTime.now(clock)))
@@ -91,7 +95,7 @@ class SuggestionService(
 
 	@Transactional(readOnly = true)
 	fun showSuggestions(showId: Long, deviceId: String?, kakaoId: Long?): ShowSuggestionsResponse {
-		val show = showRepository.findById(showId).orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
+		val show = enabledShow(showId)
 		val items = suggestionRepository.findVisibleByShowId(showId).map(SuggestionResponse::from)
 		val user = kakaoId?.let(userRepository::findByKakaoId)
 		val access = access(show, deviceId, user)
@@ -100,7 +104,7 @@ class SuggestionService(
 	}
 
 	fun create(showId: Long, deviceId: String?, kakaoId: Long?, body: String, bytes: ByteArray?, contentType: String?): SuggestionResponse {
-		val show = showRepository.findById(showId).orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
+		val show = enabledShow(showId)
 		val user = kakaoId?.let(userRepository::findByKakaoId)
 		val access = access(show, deviceId, user)
 		when (access.state) {
@@ -155,12 +159,25 @@ class SuggestionService(
 		return SuggestionResponse.from(suggestion)
 	}
 
-	fun siteCode(organizerId: Long, showId: Long): SiteCodeResponse {
+	fun enable(organizerId: Long, showId: Long, request: EnabledRequest): EnabledResponse {
 		val show = ownedOrganizer(organizerId, showId).show
+		show.suggestionsEnabled = request.enabled
+		return EnabledResponse(show.suggestionsEnabled)
+	}
+
+	fun siteCode(organizerId: Long, showId: Long): SiteCodeResponse {
+		val show = enabledOwnedShow(organizerId, showId)
 		return SiteCodeResponse(show.siteCode ?: newCode(show))
 	}
 
-	fun regenerateSiteCode(organizerId: Long, showId: Long) = SiteCodeResponse(newCode(ownedOrganizer(organizerId, showId).show))
+	fun regenerateSiteCode(organizerId: Long, showId: Long) = SiteCodeResponse(newCode(enabledOwnedShow(organizerId, showId)))
+
+	private fun enabledShow(showId: Long) =
+		showRepository.findById(showId).orElse(null)?.takeIf { it.suggestionsEnabled } ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+
+	private fun enabledOwnedShow(organizerId: Long, showId: Long) =
+		ownedOrganizer(organizerId, showId).show.takeIf { it.suggestionsEnabled }
+			?: throw ResponseStatusException(HttpStatus.CONFLICT, "문의를 켜면 현장 QR이 생겨요.")
 
 	private fun newCode(show: Show): String {
 		val code = (1..CODE_LENGTH).map { CODE_CHARS[random.nextInt(CODE_CHARS.length)] }.joinToString("")

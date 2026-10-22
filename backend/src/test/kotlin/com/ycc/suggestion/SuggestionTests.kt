@@ -58,7 +58,7 @@ class SuggestionTests(
 	private lateinit var hostCookie: Cookie
 
 	private fun show(kopisId: String) = showRepository.save(
-		Show(kopisId, "공연 $kopisId", LocalDate.parse("2026-10-24"), LocalDate.parse("2026-10-25"), "노들섬", "http://example.com/p.jpg", null, null, null, null, reviewStatus = ReviewStatus.VISIBLE),
+		Show(kopisId, "공연 $kopisId", LocalDate.parse("2026-10-24"), LocalDate.parse("2026-10-25"), "노들섬", "http://example.com/p.jpg", null, null, null, null, reviewStatus = ReviewStatus.VISIBLE, suggestionsEnabled = true),
 	)
 
 	@BeforeEach
@@ -157,6 +157,32 @@ class SuggestionTests(
 		mockMvc.post("/api/site/$old").andExpect { status { isNotFound() } }
 		scan(fresh)
 		mockMvc.get("/api/organizer/shows/${other.id}/site-code") { cookie(hostCookie) }.andExpect { status { isForbidden() } }
+	}
+
+	@Test
+	fun `주최측이 문의를 끄면 QR도 문의 탭도 없다`() {
+		val code = siteCode()
+		val device = scan(code)
+		val toggle = { enabled: Boolean ->
+			mockMvc.put("/api/organizer/shows/${show.id}/suggestions/enabled") {
+				cookie(hostCookie)
+				contentType = MediaType.APPLICATION_JSON
+				content = """{"enabled":$enabled}"""
+			}
+		}
+		toggle(false).andExpect { jsonPath("$.enabled") { value(false) } }
+		mockMvc.get("/api/shows/${show.id}").andExpect { jsonPath("$.suggestionsEnabled") { value(false) } }
+		mockMvc.get("/api/organizer/shows/${show.id}/site-code") { cookie(hostCookie) }.andExpect { status { isConflict() } }
+		mockMvc.post("/api/site/$code").andExpect { status { isNotFound() } }
+		mockMvc.get("/api/shows/${show.id}/suggestions").andExpect { status { isNotFound() } }
+		write(device).andExpect { status { isNotFound() } }
+		mockMvc.put("/api/organizer/shows/${other.id}/suggestions/enabled") {
+			cookie(hostCookie)
+			contentType = MediaType.APPLICATION_JSON
+			content = """{"enabled":true}"""
+		}.andExpect { status { isForbidden() } }
+		toggle(true)
+		write(device).andExpect { status { isCreated() } }
 	}
 
 	@Test

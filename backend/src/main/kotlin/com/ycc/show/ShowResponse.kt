@@ -17,6 +17,7 @@ data class ShowResponse(
 	val area: String?,
 	val kind: ShowKind,
 	val facilityId: Long?,
+	val suggestionsEnabled: Boolean,
 ) {
 	companion object {
 		fun from(show: Show) = ShowResponse(
@@ -34,6 +35,7 @@ data class ShowResponse(
 			area = show.area,
 			kind = show.kind,
 			facilityId = show.facility?.takeIf { it.latitude != null && it.longitude != null }?.id,
+			suggestionsEnabled = show.suggestionsEnabled,
 		)
 	}
 }

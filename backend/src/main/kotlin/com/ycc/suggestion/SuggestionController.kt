@@ -85,6 +85,13 @@ class SuggestionController(
 		@RequestBody request: HiddenRequest,
 	) = suggestionService.hide(organizerId, showId, suggestionId, request)
 
+	@PutMapping("/api/organizer/shows/{showId}/suggestions/enabled")
+	fun enable(
+		@SessionAttribute(OrganizerController.ORGANIZER_ID) organizerId: Long,
+		@PathVariable showId: Long,
+		@RequestBody request: EnabledRequest,
+	) = suggestionService.enable(organizerId, showId, request)
+
 	@GetMapping("/api/organizer/shows/{showId}/site-code")
 	fun siteCode(@SessionAttribute(OrganizerController.ORGANIZER_ID) organizerId: Long, @PathVariable showId: Long) =
 		suggestionService.siteCode(organizerId, showId)

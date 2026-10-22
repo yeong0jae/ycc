@@ -102,7 +102,7 @@ class TicketVerificationTests(
 	@BeforeEach
 	fun setUp() {
 		fun make(id: String) = showRepository.save(
-			Show(id, "공연 $id", LocalDate.parse("2026-10-24"), LocalDate.parse("2026-10-25"), "노들섬", "http://example.com/p.jpg", null, null, null, null, reviewStatus = ReviewStatus.VISIBLE),
+			Show(id, "공연 $id", LocalDate.parse("2026-10-24"), LocalDate.parse("2026-10-25"), "노들섬", "http://example.com/p.jpg", null, null, null, null, reviewStatus = ReviewStatus.VISIBLE, suggestionsEnabled = true),
 		)
 		show = make("PF1")
 		other = make("PF2")
