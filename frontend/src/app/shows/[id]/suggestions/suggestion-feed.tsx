@@ -151,7 +151,7 @@ export function SuggestionFeed({ showId, showName, initial }: { showId: number; 
 
   return (
     <>
-      <ShowHomeTabs showId={showId} active="suggestions" count={data.total} />
+      <ShowHomeTabs showId={showId} active="suggestions" count={data.total} suggestions />
       <TabSwipe prev={`/shows/${showId}/map`} next={`/shows/${showId}/community`} className="flex min-h-[60dvh] flex-col">
         {data.write === "OPEN" && (
           <>

@@ -13,11 +13,12 @@ export type ShowHomeTab = (typeof TABS)[number]["key"];
 
 const tabClass = "relative flex h-11 shrink-0 items-center gap-1 text-[15px]";
 
-export function ShowHomeTabs({ showId, active, count }: { showId: number; active: ShowHomeTab; count?: number }) {
-  const activeIndex = TABS.findIndex((tab) => tab.key === active);
+export function ShowHomeTabs({ showId, active, count, suggestions }: { showId: number; active: ShowHomeTab; count?: number; suggestions: boolean }) {
+  const tabs = TABS.filter((tab) => suggestions || tab.key !== "suggestions");
+  const activeIndex = tabs.findIndex((tab) => tab.key === active);
   return (
     <nav aria-label="공연 홈" className="sticky top-17 z-40 mt-4.5 flex gap-4.5 overflow-x-auto bg-paper px-5 shadow-[inset_0_-1px_0_var(--color-line)]">
-      {TABS.map((tab, index) =>
+      {tabs.map((tab, index) =>
         tab.key === active ? (
           <span key={tab.key} aria-current="page" className={`${tabClass} font-bold`}>
             {tab.label}

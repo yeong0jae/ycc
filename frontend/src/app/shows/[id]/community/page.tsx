@@ -9,11 +9,11 @@ import { ShowHomeTabs } from "../show-home-tabs";
 import { ShowHomeTop } from "../show-home-top";
 import { CommunityFeed } from "./community-feed";
 
-async function Community({ showId }: { showId: number }) {
+async function Community({ showId, suggestions }: { showId: number; suggestions: boolean }) {
   const [res, me] = await Promise.all([backendFetch(`/api/shows/${showId}/community`), getMe()]);
   if (!res.ok) throw new Error(`커뮤니티 조회 실패: ${res.status}`);
   const initial: PostPage = await res.json();
-  return <CommunityFeed showId={showId} initial={initial} me={me} loginUrl={KAKAO_LOGIN_URL} />;
+  return <CommunityFeed showId={showId} suggestions={suggestions} initial={initial} me={me} loginUrl={KAKAO_LOGIN_URL} />;
 }
 
 export default async function ShowCommunityPage({ params }: PageProps<"/shows/[id]/community">) {
@@ -24,8 +24,8 @@ export default async function ShowCommunityPage({ params }: PageProps<"/shows/[i
   return (
     <AppFrame className="pb-32">
       <ShowHomeTop show={show} />
-      <Suspense fallback={<ShowHomeTabs showId={show.id} active="community" />}>
-        <Community showId={show.id} />
+      <Suspense fallback={<ShowHomeTabs showId={show.id} active="community" suggestions={show.suggestionsEnabled} />}>
+        <Community showId={show.id} suggestions={show.suggestionsEnabled} />
       </Suspense>
       <TabBar />
     </AppFrame>

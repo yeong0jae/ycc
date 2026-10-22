@@ -21,7 +21,7 @@ export default async function ShowTimetablePage({ params }: PageProps<"/shows/[i
   return (
     <AppFrame className="pb-32">
       <ShowHomeTop show={show} />
-      <ShowHomeTabs showId={show.id} active="timetable" />
+      <ShowHomeTabs showId={show.id} active="timetable" suggestions={show.suggestionsEnabled} />
       <TabSwipe prev={`/shows/${show.id}/notices`} next={`/shows/${show.id}/map`} className="min-h-[60dvh]">
         <Suspense fallback={null}>
           <Timetable show={show} />

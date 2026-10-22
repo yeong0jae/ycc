@@ -42,7 +42,7 @@ function InfoSheet({ label, onClose, children }: { label: string; onClose: () =>
 
 const pill = "press flex h-10 shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3 text-[13px] font-bold";
 
-export function VerificationButton({ showId, showName, loginUrl }: { showId: number; showName: string; loginUrl: string }) {
+export function VerificationButton({ showId, showName, suggestions, loginUrl }: { showId: number; showName: string; suggestions: boolean; loginUrl: string }) {
   const list = useVerifications();
   const [open, setOpen] = useState(false);
   if (list === undefined) return null;
@@ -104,7 +104,7 @@ export function VerificationButton({ showId, showName, loginUrl }: { showId: num
           </h2>
           <ul className="mt-2">
             <Benefit title="커뮤니티에서 믿을 수 있어요" body="글 · 댓글의 닉네임 옆에 예매 인증이 붙어요" />
-            <Benefit title="주최측에 바로 말할 수 있어요" body="현장 QR 없이 예매 인증 관객으로 문의해요" />
+            {suggestions && <Benefit title="주최측에 바로 말할 수 있어요" body="현장 QR 없이 예매 인증 관객으로 문의해요" />}
             <Benefit title="프로필에 쌓여요" body="예매 인증한 공연에서 다시 볼 수 있어요" />
           </ul>
         </InfoSheet>

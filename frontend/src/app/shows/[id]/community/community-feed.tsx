@@ -12,7 +12,19 @@ import { ComposeSheet } from "./sheets";
 import { InfiniteSentinel } from "@/components/infinite-sentinel";
 import { postPath, useCommunity } from "./use-community";
 
-export function CommunityFeed({ showId, initial, me, loginUrl }: { showId: number; initial: PostPage; me: Me | null; loginUrl: string }) {
+export function CommunityFeed({
+  showId,
+  suggestions,
+  initial,
+  me,
+  loginUrl,
+}: {
+  showId: number;
+  suggestions: boolean;
+  initial: PostPage;
+  me: Me | null;
+  loginUrl: string;
+}) {
   const [kind, setKind] = useState<PostKind | null>(null);
   const [page, setPage] = useState(initial);
   const [loading, setLoading] = useState(false);
@@ -67,8 +79,8 @@ export function CommunityFeed({ showId, initial, me, loginUrl }: { showId: numbe
 
   return (
     <>
-      <ShowHomeTabs showId={showId} active="community" />
-      <TabSwipe prev={`/shows/${showId}/suggestions`} className="flex min-h-[60dvh] flex-col">
+      <ShowHomeTabs showId={showId} active="community" suggestions={suggestions} />
+      <TabSwipe prev={`/shows/${showId}/${suggestions ? "suggestions" : "map"}`} className="flex min-h-[60dvh] flex-col">
         <div role="group" aria-label="종류" className="flex gap-1.5 overflow-x-auto px-5 pt-3 pb-1 [scrollbar-width:none]">
           {[{ key: null, label: "전체" }, ...POST_KINDS].map((it) => (
             <button

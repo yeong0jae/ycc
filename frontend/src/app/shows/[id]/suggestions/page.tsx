@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import { AppFrame } from "@/components/app-frame";
 import { TabBar } from "@/components/tab-bar";
@@ -11,6 +11,7 @@ import { SuggestionFeed } from "./suggestion-feed";
 
 async function Suggestions({ showId, showName }: { showId: number; showName: string }) {
   const res = await backendFetch(`/api/shows/${showId}/suggestions`);
+  if (res.status === 404) redirect(`/shows/${showId}/notices`);
   if (!res.ok) throw new Error(`문의 조회 실패: ${res.status}`);
   const initial: ShowSuggestions = await res.json();
   return <SuggestionFeed showId={showId} showName={showName} initial={initial} />;
@@ -20,11 +21,12 @@ export default async function ShowSuggestionsPage({ params }: PageProps<"/shows/
   const { id } = await params;
   const show = await getShow(id);
   if (!show) notFound();
+  if (!show.suggestionsEnabled) redirect(`/shows/${show.id}/notices`);
 
   return (
     <AppFrame className="pb-32">
       <ShowHomeTop show={show} />
-      <Suspense fallback={<ShowHomeTabs showId={show.id} active="suggestions" />}>
+      <Suspense fallback={<ShowHomeTabs showId={show.id} active="suggestions" suggestions />}>
         <Suggestions showId={show.id} showName={show.name} />
       </Suspense>
       <TabBar />

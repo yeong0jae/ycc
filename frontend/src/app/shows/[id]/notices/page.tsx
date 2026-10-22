@@ -8,8 +8,8 @@ import { ShowHomeTop } from "../show-home-top";
 import { NoticeFeed } from "./notice-feed";
 import { QrJoined } from "./qr-joined";
 
-async function Notices({ showId }: { showId: number }) {
-  return <NoticeFeed showId={showId} initial={await getShowNotices(showId)} />;
+async function Notices({ showId, suggestions }: { showId: number; suggestions: boolean }) {
+  return <NoticeFeed showId={showId} suggestions={suggestions} initial={await getShowNotices(showId)} />;
 }
 
 export default async function ShowNoticesPage({ params }: PageProps<"/shows/[id]/notices">) {
@@ -20,8 +20,8 @@ export default async function ShowNoticesPage({ params }: PageProps<"/shows/[id]
   return (
     <AppFrame className="pb-32">
       <ShowHomeTop show={show} />
-      <Suspense fallback={<ShowHomeTabs showId={show.id} active="notices" />}>
-        <Notices showId={show.id} />
+      <Suspense fallback={<ShowHomeTabs showId={show.id} active="notices" suggestions={show.suggestionsEnabled} />}>
+        <Notices showId={show.id} suggestions={show.suggestionsEnabled} />
       </Suspense>
       <Suspense fallback={null}>
         <QrJoined showId={show.id} />

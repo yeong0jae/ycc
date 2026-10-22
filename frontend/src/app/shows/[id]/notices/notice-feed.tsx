@@ -10,7 +10,7 @@ function noticeIds(notices: ShowNotices) {
   return [notices.urgent, ...notices.items].flatMap((it) => (it ? [it.id] : []));
 }
 
-export function NoticeFeed({ showId, initial }: { showId: number; initial: ShowNotices }) {
+export function NoticeFeed({ showId, suggestions, initial }: { showId: number; suggestions: boolean; initial: ShowNotices }) {
   const [notices, setNotices] = useState(initial);
   const [fresh, setFresh] = useState<ReadonlySet<number>>(new Set());
   const seen = useRef(new Set(noticeIds(initial)));
@@ -37,7 +37,7 @@ export function NoticeFeed({ showId, initial }: { showId: number; initial: ShowN
           <UrgentNoticeCard key={notices.urgent.id} notice={notices.urgent} />
         </div>
       )}
-      <ShowHomeTabs showId={showId} active="notices" count={notices.total} />
+      <ShowHomeTabs showId={showId} active="notices" count={notices.total} suggestions={suggestions} />
       <TabSwipe next={`/shows/${showId}/timetable`} className="flex min-h-[60dvh] flex-col px-5">
         {notices.items.map((notice) => (
           <div key={`${notice.id}:${notice.updatedAt ?? ""}`} className={isNew(notice.id) ? "animate-rise motion-reduce:animate-none" : ""}>

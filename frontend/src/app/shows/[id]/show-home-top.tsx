@@ -16,7 +16,7 @@ export function ShowHomeTop({ show }: { show: Show }) {
     <>
       <TopBar title={show.name} leading={<BackButton />} trailing={
           <>
-            <VerificationButton showId={show.id} showName={show.name} loginUrl={KAKAO_LOGIN_URL} />
+            <VerificationButton showId={show.id} showName={show.name} suggestions={show.suggestionsEnabled} loginUrl={KAKAO_LOGIN_URL} />
             <ParticipationToggle showId={show.id} />
           </>
         }

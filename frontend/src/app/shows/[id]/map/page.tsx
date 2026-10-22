@@ -26,8 +26,8 @@ export default async function ShowMapPage({ params }: PageProps<"/shows/[id]/map
   return (
     <AppFrame className="pb-32">
       <ShowHomeTop show={show} />
-      <ShowHomeTabs showId={show.id} active="map" />
-      <TabSwipe prev={`/shows/${show.id}/timetable`} next={`/shows/${show.id}/suggestions`} className="min-h-[60dvh]">
+      <ShowHomeTabs showId={show.id} active="map" suggestions={show.suggestionsEnabled} />
+      <TabSwipe prev={`/shows/${show.id}/timetable`} next={`/shows/${show.id}/${show.suggestionsEnabled ? "suggestions" : "community"}`} className="min-h-[60dvh]">
         <Suspense fallback={null}>
           <ShowMapContent showId={show.id} />
         </Suspense>

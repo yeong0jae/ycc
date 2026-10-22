@@ -31,6 +31,7 @@ export type Show = {
   area: string | null;
   facilityId: number | null;
   kind: ShowKind;
+  suggestionsEnabled: boolean;
 };
 
 export type ShowPage = { items: Show[]; hasNext: boolean; total: number };

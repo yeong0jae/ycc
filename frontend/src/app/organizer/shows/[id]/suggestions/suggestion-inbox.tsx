@@ -14,8 +14,9 @@ function StateChip({ suggestion }: { suggestion: Suggestion }) {
   return <span className="flex h-5.5 shrink-0 items-center rounded-full bg-lime px-2 text-xs font-bold">답 안 함</span>;
 }
 
-export function SuggestionInbox({ showId, initial }: { showId: number; initial: Suggestion[] }) {
+export function SuggestionInbox({ showId, initial, initialEnabled }: { showId: number; initial: Suggestion[]; initialEnabled: boolean }) {
   const [items, setItems] = useState(initial);
+  const [enabled, setEnabled] = useState(initialEnabled);
   const [filter, setFilter] = useState<Filter>("open");
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [reply, setReply] = useState("");
@@ -80,6 +81,18 @@ export function SuggestionInbox({ showId, initial }: { showId: number; initial: 
     } finally {
       setSaving(false);
     }
+  };
+
+  const toggleEnabled = async () => {
+    const res = await fetch(`${base}/enabled`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ enabled: !enabled }),
+    }).catch(() => null);
+    if (!res?.ok) return setToast("바꾸지 못했어요");
+    const next: boolean = (await res.json()).enabled;
+    setEnabled(next);
+    setToast(next ? "문의를 켰어요" : "문의를 껐어요");
   };
 
   const toggleHidden = async () => {
@@ -149,6 +162,18 @@ export function SuggestionInbox({ showId, initial }: { showId: number; initial: 
   return (
     <div className="lg:flex lg:h-full">
       <section className="flex flex-col lg:w-115 lg:shrink-0 lg:overflow-y-auto lg:shadow-[inset_-1px_0_0_var(--color-line)]">
+        <label className="mx-4 mt-4 flex cursor-pointer items-center gap-3 rounded-2xl bg-[#f7f7f8] py-3.5 pr-3 pl-4 lg:mx-4.5 lg:mt-5.5">
+          <span className="flex flex-1 flex-col gap-0.5">
+            <b className="text-sm">관객 문의 받기</b>
+            <span className="text-xs leading-normal text-muted">
+              {enabled ? "현장 QR이 열려 있고, 공연 홈에 문의 탭이 보여요." : "켜면 현장 QR이 생기고, 공연 홈에 문의 탭이 생겨요."}
+            </span>
+          </span>
+          <input type="checkbox" checked={enabled} onChange={toggleEnabled} className="sr-only" />
+          <span className={`flex h-7 w-12 shrink-0 rounded-full p-0.75 transition-colors ${enabled ? "justify-end bg-ink" : "bg-line"}`}>
+            <span className="size-5.5 rounded-full bg-paper" />
+          </span>
+        </label>
         <div className="flex items-center gap-2.5 px-4 pt-4 pb-3 lg:px-4.5 lg:pt-5.5">
           <h1 className="hidden font-display text-xl lg:block">문의</h1>
           <div role="group" aria-label="보기" className="flex gap-0.5 rounded-full bg-pill p-0.75 lg:ml-auto">
