@@ -33,9 +33,6 @@ export function SlamLogo() {
           <path d="M58 30l4-10M70 26l8-8M50 34l-4-9" stroke="var(--color-ink)" strokeWidth="5" strokeLinecap="round" />
         </g>
       </svg>
-      <span aria-hidden="true" className="-ml-px inline-block origin-left -rotate-4 scale-x-75 font-logo text-[27px] leading-none tracking-[-0.5px]">
-        SLAM
-      </span>
       <span className="sr-only">슬램</span>
     </span>
   );

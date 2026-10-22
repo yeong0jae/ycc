@@ -232,10 +232,6 @@
   letter-spacing: -0.02em;
 }
 
-@utility font-logo {
-  font-family: var(--font-archivo-black);
-}
-
 @utility font-num {
   font-family: var(--font-nunito);
   font-weight: 900;
